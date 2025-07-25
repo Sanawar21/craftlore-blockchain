@@ -1,0 +1,88 @@
+Here is the updated and complete blockchain entry structure, now including the artisan (karigar) entry along with all other stakeholders in the Kashmiri handicrafts ecosystem.
+
+Complete Blockchain Entry System for the Kashmiri Handicrafts Sector
+This system ensures full transparency from raw material sourcing to buyer transactions, tracking every step in the handicraft production and sales process.
+
+1. Raw Material Sourcing (Waguvar – Wool, Silk, Walnut Wood, Papier-Mâché Base, etc.)
+Ensures transparency in sourcing materials from farmers and suppliers.
+Entry Type	Data Fields	Blockchain Network
+Raw Material Harvesting	Supplier ID, Material Type, Harvest Date, Quantity, Source Location (Geo-tag), Certification (e.g., organic, sustainable)	Private Blockchain
+Supplier Verification	Supplier Name, Govt. ID, License Number, Past Transactions	Private Blockchain
+Quality Certification	Lab Test Report, Certification ID (Silk Mark, GI Tag), Certifying Authority	Private Blockchain
+Supply Chain Tracking	Supplier to Manufacturer Transaction ID, Material Movement Logs	Private Blockchain
+
+2. Artisan (Karigar) Entry – The Most Crucial Addition
+Ensures artisans (karigars) receive fair wages, maintain authenticity, and allow buyers to verify their craftsmanship.
+Entry Type	Data Fields	Blockchain Network
+Artisan Registration	Artisan ID, Name, Address, Aadhaar Number (India), Govt. ID, Specialization (Weaving, Wood Carving, Papier-Mâché, etc.), Years of Experience, Contact	Private Blockchain
+Workshop Association	Artisan ID, Workshop ID, Craft Type	Private Blockchain
+Skill Certification	Certificate ID, Issuing Authority (GI Certification, Training Institutes)	Private Blockchain
+Work Order Assignment	Order ID, Artisan ID, Product Type, Assigned Date, Expected Completion	Private Blockchain
+Work Progress Tracking	Work Logs (Stages: Spinning, Weaving, Dyeing, Embroidery, Carving, Painting), Timestamps, Photos, Time Spent	Private Blockchain
+Product Completion & Quality Check	Final Product ID, Artisan ID, Quality Control Report	Private Blockchain
+Artisan Earnings & Payment	Payment ID, Artisan ID, Work Completed, Wage Amount, Payment Status	Private Blockchain
+Royalty for Artisan (if applicable)	Artisan ID, Product NFT ID, Royalty Percentage, Payment Address	Public Blockchain (Ethereum/Polygon)
+QR Code for Buyer Verification	QR Code linking to Artisan’s Work History	Public Blockchain
+
+3. Manufacturing Units & Workshops (Karigar Karkhanay) Entry
+Tracks the conversion of raw materials into finished handicrafts.
+Entry Type	Data Fields	Blockchain Network
+Workshop Registration	Workshop ID, Owner Name, Location, Craft Type, No. of Artisans	Private Blockchain
+Raw Material Intake	Raw Material Batch ID, Date Received, Source (Linked to Raw Material Entry)	Private Blockchain
+Production Workflow	Production ID, Assigned Artisan, Stages (Spinning, Weaving, Carving, Painting)	Private Blockchain
+Final Product Registration	Unique Product ID (linked to NFT), Artisan Name, GI Certification	Private Blockchain
+
+4. Distributor Entry (Product Movement from Workshop to Market)
+Tracks how products move from workshops to wholesalers and retailers.
+Entry Type	Data Fields	Blockchain Network
+Distributor Registration	Distributor ID, Business Name, License, Location	Private Blockchain
+Product Shipment Details	Product ID, Distributor ID, Date Dispatched, Destination	Private Blockchain
+Real-Time GPS Tracking	Shipment ID, Live Geo-location, Delivery Status	IoT + Blockchain
+Warehouse Storage Logs	Storage Facility ID, Conditions (Humidity, Temperature)	Private Blockchain
+
+5. Wholesaler Entry (Bulk Distribution of Handicrafts)
+Entry Type	Data Fields	Blockchain Network
+Wholesaler Registration	Wholesaler ID, Business Name, License, Location	Private Blockchain
+Bulk Purchase Orders	Order ID, Distributor ID, Product Type, Quantity, Price	Private Blockchain
+Inventory Management	Product Stock ID, Quantity Available, Date of Stock Entry	Private Blockchain
+Sales Records to Retailers	Retailer ID, Date of Sale, Quantity, Payment Status	Private Blockchain
+
+6. Retailer Entry (Selling to End Buyers)
+Entry Type	Data Fields	Blockchain Network
+Retailer Registration	Retailer ID, Business Name, Location, Online/Offline	Private Blockchain
+Product Purchase from Wholesaler	Invoice ID, Wholesaler ID, Product Details	Private Blockchain
+Stock Availability	Product ID, Quantity Available, Pricing	Private Blockchain
+Point-of-Sale Transaction	Buyer ID, Payment Method, Transaction Hash	Public Blockchain
+QR Code for Authenticity Check	QR Code linked to NFT	Public Blockchain
+
+7. Buyer Entry (Final Purchase & Ownership Transfer)
+Entry Type	Data Fields	Blockchain Network
+Buyer Profile (Optional for KYC)	Buyer ID, Name, Location, Payment Method	Private Blockchain
+Purchase Transaction	Order ID, Retailer ID, Payment Confirmation	Public Blockchain
+Ownership Registration (NFT-based)	Buyer Wallet Address, Product NFT ID, Transfer Date	Public Blockchain
+Delivery Confirmation	Buyer Acknowledgment, Time of Receipt	Public Blockchain
+Reviews & Ratings	Buyer ID, Product ID, Review, Star Rating	Public Blockchain
+
+8. Post-Sale Services & Resale Market (Ownership Transfers & Repairs)
+Entry Type	Data Fields	Blockchain Network
+Warranty Registration	Buyer ID, Product ID, Warranty Period	Public Blockchain
+Repair & Maintenance Logs	Repair ID, Artisan ID, Fix Type, Cost	Private Blockchain
+Resale & Ownership Transfer	New Buyer ID, Transfer Date, Price	Public Blockchain
+
+9. Sustainability & Ethical Trade Compliance
+Entry Type	Data Fields	Blockchain Network
+Material Sustainability Score	CO2 Emissions, Water Usage	Private Blockchain
+Fair Trade Compliance	Artisan Wages, Working Conditions Report	Private Blockchain
+
+Updated Summary of Stakeholder Entries
+Stage	Stakeholder	Blockchain Type
+Raw Material	Farmers, Suppliers	Private (Hyperledger)
+Manufacturing	Artisans (Karigars), Workshops	Private (Hyperledger)
+Distribution	Distributors, Warehouses	Private (Hyperledger)
+Wholesale	Wholesalers	Private (Hyperledger)
+Retail	Retailers	Private (Hyperledger)
+Buyers	End Customers	Public (Polygon, Ethereum)
+Resale & Services	Ownership Transfers, Repairs	Public (Ethereum)
+Sustainability	NGOs, Government Bodies	Private (Hyperledger)
+
+You need to create this project using Hyperledger Fabric in craftlore-blockchain-latest folder. 
