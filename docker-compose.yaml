@@ -99,3 +99,14 @@ services:
     stop_signal: SIGKILL
     volumes:
       - ./artisan-tp:/project
+
+  craftlore-tp:
+    build: ./craftloreSDK
+    container_name: craftlore-tp
+    depends_on:
+      - validator
+      - devmode-engine
+      - rest-api
+    stop_signal: SIGKILL
+    volumes:
+      - ./craftloreSDK:/project
