@@ -1,5 +1,0 @@
-sawtooth-sdk
-requests
-sawtooth-signing
-protobuf==3.20.3
-watchdog

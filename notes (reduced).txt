@@ -9,7 +9,7 @@ Ensures transparency in sourcing materials from farmers and suppliers.
 Entry Type               | Data Fields
 ------------------------|---------------------------------------------------------------
 Raw Material Harvesting | Supplier ID, Material Type, Harvest Date, Quantity, 
-                         | Source Location (Geo-tag), Certification (e.g., organic)
+                         | Source Location, Certification (e.g., organic)
                          | Blockchain: Private
 
 Supplier Verification    | Supplier Name, Govt. ID, License Number, Past Transactions
@@ -45,7 +45,7 @@ Work Order Assignment    | Order ID, Artisan ID, Product Type, Assigned Date,
                          | Blockchain: Private
 
 Work Progress Tracking   | Work Logs (Spinning, Weaving, etc.), Timestamps, 
-                         | Photos, Time Spent
+                         | Time Spent
                          | Blockchain: Private
 
 Product Completion & QC  | Final Product ID, Artisan ID, Quality Control Report
@@ -54,12 +54,6 @@ Product Completion & QC  | Final Product ID, Artisan ID, Quality Control Report
 Artisan Earnings         | Payment ID, Artisan ID, Work Completed, Wage Amount,
                          | Payment Status
                          | Blockchain: Private
-
-Royalty for Artisan      | Artisan ID, Product NFT ID, Royalty %, Payment Address
-                         | Blockchain: Public (Ethereum/Polygon)
-
-QR Code for Verification | QR linking to Artisan's Work History
-                         | Blockchain: Public
 
 -----------------------------------------------------------------------
 3. Manufacturing Units & Workshops (Karigar Karkhanay)
@@ -74,10 +68,10 @@ Workshop Registration    | Workshop ID, Owner Name, Location, Craft Type, No. of
 Raw Material Intake      | Raw Material Batch ID, Date Received, Source (Linked)
                          | Blockchain: Private
 
-Production Workflow      | Production ID, Assigned Artisan, Production Stages
+Production Workflow      | Production ID, Assigned Artisans, Production Stages
                          | Blockchain: Private
 
-Final Product Registration| Unique Product ID (linked to NFT), Artisan Name, GI Cert.
+Final Product Registration| Unique Product ID, Artisan Names, GI Cert.
                          | Blockchain: Private
 
 -----------------------------------------------------------------------
@@ -92,9 +86,6 @@ Distributor Registration | Distributor ID, Business Name, License, Location
 
 Product Shipment Details | Product ID, Distributor ID, Date Dispatched, Destination
                          | Blockchain: Private
-
-Real-Time GPS Tracking   | Shipment ID, Live Geo-location, Delivery Status
-                         | Blockchain: IoT + Blockchain
 
 Warehouse Storage Logs   | Storage Facility ID, Conditions (Humidity, Temp)
                          | Blockchain: Private
@@ -133,10 +124,8 @@ Stock Availability       | Product ID, Quantity, Pricing
                          | Blockchain: Private
 
 Point-of-Sale Transaction| Buyer ID, Payment Method, Transaction Hash
-                         | Blockchain: Public
+                         | Blockchain: Private
 
-QR Code for Authenticity | QR Code linked to NFT
-                         | Blockchain: Public
 
 -----------------------------------------------------------------------
 7. Buyer Entry (Final Purchase & Ownership Transfer)
@@ -148,16 +137,16 @@ Buyer Profile (Optional) | Buyer ID, Name, Location, Payment Method
                          | Blockchain: Private
 
 Purchase Transaction     | Order ID, Retailer ID, Payment Confirmation
-                         | Blockchain: Public
+                         | Blockchain: Private
 
 Ownership Registration   | Buyer Wallet Address, Product NFT ID, Transfer Date
-                         | Blockchain: Public
+                         | Blockchain: Private
 
 Delivery Confirmation    | Buyer Acknowledgment, Time of Receipt
-                         | Blockchain: Public
+                         | Blockchain: Private
 
 Reviews & Ratings        | Buyer ID, Product ID, Review, Star Rating
-                         | Blockchain: Public
+                         | Blockchain: Private
 
 -----------------------------------------------------------------------
 8. Post-Sale Services & Resale Market
@@ -166,9 +155,9 @@ Reviews & Ratings        | Buyer ID, Product ID, Review, Star Rating
 Entry Type               | Data Fields
 ------------------------|---------------------------------------------------------------
 Warranty Registration    | Buyer ID, Product ID, Warranty Period
-                         | Blockchain: Public
+                         | Blockchain: Private
 
-Repair Logs              | Repair ID, Artisan ID, Fix Type, Cost
+Repair Logs              | Repair ID, Artisan IDs, Fix Type, Cost
                          | Blockchain: Private
 
 Resale Transfer          | New Buyer ID, Transfer Date, Price
@@ -197,8 +186,8 @@ Manufacturing     | Artisans, Workshops                  | Private (Hyperledger)
 Distribution      | Distributors, Warehouses             | Private (Hyperledger)
 Wholesale         | Wholesalers                          | Private (Hyperledger)
 Retail            | Retailers                            | Private (Hyperledger)
-Buyers            | End Customers                        | Public (Ethereum/Polygon)
-Resale/Services   | Ownership Transfers, Repairs         | Public (Ethereum)
+Buyers            | End Customers                        | Private (Hyperledger)
+Resale/Services   | Ownership Transfers, Repairs         | Private (Hyperledger)
 Sustainability    | NGOs, Govt Bodies                    | Private (Hyperledger)
 
 -----------------------------------------------------------------------
@@ -206,3 +195,9 @@ What's Next?
 Would you like Smart Contract Code for:
 - Artisan Payments?
 - Royalty Disbursement?
+
+Important notes:
+- There must be some connection between entities. Like the Artisan contains a list of products he worked on and the on chain he has the public keys of the products.
+- Every connection must be bidirectional.
+- Every entity must be queryable by its public key.
+- A product must have a link with the raw material it uses
