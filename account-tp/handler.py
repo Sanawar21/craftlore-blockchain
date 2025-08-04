@@ -7,15 +7,16 @@ from sawtooth_sdk.processor.context import Context
 from sawtooth_sdk.processor.exceptions import InvalidTransaction
 
 from subhandlers import SetValueSubHandler, GetValueSubHandler, DeleteValueSubHandler
-
+from utils import AccountAddressGenerator
 
 class CraftloreAccountTransactionHandler(TransactionHandler):
     """Craftlore Account Transaction Handler"""
     
     def __init__(self):
-        self._family_name = 'craftlore-account'
+        self.address_generator = AccountAddressGenerator()
+        self._family_name = self.address_generator.FAMILY_NAME
         self._family_versions = ['1.0']
-        self._namespace = self._get_namespace()
+        self._namespace = self.address_generator.get_namespace()
         self.set_value_subhandler = SetValueSubHandler(self._get_address)
         self.get_value_subhandler = GetValueSubHandler(self._get_address)
         self.delete_value_subhandler = DeleteValueSubHandler(self._get_address)
