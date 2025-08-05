@@ -5,14 +5,14 @@ Verifier account entity for CraftLore Account TP.
 
 from typing import Dict, List
 from .base_account import BaseAccount
-from utils.enums import AccountType
+from core.enums import AccountType
 
 
 class VerifierAccount(BaseAccount):
     """Verifier account for certification and authentication services."""
     
-    def __init__(self, account_id: str, public_key: str, email: str):
-        super().__init__(account_id, public_key, email, AccountType.VERIFIER)
+    def __init__(self, account_id: str, public_key: str, email: str, timestamp):
+        super().__init__(account_id, public_key, email, AccountType.VERIFIER, timestamp)
         
         # Verifier-specific properties (privacy-safe professional data)
         self.certification_level = ""  # "expert", "master", "certified_assessor"

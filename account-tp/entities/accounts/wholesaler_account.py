@@ -5,15 +5,15 @@ Wholesaler account entity for CraftLore Account TP.
 
 from typing import Dict, List
 from .base_account import BaseAccount
-from utils.enums import AccountType
+from core.enums import AccountType
 
 
 class WholesalerAccount(BaseAccount):
     """Wholesaler account for bulk handicraft trading."""
     
-    def __init__(self, account_id: str, public_key: str, email: str):
-        super().__init__(account_id, public_key, email, AccountType.WHOLESALER)
-        
+    def __init__(self, account_id: str, public_key: str, email: str, timestamp):
+        super().__init__(account_id, public_key, email, AccountType.WHOLESALER, timestamp)
+
         # Wholesaler-specific properties (privacy-safe business data)
         self.business_type = ""  # "handicraft_wholesaler", "textile_distributor"
         self.market_focus = []  # "domestic", "export", "tourism"

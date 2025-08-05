@@ -4,7 +4,7 @@ Base account class for CraftLore Account TP.
 """
 
 from typing import Dict, List
-from utils.enums import AccountType, AuthenticationStatus, VerificationStatus
+from core.enums import AccountType, AuthenticationStatus, VerificationStatus
 
 
 class BaseAccount:

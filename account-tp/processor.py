@@ -1,61 +1,59 @@
 #!/usr/bin/env python3
+"""
+CraftLore Account Transaction Processor
+Dedicated TP for managing all account types in the CraftLore blockchain system.
+"""
 
 import sys
 import argparse
 from sawtooth_sdk.processor.core import TransactionProcessor
-from handler import CraftloreAccountTransactionHandler
+from sawtooth_sdk.processor.log import init_console_logging
+
+from handler import AccountTransactionHandler
 
 
 def main():
-    """Main entry point for the transaction processor."""
-    
+    """Main entry point for the Account Transaction Processor."""
     parser = argparse.ArgumentParser(
-        description='Craftlore Account Transaction Processor'
-    )
+        description='CraftLore Account Transaction Processor')
     parser.add_argument(
         '-C', '--connect',
         default='tcp://localhost:4004',
-        help='Endpoint for the validator connection'
-    )
+        help='Endpoint for the validator connection')
     parser.add_argument(
         '-v', '--verbose',
         action='count',
         default=0,
-        help='Increase output sent to stderr'
-    )
+        help='Increase output sent to stderr')
     
     args = parser.parse_args()
     
-    # Set up logging
-    if args.verbose > 1:
-        import logging
-        logging.basicConfig(level=logging.DEBUG)
-    elif args.verbose > 0:
-        import logging
-        logging.basicConfig(level=logging.INFO)
+
+    # Initialize logging
+    init_console_logging(verbose_level=args.verbose)
     
-    print("🚀 Starting Craftlore Account Transaction Processor...")
-    print(f"📡 Connecting to validator at: {args.connect}")
-    print(f"🏷️  Family: craftlore-account")
-    print(f"📦 Version: 1.0")
-    
-    # Create processor and handler
+    # Create the transaction processor
     processor = TransactionProcessor(url=args.connect)
-    handler = CraftloreAccountTransactionHandler()
     
-    # Add handler to processor
+    # Create and register the handler 
+    handler = AccountTransactionHandler()
     processor.add_handler(handler)
     
+    print("🚀 Starting CraftLore Account Transaction Processor...")
+    print(f"📡 Connecting to validator at: {args.connect}")
+    print(f"🏷️  Family: {handler.family_name}")
+    print(f"📦 Version: {handler.family_versions[0]}")
+    print(f"🔧 Namespace: {handler.namespaces[0]}")
+    
     try:
-        # Start the processor
         processor.start()
     except KeyboardInterrupt:
-        print("\n👋 Shutting down Craftlore Account Transaction Processor...")
+        print("\n--- Account TP Stopped ---")
     except Exception as e:
         print(f"❌ Error: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
-    finally:
-        processor.stop()
 
 
 if __name__ == '__main__':

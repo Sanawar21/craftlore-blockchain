@@ -5,7 +5,7 @@ Workshop account entity for CraftLore Account TP.
 
 from typing import Dict, List
 from .base_account import BaseAccount
-from utils.enums import AccountType
+from core.enums import AccountType
 
 
 class WorkshopAccount(BaseAccount):
