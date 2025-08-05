@@ -11,8 +11,8 @@ from utils.enums import AccountType
 class ArtisanAccount(BaseAccount):
     """Artisan account for handicraft creators with detailed craft tracking."""
     
-    def __init__(self, account_id: str, public_key: str, email: str):
-        super().__init__(account_id, public_key, email, AccountType.ARTISAN)
+    def __init__(self, account_id: str, public_key: str, email: str, timestamp):
+        super().__init__(account_id, public_key, email, AccountType.ARTISAN, timestamp)
         
         # Artisan-specific properties (privacy-safe professional data)
         self.skill_level = ""  # "apprentice", "journeyman", "master_craftsman"

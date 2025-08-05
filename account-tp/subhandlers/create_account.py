@@ -4,19 +4,20 @@ from sawtooth_sdk.processor.exceptions import InvalidTransaction
 from utils.enums import AccountType, AuthenticationStatus
 import json
 
-class SetValueSubHandler(BaseSubHandler):
-    """Subhandler for setting a value in the account transaction processor."""
+class CreateAccountSubHandler(BaseSubHandler):
+    """Subhandler for creating an account in the account transaction processor."""
 
     def apply(self, transaction, context: Context, payload: dict):
         """Handle account creation with privacy-first design."""
         # Validate required fields
-        required_fields = ['account_type', 'email']
+        required_fields = ['account_type', 'email', "timestamp"]
         for field in required_fields:
             if field not in payload:
                 raise InvalidTransaction(f"Missing required field: {field}")
         
         account_type_str = payload['account_type']
         email = payload['email']
+        timestamp = payload.get('timestamp')
         
         # Validate inputs
         self._validate_email_format(email)
@@ -46,7 +47,8 @@ class SetValueSubHandler(BaseSubHandler):
         account = account_class(
             account_id=account_id,
             public_key=signer_public_key,
-            email=email
+            email=email,
+            timestamp=timestamp
         )
         
         # Set initial authentication status
@@ -60,7 +62,7 @@ class SetValueSubHandler(BaseSubHandler):
         
         # Mark bootstrap complete for first SuperAdmin
         if account.authentication_status == AuthenticationStatus.APPROVED:
-            self._mark_bootstrap_complete(context, account_id)
+            self._mark_bootstrap_complete(context, account_id, timestamp)
         
         print(f"✅ Account created: {account_id} ({account_type_str})")
         

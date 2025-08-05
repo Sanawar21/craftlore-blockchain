@@ -10,10 +10,10 @@ from utils.enums import AccountType
 
 class DistributorAccount(BaseAccount):
     """Distributor account for logistics and distribution services."""
-    
-    def __init__(self, account_id: str, public_key: str, email: str):
-        super().__init__(account_id, public_key, email, AccountType.DISTRIBUTOR)
-        
+
+    def __init__(self, account_id: str, public_key: str, email: str, timestamp):
+        super().__init__(account_id, public_key, email, AccountType.DISTRIBUTOR, timestamp)
+
         # Distributor-specific properties (privacy-safe business data)
         self.distribution_type = ""  # "regional", "national", "international"
         self.service_regions = []  # Geographic coverage areas

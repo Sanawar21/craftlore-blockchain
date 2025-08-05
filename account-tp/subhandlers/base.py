@@ -150,13 +150,13 @@ class BaseSubHandler(ABC):
         except:
             return True
 
-    def _mark_bootstrap_complete(self, context: Context, admin_id: str):
+    def _mark_bootstrap_complete(self, context: Context, admin_id: str, timestamp):
         """Mark system bootstrap as complete."""
         bootstrap_address = self.address_generator.generate_bootstrap_address()
         bootstrap_data = {
             'completed': True,
             'first_admin_id': admin_id,
-            'timestamp': self.serializer.get_current_timestamp()
+            'timestamp': timestamp
         }
         context.set_state({
             bootstrap_address: self.serializer.to_bytes(bootstrap_data)

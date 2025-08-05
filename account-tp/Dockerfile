@@ -17,4 +17,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # # Set the entrypoint
-# ENTRYPOINT ["python3", "processor.py", "-C", "tcp://validator:4004", "-vv"]
+ENTRYPOINT ["python3", "processor.py", "-C", "tcp://validator:4004", "-vv"]

@@ -11,8 +11,8 @@ from utils.enums import AccountType
 class BuyerAccount(BaseAccount):
     """Buyer account for customers purchasing handicrafts."""
     
-    def __init__(self, account_id: str, public_key: str, email: str):
-        super().__init__(account_id, public_key, email, AccountType.BUYER)
+    def __init__(self, account_id: str, public_key: str, email: str, timestamp):
+        super().__init__(account_id, public_key, email, AccountType.BUYER, timestamp)
         
         # Buyer-specific properties (privacy-safe)
         self.buyer_type = ""  # "individual_collector", "corporate_buyer", "tourist"

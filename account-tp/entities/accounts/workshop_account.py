@@ -11,8 +11,8 @@ from utils.enums import AccountType
 class WorkshopAccount(BaseAccount):
     """Workshop account for craft production facilities."""
     
-    def __init__(self, account_id: str, public_key: str, email: str):
-        super().__init__(account_id, public_key, email, AccountType.WORKSHOP)
+    def __init__(self, account_id: str, public_key: str, email: str, timestamp):
+        super().__init__(account_id, public_key, email, AccountType.WORKSHOP, timestamp)
         
         # Workshop-specific properties (privacy-safe business data)
         self.workshop_type = ""  # "traditional_weaving", "carpet_making"

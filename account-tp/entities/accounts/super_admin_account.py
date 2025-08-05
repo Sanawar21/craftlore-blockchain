@@ -11,9 +11,9 @@ from utils.enums import AccountType
 class SuperAdminAccount(BaseAccount):
     """Super Admin account with full system access and control."""
     
-    def __init__(self, account_id: str, public_key: str, email: str):
-        super().__init__(account_id, public_key, email, AccountType.SUPER_ADMIN)
-        
+    def __init__(self, account_id: str, public_key: str, email: str, timestamp):
+        super().__init__(account_id, public_key, email, AccountType.SUPER_ADMIN, timestamp)
+
         # Super Admin-specific properties
         self.admin_level = "super_admin"
         self.permissions = [

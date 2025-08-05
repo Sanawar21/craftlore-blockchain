@@ -11,8 +11,8 @@ from utils.enums import AccountType
 class SellerAccount(BaseAccount):
     """Seller account for basic handicraft sellers."""
     
-    def __init__(self, account_id: str, public_key: str, email: str):
-        super().__init__(account_id, public_key, email, AccountType.SELLER)
+    def __init__(self, account_id: str, public_key: str, email: str, timestamp):
+        super().__init__(account_id, public_key, email, AccountType.SELLER, timestamp)
         
         # Seller-specific properties (privacy-safe business data)
         self.business_name = ""

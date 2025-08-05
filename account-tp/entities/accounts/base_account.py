@@ -3,7 +3,6 @@
 Base account class for CraftLore Account TP.
 """
 
-from datetime import datetime
 from typing import Dict, List
 from utils.enums import AccountType, AuthenticationStatus, VerificationStatus
 
@@ -11,7 +10,7 @@ from utils.enums import AccountType, AuthenticationStatus, VerificationStatus
 class BaseAccount:
     """Base class for all CraftLore accounts with privacy-first design."""
     
-    def __init__(self, account_id: str, public_key: str, email: str, account_type: AccountType):
+    def __init__(self, account_id: str, public_key: str, email: str, account_type: AccountType, timestamp):
         # Core identifiers - public_key is PRIMARY identifier
         self.account_id = account_id  # Human-readable reference
         self.public_key = public_key  # PRIMARY IDENTIFIER
@@ -28,9 +27,9 @@ class BaseAccount:
         self.certifications = []  # Professional certifications
         
         # Timestamps
-        self.created_timestamp = datetime.now().isoformat()
-        self.updated_timestamp = datetime.now().isoformat()
-        
+        self.created_timestamp = timestamp
+        self.updated_timestamp = timestamp
+
         # System metadata
         self.is_deleted = False
         self.history = []  # Audit trail
@@ -65,6 +64,7 @@ class BaseAccount:
             account_id=data['account_id'],
             public_key=data['public_key'],
             email=data['email'],
+            timestamp=data.get('created_timestamp', data.get('updated_timestamp', '')),
             account_type=account_type
         )
         
@@ -73,8 +73,8 @@ class BaseAccount:
         instance.region = data.get('region', '')
         instance.specialization = data.get('specialization', [])
         instance.certifications = data.get('certifications', [])
-        instance.created_timestamp = data.get('created_timestamp', datetime.now().isoformat())
-        instance.updated_timestamp = data.get('updated_timestamp', datetime.now().isoformat())
+        instance.created_timestamp = data.get('created_timestamp')
+        instance.updated_timestamp = data.get('updated_timestamp')
         instance.is_deleted = data.get('is_deleted', False)
         instance.history = data.get('history', [])
         instance.connected_entities = data.get('connected_entities', {})

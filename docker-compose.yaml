@@ -108,7 +108,6 @@ services:
       - validator
       - devmode-engine
       - rest-api
-    entrypoint: sleep infinity
     stop_signal: SIGKILL
     volumes:
       - ./account-tp:/app
