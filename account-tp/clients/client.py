@@ -227,7 +227,7 @@ class AccountTPClient:
             'message': 'Transaction timed out'
         }
     
-    def create_new_client_key(self) -> str:
+    def create_new_client_key(self) -> 'AccountTPClient':
         """Create a new client with different key pair."""
         new_private_key = self.context.new_random_private_key()
         new_signer = self.crypto_factory.new_signer(new_private_key)
@@ -241,6 +241,19 @@ class AccountTPClient:
         
         return new_client
 
+    def create_client_key_from_private(self, private_key_hex: str) -> 'AccountTPClient':
+        """Create a client instance from an existing private key."""
+        private_key = Secp256k1PrivateKey.from_hex(private_key_hex)
+        signer = self.crypto_factory.new_signer(private_key)
+        public_key = signer.get_public_key().as_hex()
+        
+        client = AccountTPClient(self.base_url)
+        client.private_key = private_key
+        client.signer = signer
+        client.public_key = public_key
+        
+        return client
+
 
 def main():
     """Demo script for Account TP."""
@@ -251,21 +264,21 @@ def main():
     client = AccountTPClient()
     
     try:
-        print("\n📋 Test 1: Create SuperAdmin Account (Bootstrap)")
-        result = client.create_account(
-            account_type='super_admin',
-            email='admin@craftlore.com'
-        )
-        print(f"Result: {result}")
+        # print("\n📋 Test 1: Create SuperAdmin Account (Bootstrap)")
+        # result = client.create_account(
+        #     account_type='super_admin',
+        #     email='admin@craftlore.com'
+        # )
+        # print(f"Result: {result}")
         
         # Store the admin public key for later use
-        admin_key = client.public_key
+        # admin_key = client.public_key
         
         # print("\n📋 Test 2: Create Artisan Account")
-        # artisan_client = client.create_new_client_key()
+        # artisan_client = client
         # result = artisan_client.create_account(
         #     account_type='artisan',
-        #     email='artisan@craftlore.com',
+        #     email='artisan2@craftlore.com',
         #     specialization=['carpet_weaving', 'traditional_patterns'],
         #     skill_level='master_craftsman',
         #     years_experience=15
@@ -275,6 +288,7 @@ def main():
         # # Store artisan key
         # artisan_key = artisan_client.public_key
         
+        # client = client.create_client_key_from_private(super_admin_key)
         # print("\n📋 Test 3: Authenticate Artisan Account")
         # result = client.authenticate_account(artisan_key, 'approve')
         # print(f"Result: {result}")
@@ -301,14 +315,16 @@ def main():
         # result = client.query_accounts_by_type('artisan')
         # print(f"Result: {result}")
         
+        # artisan_client = client.create_client_key_from_private(artisan_key)
         # print("\n📋 Test 8: Update Artisan Account")
         # result = artisan_client.update_account(
-        #     specialization=['carpet_weaving', 'traditional_patterns', 'contemporary_designs']
+        #     # specialization=['carpet_weaving', 'traditional_patterns', 'contemporary_designs']
+        #     years_experience=16,
         # )
         # print(f"Result: {result}")
         
         # print("\n✅ All tests completed successfully!")
-        
+        pass
     except Exception as e:
         print(f"❌ Error during testing: {e}")
         import traceback

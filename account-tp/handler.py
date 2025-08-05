@@ -205,12 +205,15 @@ class AccountTransactionHandler(TransactionHandler):
         target_account['authentication_status'] = new_status.value
         
         # Add history entry
-        self._add_account_history(target_account, {
-            'action': f'authentication_{auth_decision}d',
-            'actor_public_key': transaction.header.signer_public_key,
-            'details': f'Account {auth_decision}d by {signer_type.value}',
-            'timestamp': timestamp
-        })
+        self._add_account_history(
+            target_account, 
+            {
+                'action': f'authentication_{auth_decision}d',
+                'actor_public_key': transaction.header.signer_public_key,
+                'details': f'Account {auth_decision}d by {signer_type.value}',
+            },
+            timestamp
+            )
         
         # Store updated account
         self._store_account(context, target_account)
@@ -231,7 +234,7 @@ class AccountTransactionHandler(TransactionHandler):
     def _handle_update_account(self, transaction, context: Context, payload: Dict):
         """Handle account updates."""
 
-        required_fields = ['target_public_key', 'timestamp']
+        required_fields = ['timestamp']
         for field in required_fields:
             if field not in payload:
                 raise InvalidTransaction(f"Missing required field: {field}")
@@ -283,8 +286,8 @@ class AccountTransactionHandler(TransactionHandler):
                 'action': 'account_updated',
                 'actor_public_key': signer_public_key,
                 'details': f'Updated fields: {", ".join(updated_fields)}',
-                'timestamp': timestamp
-            })
+          
+            }, timestamp)
             
             # Store updated account
             self._store_account(context, target_account)
@@ -334,8 +337,7 @@ class AccountTransactionHandler(TransactionHandler):
             'action': 'account_deactivated',
             'actor_public_key': signer_public_key,
             'details': f'Account deactivated by {signer_type.value}',
-            'timestamp': timestamp
-        })
+        }, timestamp)
         
         # Store updated account
         self._store_account(context, target_account)
