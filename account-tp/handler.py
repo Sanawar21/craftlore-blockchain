@@ -14,7 +14,7 @@ from sawtooth_sdk.processor.exceptions import InvalidTransaction
 from entities.accounts import (
     BuyerAccount, SellerAccount, ArtisanAccount, WorkshopAccount,
     DistributorAccount, WholesalerAccount, RetailerAccount, 
-    VerifierAccount, AdminAccount, SuperAdminAccount
+    VerifierAccount, AdminAccount, SuperAdminAccount, SupplierAccount
 )
 from core.enums import AccountType, AuthenticationStatus
 from core.exceptions import AccountError, AuthenticationError
@@ -36,7 +36,8 @@ class AccountTransactionHandler(TransactionHandler):
         AccountType.RETAILER: RetailerAccount,
         AccountType.VERIFIER: VerifierAccount,
         AccountType.ADMIN: AdminAccount,
-        AccountType.SUPER_ADMIN: SuperAdminAccount
+        AccountType.SUPER_ADMIN: SuperAdminAccount,
+        AccountType.SUPPLIER: SupplierAccount
     }
     
     def __init__(self):
