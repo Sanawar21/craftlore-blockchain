@@ -18,6 +18,7 @@ from .retailer_account import RetailerAccount
 from .verifier_account import VerifierAccount
 from .admin_account import AdminAccount
 from .super_admin_account import SuperAdminAccount
+from .supplier_account import SupplierAccount  # Importing the new SupplierAccount class
 
 # Export all account classes for easy importing
 __all__ = [
@@ -31,5 +32,6 @@ __all__ = [
     'RetailerAccount',
     'VerifierAccount',
     'AdminAccount',
-    'SuperAdminAccount'
+    'SuperAdminAccount',
+    'SupplierAccount'  # Including the new SupplierAccount class
 ]

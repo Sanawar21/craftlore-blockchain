@@ -18,6 +18,7 @@ class AccountType(Enum):
     VERIFIER = "verifier"
     ADMIN = "admin"
     SUPER_ADMIN = "super_admin"
+    SUPPLIER = "supplier"
 
 
 class AuthenticationStatus(Enum):

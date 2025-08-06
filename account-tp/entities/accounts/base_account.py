@@ -3,9 +3,9 @@
 Base account class for CraftLore Account TP.
 """
 
-from typing import Dict, List
+from typing import Dict, List, get_type_hints
 from core.enums import AccountType, AuthenticationStatus, VerificationStatus
-
+import inspect
 
 class BaseAccount:
     """Base class for all CraftLore accounts with privacy-first design."""
@@ -55,32 +55,60 @@ class BaseAccount:
             'history': self.history,
             'connected_entities': self.connected_entities
         }
-    
+import inspect
+from typing import Dict, get_type_hints
+from enum import Enum
+
+class BaseAsset:
     @classmethod
     def from_dict(cls, data: Dict):
-        """Create account instance from dictionary."""
-        account_type = AccountType(data['account_type'])
-        instance = cls(
-            account_id=data['account_id'],
-            public_key=data['public_key'],
-            email=data['email'],
-            timestamp=data.get('created_timestamp', data.get('updated_timestamp', '')),
-            account_type=account_type
-        )
-        
-        instance.authentication_status = AuthenticationStatus(data.get('authentication_status', 'pending'))
-        instance.verification_status = VerificationStatus(data.get('verification_status', 'unverified'))
-        instance.region = data.get('region', '')
-        instance.specialization = data.get('specialization', [])
-        instance.certifications = data.get('certifications', [])
-        instance.created_timestamp = data.get('created_timestamp')
-        instance.updated_timestamp = data.get('updated_timestamp')
-        instance.is_deleted = data.get('is_deleted', False)
-        instance.history = data.get('history', [])
-        instance.connected_entities = data.get('connected_entities', {})
-        
+        """Dynamically create instance from dictionary, including Enums and subclass fields."""
+        sig = inspect.signature(cls.__init__)
+        type_hints = get_type_hints(cls.__init__)
+
+        init_args = {}
+        for param in sig.parameters.values():
+            if param.name == 'self':
+                continue
+
+            value = data.get(param.name)
+            expected_type = type_hints.get(param.name)
+
+            # Automatically convert to Enum if needed
+            if expected_type and isinstance(expected_type, type) and issubclass(expected_type, Enum):
+                if isinstance(value, str):
+                    value = expected_type(value)
+
+            init_args[param.name] = value
+
+        # Instantiate with converted and filtered args
+        instance = cls(**init_args)
+
+        # Set all other non-init attributes
+        for key, value in data.items():
+            if not hasattr(instance, key):
+                setattr(instance, key, value)
+
+        # Convert other attributes with enums (outside constructor)
+        instance._convert_enum_fields(data)
+
         return instance
-    
+
+    def _convert_enum_fields(self, data: Dict):
+        """Dynamically convert enum attributes (even if not in constructor)."""
+        type_hints = get_type_hints(type(self))
+        for key, expected_type in type_hints.items():
+            if (
+                key in data
+                and isinstance(expected_type, type)
+                and issubclass(expected_type, Enum)
+            ):
+                try:
+                    setattr(self, key, expected_type(data[key]))
+                except ValueError:
+                    pass  # Ignore invalid enums silently
+
+
     def add_connection(self, entity_type: str, entity_public_key: str):
         """Add connection to another entity."""
         if entity_type not in self.connected_entities:
