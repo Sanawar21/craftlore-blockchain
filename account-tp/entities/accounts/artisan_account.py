@@ -20,8 +20,6 @@ class ArtisanAccount(BaseAccount):
         self.years_experience = 0  # Professional background metric
         self.traditional_techniques = []  # Traditional methods mastered
         
-        # Connected entities (using public keys)
-        self.products_created = []
         self.work_orders_assigned = []
         self.workshops_worked_for = []
         self.payment_records = []
