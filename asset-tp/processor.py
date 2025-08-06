@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CraftLore Account Transaction Processor
+CraftLore asset Transaction Processor
 Dedicated TP for managing all account types in the CraftLore blockchain system.
 """
 
@@ -9,13 +9,13 @@ import argparse
 from sawtooth_sdk.processor.core import TransactionProcessor
 from sawtooth_sdk.processor.log import init_console_logging
 
-from handler import AccountTransactionHandler
+from handler import AssetTransactionHandler
 
 
 def main():
     """Main entry point for the Account Transaction Processor."""
     parser = argparse.ArgumentParser(
-        description='CraftLore Account Transaction Processor')
+        description='CraftLore Asset Transaction Processor')
     parser.add_argument(
         '-C', '--connect',
         default='tcp://validator:4004',
@@ -36,10 +36,10 @@ def main():
     processor = TransactionProcessor(url=args.connect)
     
     # Create and register the handler 
-    handler = AccountTransactionHandler()
+    handler = AssetTransactionHandler()
     processor.add_handler(handler)
-    
-    print("🚀 Starting CraftLore Account Transaction Processor...")
+
+    print("🚀 Starting CraftLore Asset Transaction Processor...")
     print(f"📡 Connecting to validator at: {args.connect}")
     print(f"🏷️  Family: {handler.family_name}")
     print(f"📦 Version: {handler.family_versions[0]}")
@@ -48,7 +48,7 @@ def main():
     try:
         processor.start()
     except KeyboardInterrupt:
-        print("\n--- Account TP Stopped ---")
+        print("\n--- Asset TP Stopped ---")
     except Exception as e:
         print(f"❌ Error: {e}")
         import traceback

@@ -11,6 +11,8 @@ class AssetType(Enum):
     RAW_MATERIAL = "raw_material"
     PRODUCT = "product"
     BATCH = "batch"
+    PRODUCT_BATCH = "product_batch"
+    WORK_ORDER = "work_order"
     
 class WorkOrderStatus(Enum):
     """Status of a work order."""

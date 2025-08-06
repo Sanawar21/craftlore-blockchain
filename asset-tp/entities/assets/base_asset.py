@@ -35,7 +35,8 @@ class BaseAsset:
         
         # Connected entities (using public keys as identifiers)
         self.connected_entities = {}
-    
+        self.is_locked = False  # asset cannot be edited after being locked
+
     def to_dict(self) -> Dict:
         """Convert asset to dictionary for blockchain storage."""
         return {
@@ -50,9 +51,25 @@ class BaseAsset:
             'updated_timestamp': self.updated_timestamp,
             'is_deleted': self.is_deleted,
             'history': self.history,
-            'connected_entities': self.connected_entities
+            'connected_entities': self.connected_entities,
+            'is_locked': self.is_locked
         }
     
+    @property
+    def uneditable_fields(self) -> List[str]:
+        """Fields that are read-only and cannot be directly modified in 'asset_edit' transaction."""
+        return ['asset_id', 'public_key', 'created_timestamp',
+                'updated_timestamp', 'history', 'is_deleted',
+                'connected_entities', 'is_locked', 'asset_type',
+                'authentication_status', 'verification_status',
+                'previous_owners', 'owner', 'is_locked']
+
+    @property
+    def post_lock_fields(self) -> List[str]:
+        """Fields that can be changed after asset is locked."""
+        return ['owner', 'previous_owners']
+
+
     @classmethod
     def from_dict(cls, data: Dict):
         """Dynamically create instance from dictionary, including Enums and subclass fields."""

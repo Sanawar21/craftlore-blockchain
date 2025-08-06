@@ -27,3 +27,20 @@ class WorkOrder(BaseAsset):
             'assignee_signature': self.assignee_signature
         })
         return data
+
+    @property
+    def uneditable_fields(self) -> List[str]:
+        fields = super().uneditable_fields
+        fields.extend([
+            "batch_id", "assignee_id", "status"
+        ])
+        return fields
+    
+    @property
+    def post_lock_fields(self) -> List[str]:
+        fields = super().post_lock_fields
+        fields.extend([
+            "assignee_signature",
+            "status",
+        ])
+        return fields

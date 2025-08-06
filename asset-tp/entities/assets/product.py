@@ -13,19 +13,25 @@ class Product(BaseAsset):
         super().__init__(asset_id, public_key, AssetType.PRODUCT_BATCH, timestamp)
         self.batch_id = ""  # ID of the batch this product belongs to
         self.batch_index = 0
-        self.current_owner_id = ""  # Current owner (could be a buyer or reseller)
-        self.previous_owners = []  # List of previous owner IDs
         self.purchase_date = ""  # Date of purchase by current owner
-        
+        self.is_locked = True  
         
 
     def to_dict(self) -> Dict:
         data = super().to_dict()
         data.update({
             'batch_id': self.batch_id,
-            'seller_id': self.seller_id,
-            'current_owner_id': self.current_owner_id,
-            'previous_owners': self.previous_owners,
+            'batch_index': self.batch_index,
             'purchase_date': self.purchase_date
         })
         return data
+    
+    @property
+    def unedited_fields(self) -> List[str]:
+        """Fields that cannot be edited after creation."""
+        fields = super().uneditable_fields
+        fields.extend([
+            'batch_id', 'batch_index', 'purchase_date'
+        ])
+        return fields
+    
