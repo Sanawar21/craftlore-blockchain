@@ -4,8 +4,10 @@ Base account class for CraftLore Account TP.
 """
 
 from typing import Dict, List, get_type_hints
-from core.enums import AccountType, AuthenticationStatus, VerificationStatus
+from enum import Enum
 import inspect
+from core.enums import AccountType, AuthenticationStatus, VerificationStatus
+
 
 class BaseAccount:
     """Base class for all CraftLore accounts with privacy-first design."""
@@ -55,11 +57,7 @@ class BaseAccount:
             'history': self.history,
             'connected_entities': self.connected_entities
         }
-import inspect
-from typing import Dict, get_type_hints
-from enum import Enum
-
-class BaseAsset:
+    
     @classmethod
     def from_dict(cls, data: Dict):
         """Dynamically create instance from dictionary, including Enums and subclass fields."""
@@ -107,8 +105,7 @@ class BaseAsset:
                     setattr(self, key, expected_type(data[key]))
                 except ValueError:
                     pass  # Ignore invalid enums silently
-
-
+    
     def add_connection(self, entity_type: str, entity_public_key: str):
         """Add connection to another entity."""
         if entity_type not in self.connected_entities:
