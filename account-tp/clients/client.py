@@ -262,7 +262,9 @@ def main():
     
     # Initialize client
     client = AccountTPClient()
-    
+    # artisan = client.create_client_key_from_private("9931c122a70063850c4ab6181e5e2d60a44bb106c8baf021e558f2846bb64c2c")
+    # supplier = client.create_client_key_from_private("ee038ca8e172149eb12eac2225ceaebf2e020e6683905684a5763ae1a044789d")
+    # client = client.create_client_key_from_private("8d3eb16778c98b7112916e8b259ac9434370b18f2e987214d8f59c3e2cd1ed29")
     try:
         # print("\n📋 Test 1: Create SuperAdmin Account (Bootstrap)")
         # result = client.create_account(
@@ -278,13 +280,25 @@ def main():
         # artisan_client = client
         # result = artisan_client.create_account(
         #     account_type='artisan',
-        #     email='artisan2@craftlore.com',
+        #     email='artisan@craftlore.com',
         #     specialization=['carpet_weaving', 'traditional_patterns'],
         #     skill_level='master_craftsman',
         #     years_experience=15
         # )
         # print(f"Result: {result}")
         
+        print("\n📋 Test 3: Create Supplier Account")
+        supplier_client = client
+        result = supplier_client.create_account(
+            account_type='supplier',
+            email='supplier@craftlore.com',
+            supplier_type='material_supplier',
+            location="Karachi"
+        )
+        print(f"Result: {result}")
+        
+
+
         # # Store artisan key
         # artisan_key = artisan_client.public_key
         

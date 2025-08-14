@@ -1,0 +1,4 @@
+sawtooth-sdk
+protobuf==3.20.3
+requests
+pyyaml

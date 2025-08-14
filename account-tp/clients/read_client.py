@@ -4,7 +4,8 @@ import requests
 import sys
 import json
 
-REST_API_URL = "http://localhost:8008"
+REST_API_URL = "http://rest-api:8008"
+# REST_API_URL = "http://localhost:8008"
 NAMESPACE = hashlib.sha512('craftlore-account'.encode('utf-8')).hexdigest()[0:6]
 ACCOUNT_PREFIX = '00'
 EMAIL_PREFIX = '01'

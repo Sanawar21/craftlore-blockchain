@@ -101,9 +101,33 @@ services:
     volumes:
       - ./simple-tp:/app
 
-  account-tp:
-    build: ./account-tp
-    container_name: account-tp
+  # account-tp:
+  #   build: ./account-tp
+  #   container_name: account-tp
+  #   depends_on:
+  #     - validator
+  #     - devmode-engine
+  #     - rest-api
+  #   entrypoint: sleep infinity
+  #   stop_signal: SIGKILL
+  #   volumes:
+  #     - ./account-tp:/app
+
+  # asset-tp:
+  #   build: ./asset-tp
+  #   container_name: asset-tp
+  #   depends_on:
+  #     - validator
+  #     - devmode-engine
+  #     - rest-api
+  #   entrypoint: sleep infinity
+  #   stop_signal: SIGKILL
+  #   volumes:
+  #     - ./asset-tp:/app
+
+  craftlore-tp:
+    build: ./craftlore-tp
+    container_name: craftlore-tp
     depends_on:
       - validator
       - devmode-engine
@@ -111,7 +135,7 @@ services:
     entrypoint: sleep infinity
     stop_signal: SIGKILL
     volumes:
-      - ./account-tp:/app
+      - ./craftlore-tp:/app
 
   # account-tp:
   #   build: ./account-tp
