@@ -12,6 +12,11 @@ from core.enums import AccountType, AuthenticationStatus, VerificationStatus
 class BaseAccount:
     """Base class for all CraftLore accounts with privacy-first design."""
     
+    # Type annotations for proper enum conversion
+    account_type: AccountType
+    authentication_status: AuthenticationStatus
+    verification_status: VerificationStatus
+    
     def __init__(self, account_id: str, public_key: str, email: str, account_type: AccountType, timestamp):
         # Core identifiers - public_key is PRIMARY identifier
         self.account_id = account_id  # Human-readable reference
@@ -61,6 +66,7 @@ class BaseAccount:
     @classmethod
     def from_dict(cls, data: Dict):
         """Dynamically create instance from dictionary, including Enums and subclass fields."""
+        # Get the constructor signature for the specific class
         sig = inspect.signature(cls.__init__)
         type_hints = get_type_hints(cls.__init__)
 
@@ -82,9 +88,9 @@ class BaseAccount:
         # Instantiate with converted and filtered args
         instance = cls(**init_args)
 
-        # Set all other non-init attributes
+        # Set all other attributes from data (including those already initialized)
         for key, value in data.items():
-            if not hasattr(instance, key):
+            if key not in init_args:  # Only set attributes that weren't in constructor
                 setattr(instance, key, value)
 
         # Convert other attributes with enums (outside constructor)
@@ -94,12 +100,14 @@ class BaseAccount:
 
     def _convert_enum_fields(self, data: Dict):
         """Dynamically convert enum attributes (even if not in constructor)."""
+        # Get type hints from the actual instance class
         type_hints = get_type_hints(type(self))
         for key, expected_type in type_hints.items():
             if (
                 key in data
                 and isinstance(expected_type, type)
                 and issubclass(expected_type, Enum)
+                and isinstance(data[key], str)
             ):
                 try:
                     setattr(self, key, expected_type(data[key]))
@@ -123,3 +131,11 @@ class BaseAccount:
     def get_connected_entities(self, entity_type: str) -> List[str]:
         """Get list of connected entity public keys by type."""
         return self.connected_entities.get(entity_type, [])
+    
+    def add_history_entry(self, entry: Dict, timestamp: str = None):
+        """Add an entry to the account history."""
+        if timestamp:
+            entry['timestamp'] = timestamp
+        self.history.append(entry)
+        if timestamp:
+            self.updated_timestamp = timestamp

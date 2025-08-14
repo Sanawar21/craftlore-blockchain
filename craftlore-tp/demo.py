@@ -38,9 +38,9 @@ def test_complete_flow():
     
     print("\n" + "=" * 60)
     
-    # ===========================
-    # PHASE 1: ACCOUNT CREATION
-    # ===========================
+    # # ===========================
+    # # PHASE 1: ACCOUNT CREATION
+    # # ===========================
     # print("👥 PHASE 1: Creating Accounts")
     # print("-" * 30)
     
@@ -122,7 +122,7 @@ def test_complete_flow():
     # Supplier creates raw material
     print("1. Supplier creating raw material...")
     result = supplier_client.create_raw_material(
-        material_id='wool_003',
+        material_id='wool_002',
         material_type='pashmina_wool',
         supplier_id=supplier_client.public_key,
         quantity=100.0,

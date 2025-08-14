@@ -45,3 +45,10 @@ class SellerAccount(BaseAccount):
             'ratings': self.ratings
         })
         return data
+
+    @classmethod
+    def from_dict(cls, data: Dict):
+        """Create SellerAccount instance from dictionary."""
+        # Use the base class from_dict method
+        instance = super().from_dict(data)
+        return instance

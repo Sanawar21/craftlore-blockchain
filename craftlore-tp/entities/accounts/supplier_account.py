@@ -29,6 +29,13 @@ class SupplierAccount(BaseAccount):
         })
         return data
 
+    @classmethod
+    def from_dict(cls, data: Dict):
+        """Create SupplierAccount instance from dictionary."""
+        # Use the base class from_dict method
+        instance = super().from_dict(data)
+        return instance
+
     def add_raw_material_created(self, raw_material_id: str, timestamp: str) -> None:
         """Add a raw material to the created list and update history."""
         raw_material_entry = {
@@ -37,10 +44,9 @@ class SupplierAccount(BaseAccount):
         }
         self.raw_materials_created.append(raw_material_entry)
         
-        # Add to history
-        self.history.append({
+        # Add to history using the base class method
+        self.add_history_entry({
             'action': 'raw_material_created',
             'raw_material_id': raw_material_id,
-            'created_at': timestamp,
-            'timestamp': timestamp,
-        })
+            'created_at': timestamp
+        }, timestamp)

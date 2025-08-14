@@ -56,3 +56,10 @@ class AdminAccount(BaseAccount):
             'admin_metrics': self.admin_metrics
         })
         return data
+
+    @classmethod
+    def from_dict(cls, data: Dict):
+        """Create AdminAccount instance from dictionary."""
+        # Use the base class from_dict method
+        instance = super().from_dict(data)
+        return instance
