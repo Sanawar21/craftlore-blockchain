@@ -289,17 +289,14 @@ class AssetCreationHandler:
         """Update account state consistently when assets are created."""
         try:
             if asset_type == AssetType.RAW_MATERIAL:
-                # Update supplier account
-                self.account_updater.update_supplier_raw_materials(
-                    context, asset.owner, asset.asset_id, 'created', timestamp
-                )
+                # Update supplier account by adding the raw material to their created list
+                self._update_supplier_account_for_raw_material(context, asset.owner, asset.asset_id, timestamp)
                 
             elif asset_type == AssetType.WORK_ORDER:
                 # Update assignee account if work order has an assignee
                 if hasattr(asset, 'assignee_id') and asset.assignee_id:
-                    self.account_updater.update_artisan_work_orders(
-                        context, asset.assignee_id, asset.asset_id, 'assigned', timestamp
-                    )
+                    # Note: Account state updates can be added here if needed
+                    pass
                 
                 # Update assigner account if it's a workshop
                 if hasattr(asset, 'assigner_id') and asset.assigner_id:
@@ -323,9 +320,7 @@ class AssetCreationHandler:
         """Update account state when products are created and transferred to buyer."""
         try:
             # Update buyer account - they now own these products
-            self.account_updater.update_buyer_products(
-                context, buyer_public_key, product_ids, 'purchased', timestamp
-            )
+            # Note: Account state updates can be added here if needed
             
             # Update creator account based on their type
             creator_account_type = self.asset_utils.get_account_type(context, creator_public_key)
@@ -335,4 +330,35 @@ class AssetCreationHandler:
                     
         except Exception as e:
             print(f"Warning: Could not update account state for product creation: {str(e)}")
+            # Don't fail the transaction, just log the warning
+
+    def _update_supplier_account_for_raw_material(self, context: Context, supplier_public_key: str, raw_material_id: str, timestamp: str):
+        """Update supplier account when they create a raw material."""
+        try:
+            # Get supplier account
+            account_data = self.asset_utils.get_account(context, supplier_public_key)
+            if not account_data:
+                print(f"Warning: Could not find supplier account for {supplier_public_key}")
+                return
+            
+            # Import the supplier account class
+            from entities.accounts.supplier_account import SupplierAccount
+            from core.enums import AccountType
+            
+            # Create supplier account instance from stored data
+            supplier_account = SupplierAccount.from_dict(account_data)
+
+            
+            # Add the raw material to the created list
+            supplier_account.add_raw_material_created(raw_material_id, timestamp)
+            
+            # Store updated account
+            account_address = self.address_generator.generate_account_address(supplier_public_key)
+            serialized_account = self.serializer.to_bytes(supplier_account.to_dict())
+            
+            context.set_state({account_address: serialized_account})
+            print(f"✅ Updated supplier account with new raw material: {raw_material_id}")
+            
+        except Exception as e:
+            print(f"Warning: Could not update supplier account: {str(e)}")
             # Don't fail the transaction, just log the warning

@@ -226,35 +226,92 @@ class AssetTransferHandler:
                                                        assignee_public_key: str, timestamp: str):
         """Update account state when work order is accepted."""
         try:
-            # Update assignee account (artisan or workshop)
-            self.account_updater.update_artisan_work_orders(
-                context, assignee_public_key, work_order_data['asset_id'], 'accepted', timestamp
+            # Get assignee account
+            account_data = self.asset_utils.get_account(context, assignee_public_key)
+            if not account_data:
+                print(f"Warning: Could not find assignee account for {assignee_public_key}")
+                return
+            
+            # Add work order acceptance to account history
+            from entities.accounts.base_account import BaseAccount
+            
+            # Create a base account instance to use the add_history_entry method
+            account = BaseAccount(
+                account_id=account_data['account_id'],
+                public_key=account_data['public_key'],
+                email=account_data['email'],
+                account_type=account_data['account_type'],
+                timestamp=account_data['created_at']
             )
+            
+            # Load existing history
+            account.history = account_data.get('history', [])
+            
+            # Add history entry for work order acceptance
+            account.add_history_entry({
+                'action': 'work_order_accepted',
+                'work_order_id': work_order_data['asset_id'],
+                'accepted_at': timestamp
+            }, timestamp)
+            
+            # Update the account data with new history
+            account_data['history'] = account.history
+            
+            # Store updated account
+            account_address = self.address_generator.generate_account_address(assignee_public_key)
+            serialized_account = self.serializer.serialize(account_data)
+            
+            context.set_state({account_address: serialized_account})
+            print(f"✅ Updated assignee account history for work order acceptance: {work_order_data['asset_id']}")
             
         except Exception as e:
             print(f"Warning: Could not update account state for work order acceptance: {str(e)}")
             # Don't fail the transaction, just log the warning
     
-    def _update_account_state_for_asset_transfer(self, context: Context, asset_data: Dict, 
-                                               old_owner: str, new_owner: str, timestamp: str):
-        """Update account state when assets are transferred."""
+    def _update_account_state_for_asset_transfer(self, context: Context, from_public_key: str, 
+                                                to_public_key: str, asset_id: str, timestamp: str):
+        """Update account states for asset transfer."""
         try:
-            asset_type = asset_data.get('asset_type')
-            asset_id = asset_data.get('asset_id')
-            
-            if asset_type == 'raw_material':
-                # Update supplier account for raw material transfer
-                self.account_updater.update_supplier_raw_materials(
-                    context, old_owner, asset_id, 'transferred', timestamp
+            # Update both sender and receiver accounts
+            for public_key, action in [(from_public_key, 'asset_sent'), (to_public_key, 'asset_received')]:
+                account_data = self.asset_utils.get_account(context, public_key)
+                if not account_data:
+                    print(f"Warning: Could not find account for {public_key}")
+                    continue
+                
+                # Add transfer to account history
+                from entities.accounts.base_account import BaseAccount
+                
+                # Create a base account instance to use the add_history_entry method
+                account = BaseAccount(
+                    account_id=account_data['account_id'],
+                    public_key=account_data['public_key'],
+                    email=account_data['email'],
+                    account_type=account_data['account_type'],
+                    timestamp=account_data['created_at']
                 )
                 
-            elif asset_type == 'product':
-                # Update old owner (removing product)
-                old_account_type = self.asset_utils.get_account_type(context, old_owner)
-                # Update new owner (receiving product)
-                new_account_type = self.asset_utils.get_account_type(context, new_owner)
-                # Note: Account state updates can be added here if needed
-                        
+                # Load existing history
+                account.history = account_data.get('history', [])
+                
+                # Add history entry for asset transfer
+                account.add_history_entry({
+                    'action': action,
+                    'asset_id': asset_id,
+                    'other_party': to_public_key if action == 'asset_sent' else from_public_key,
+                    'transferred_at': timestamp
+                }, timestamp)
+                
+                # Update the account data with new history
+                account_data['history'] = account.history
+                
+                # Store updated account
+                account_address = self.address_generator.generate_account_address(public_key)
+                serialized_account = self.serializer.serialize(account_data)
+                
+                context.set_state({account_address: serialized_account})
+                print(f"✅ Updated account history for {action}: {asset_id}")
+            
         except Exception as e:
             print(f"Warning: Could not update account state for asset transfer: {str(e)}")
             # Don't fail the transaction, just log the warning
