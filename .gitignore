@@ -8,4 +8,7 @@ __pycache__/
 *.sqlite3
 debug_enum.py
 test_accounts.py
-  
+state_dump.txt
+quick_sub_assignment_test.py
+sub_assignment_demo.py
+SUB_ASSIGNMENT_USAGE_GUIDE.md

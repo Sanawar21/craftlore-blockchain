@@ -167,6 +167,7 @@ def list_all_state():
     """List all state entries."""
     url = f"{REST_API_URL}/state?address={NAMESPACE}"
     resp = requests.get(url)
+    state_text = ""
     if resp.status_code == 200:
         entries = resp.json().get('data', [])
         print(f"Found {len(entries)} state entries:")
@@ -202,10 +203,13 @@ def list_all_state():
             
             try:
                 obj = json.loads(data.decode(errors='ignore'))
+                state_text += json.dumps(obj, indent=2) + "\n"
                 print(json.dumps(obj, indent=2))
             except Exception:
                 print(data.decode(errors='ignore'))
             print('-'*60)
+            with open("state_dump.txt", "w") as f:
+                f.write(state_text)
     else:
         print("Failed to fetch state entries.")
 

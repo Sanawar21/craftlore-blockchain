@@ -123,7 +123,7 @@ class AssetTransferHandler:
         try:
             asset_id = transaction_data['asset_id']
             asset_type = transaction_data['asset_type']
-            new_owner = transaction_data['new_owner']
+            new_owner = transaction_data['new_owner_public_key']
             signer_public_key = transaction_data.get('signer_public_key')
             timestamp = transaction_data.get('timestamp', datetime.utcnow().isoformat())
             
@@ -157,7 +157,7 @@ class AssetTransferHandler:
             self.asset_utils.update_owner_indices(context, asset_id, old_owner, new_owner)
             
             # Update account states consistently
-            self._update_account_state_for_asset_transfer(context, asset_data, old_owner, new_owner, timestamp)
+            self._update_account_state_for_asset_transfer(context, old_owner, new_owner, asset_id, timestamp)
             
             return {'status': 'success', 'message': f'Asset {asset_id} transferred to {new_owner}'}
             
@@ -189,11 +189,6 @@ class AssetTransferHandler:
                     # Check permissions
                     if not self.asset_utils.can_modify_asset(signer_public_key, asset_data):
                         failed_transfers.append({'asset_id': asset_id, 'error': 'Insufficient permissions'})
-                        continue
-                    
-                    # Check if asset can be transferred
-                    if asset_data.get('status') == AssetStatus.LOCKED.value:
-                        failed_transfers.append({'asset_id': asset_id, 'error': 'Asset is locked'})
                         continue
                     
                     # Store old owner for index updates

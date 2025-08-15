@@ -120,7 +120,7 @@ def test_complete_flow():
     print("-" * 30)
     
     # Supplier creates raw material
-    print("1. Supplier creating raw material...")
+    print("1a. Supplier creating pashmina wool...")
     result = supplier_client.create_raw_material(
         material_id='wool_002',
         material_type='pashmina_wool',
@@ -132,8 +132,43 @@ def test_complete_flow():
     print(f"   Result: {result.get('status', 'unknown')}")
     time.sleep(2)
     
+    # Supplier creates another raw material
+    print("1b. Supplier creating silk thread...")
+    result = supplier_client.create_raw_material(
+        material_id='silk_001',
+        material_type='silk_thread',
+        supplier_id=supplier_client.public_key,
+        quantity=50.0,
+        source_location='Kashmir, India',
+        certification='premium'
+    )
+    print(f"   Result: {result.get('status', 'unknown')}")
+    time.sleep(2)
+    
+    # Transfer raw material from supplier to workshop
+    print("2a. Supplier transferring pashmina wool to workshop...")
+    result = supplier_client.transfer_asset(
+        asset_id='wool_002',
+        asset_type='raw_material',
+        new_owner_public_key=workshop_client.public_key
+    )
+    print(f"   Result: {result.get('status', 'unknown')}")
+    print(f"   Raw material 'wool_002' ownership transferred from supplier to workshop")
+    time.sleep(2)
+    
+    # Transfer another raw material from supplier to artisan  
+    print("2b. Supplier transferring silk thread to artisan...")
+    result = supplier_client.transfer_asset(
+        asset_id='silk_001',
+        asset_type='raw_material',
+        new_owner_public_key=artisan_client.public_key
+    )
+    print(f"   Result: {result.get('status', 'unknown')}")
+    print(f"   Raw material 'silk_001' ownership transferred from supplier to artisan")
+    time.sleep(2)
+    
     # Workshop creates work order
-    print("2. Workshop creating work order...")
+    print("3. Workshop creating work order...")
     result = workshop_client.create_work_order(
         work_order_id='wo_001',
         buyer_id=workshop_client.public_key,
@@ -145,7 +180,7 @@ def test_complete_flow():
     time.sleep(2)
     
     # Workshop creates product batch
-    print("3. Workshop creating product batch...")
+    print("4. Workshop creating product batch...")
     result = workshop_client.create_product_batch(
         batch_id='batch_001',
         batch_type='pashmina_shawls',
