@@ -217,6 +217,18 @@ class CraftLoreClient:
         
         return self._submit_transaction(payload)
     
+    def use_raw_material_in_batch(self, raw_material_id: str, batch_id: str, **kwargs) -> Dict:
+        """Use a raw material in a product batch."""
+        payload = {
+            'action': 'use_raw_material_in_batch',
+            'raw_material_id': raw_material_id,
+            'batch_id': batch_id,
+            'timestamp': self.serializer.get_current_timestamp(),
+            **kwargs
+        }
+        
+        return self._submit_transaction(payload)
+    
     def create_products_from_batch(self, batch_id: str, product_ids: List[str], **kwargs) -> Dict:
         """Create individual products from a batch."""
         payload = {

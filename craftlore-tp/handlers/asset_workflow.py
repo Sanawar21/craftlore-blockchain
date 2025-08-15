@@ -216,3 +216,72 @@ class AssetWorkflowHandler:
             
         except Exception as e:
             raise InvalidTransaction(f"Update failed: {str(e)}")
+
+    def use_raw_material_in_batch(self, context: Context, transaction_data: Dict) -> Dict:
+        """Use raw material in a product batch."""
+        try:
+            raw_material_id = transaction_data['raw_material_id']
+            batch_id = transaction_data['batch_id']
+            signer_public_key = transaction_data.get('signer_public_key')
+            timestamp = transaction_data.get('timestamp', datetime.utcnow().isoformat())
+            
+            # Get raw material asset
+            raw_material_data = self.asset_utils.get_asset(context, raw_material_id, 'raw_material')
+            if not raw_material_data:
+                raise InvalidTransaction(f"Raw material {raw_material_id} not found")
+            
+            # Get batch asset
+            batch_data = self.asset_utils.get_asset(context, batch_id, 'product_batch')
+            if not batch_data:
+                raise InvalidTransaction(f"Product batch {batch_id} not found")
+            
+            # Check if signer owns the raw material
+            if raw_material_data['owner'] != signer_public_key:
+                raise InvalidTransaction("Only the owner of the raw material can use it in a batch")
+            
+            # Check if signer owns the batch
+            if batch_data['owner'] != signer_public_key:
+                raise InvalidTransaction("Only the owner of the batch can add raw materials to it")
+            
+            # Check if raw material is already used in this batch
+            if batch_id in raw_material_data.get('batches_used_in', []):
+                raise InvalidTransaction(f"Raw material {raw_material_id} is already used in batch {batch_id}")
+            
+            # Add batch to raw material's batches_used_in list
+            if 'batches_used_in' not in raw_material_data:
+                raw_material_data['batches_used_in'] = []
+            raw_material_data['batches_used_in'].append(batch_id)
+            
+            # Add raw material to batch's raw_materials_used list if not already there
+            if 'raw_materials_used' not in batch_data:
+                batch_data['raw_materials_used'] = []
+            if raw_material_id not in batch_data['raw_materials_used']:
+                batch_data['raw_materials_used'].append(raw_material_id)
+            
+            # Add history entry to raw material
+            self.asset_utils.add_asset_history(raw_material_data, {
+                'action': 'used_in_batch',
+                'batch_id': batch_id,
+                'actor': signer_public_key
+            }, timestamp)
+            
+            # Add history entry to batch
+            self.asset_utils.add_asset_history(batch_data, {
+                'action': 'raw_material_added',
+                'raw_material_id': raw_material_id,
+                'actor': signer_public_key
+            }, timestamp)
+            
+            # Store updated assets
+            self.asset_utils.store_asset(context, raw_material_data)
+            self.asset_utils.store_asset(context, batch_data)
+            
+            return {
+                'status': 'success',
+                'message': f'Raw material {raw_material_id} is now used in batch {batch_id}',
+                'raw_material_id': raw_material_id,
+                'batch_id': batch_id
+            }
+            
+        except Exception as e:
+            raise InvalidTransaction(f"Use raw material in batch failed: {str(e)}")

@@ -80,7 +80,7 @@ class CraftLoreTransactionHandler(TransactionHandler):
                     return self.asset_transfer_handler.accept_asset(context, payload)
                 elif action == 'sub_assign_work_order':
                     return self.asset_transfer_handler.sub_assign_work_order(context, payload)
-            elif action in ['lock_asset', 'unlock_asset', 'delete_asset', 'update_asset']:
+            elif action in ['lock_asset', 'unlock_asset', 'delete_asset', 'update_asset', 'use_raw_material_in_batch']:
                 if action == 'lock_asset':
                     return self.asset_workflow_handler.lock_asset(context, payload)
                 elif action == 'unlock_asset':
@@ -89,6 +89,8 @@ class CraftLoreTransactionHandler(TransactionHandler):
                     return self.asset_workflow_handler.delete_asset(context, payload)
                 elif action == 'update_asset':
                     return self.asset_workflow_handler.update_asset(context, payload)
+                elif action == 'use_raw_material_in_batch':
+                    return self.asset_workflow_handler.use_raw_material_in_batch(context, payload)
             elif action in ['register_warranty', 'update_certification', 'update_sustainability']:
                 if action == 'register_warranty':
                     return self.asset_certification_handler.register_warranty(context, payload)
