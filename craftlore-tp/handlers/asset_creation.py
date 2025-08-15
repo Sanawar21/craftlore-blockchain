@@ -168,8 +168,18 @@ class AssetCreationHandler:
             asset.transaction_date = payload.get('timestamp', '')
             
         elif asset_type == AssetType.PRODUCT_BATCH:
+            # Validate that only artisan or workshop can create product batches directly
+            creator_account_type = self.asset_utils.get_account_type(context, asset.public_key)
+            if creator_account_type not in ['artisan', 'workshop']:
+                raise InvalidTransaction("Only artisan or workshop accounts can create product batches directly. Other accounts should create work orders.")
+            
+            # Validate that order_quantity is provided and greater than 0
+            order_quantity = payload.get('order_quantity', 0)
+            if order_quantity <= 0:
+                raise InvalidTransaction("order_quantity must be specified and greater than 0 when creating a product batch")
+            
             asset.raw_materials_used = payload.get('raw_materials_used', [])
-            asset.order_quantity = payload.get('order_quantity', 0)
+            asset.order_quantity = order_quantity
             asset.quantity_unit = payload.get('quantity_unit', '')
             asset.producer_id = payload.get('producer_id', '')
             asset.category = payload.get('category', '')

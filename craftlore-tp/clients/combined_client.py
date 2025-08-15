@@ -142,14 +142,14 @@ class CraftLoreClient:
             **kwargs
         )
     
-    def create_product_batch(self, batch_id: str, batch_type: str, expected_quantity: int,
+    def create_product_batch(self, batch_id: str, batch_type: str, order_quantity: int,
                            assigned_artisan: str = None, **kwargs) -> Dict:
-        """Create a product batch."""
+        """Create a product batch. Only artisan or workshop accounts can create product batches directly."""
         return self.create_asset(
             asset_type='product_batch',
             asset_id=batch_id,
             batch_type=batch_type,
-            expected_quantity=expected_quantity,
+            order_quantity=order_quantity,
             assigned_artisan=assigned_artisan,
             **kwargs
         )
@@ -187,6 +187,18 @@ class CraftLoreClient:
             'work_order_id': work_order_id,
             'assignee_ids': assignee_ids,
             'assignment_details': assignment_details or {},
+            'timestamp': self.serializer.get_current_timestamp(),
+            **kwargs
+        }
+        
+        return self._submit_transaction(payload)
+    
+    def accept_work_order(self, work_order_id: str, **kwargs) -> Dict:
+        """Accept a work order (workshop accepting buyer's order)."""
+        payload = {
+            'action': 'accept_asset',
+            'asset_id': work_order_id,
+            'asset_type': 'work_order',
             'timestamp': self.serializer.get_current_timestamp(),
             **kwargs
         }
