@@ -71,13 +71,15 @@ class CraftLoreTransactionHandler(TransactionHandler):
                 return self.account_handler.handle_account_operation(context, action, payload)
             elif action in ['create_asset', 'create_products_from_batch']:
                 return self.asset_creation_handler.create_asset(context, payload) if action == 'create_asset' else self.asset_creation_handler.create_products_from_batch(context, payload)
-            elif action in ['transfer_asset', 'bulk_transfer', 'accept_asset']:
+            elif action in ['transfer_asset', 'bulk_transfer', 'accept_asset', 'sub_assign_work_order']:
                 if action == 'transfer_asset':
                     return self.asset_transfer_handler.transfer_asset(context, payload)
                 elif action == 'bulk_transfer':
                     return self.asset_transfer_handler.bulk_transfer(context, payload)
                 elif action == 'accept_asset':
                     return self.asset_transfer_handler.accept_asset(context, payload)
+                elif action == 'sub_assign_work_order':
+                    return self.asset_transfer_handler.sub_assign_work_order(context, payload)
             elif action in ['lock_asset', 'unlock_asset', 'delete_asset', 'update_asset']:
                 if action == 'lock_asset':
                     return self.asset_workflow_handler.lock_asset(context, payload)

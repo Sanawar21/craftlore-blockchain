@@ -43,6 +43,9 @@ class BaseAccount:
         
         # Connected entities (using public keys as identifiers)
         self.connected_entities = {}
+        
+        # Work orders issued by this account (available to all account types)
+        self.work_orders_issued = []
     
     def to_dict(self) -> Dict:
         """Convert account to dictionary for blockchain storage."""
@@ -60,7 +63,8 @@ class BaseAccount:
             'updated_timestamp': self.updated_timestamp,
             'is_deleted': self.is_deleted,
             'history': self.history,
-            'connected_entities': self.connected_entities
+            'connected_entities': self.connected_entities,
+            'work_orders_issued': self.work_orders_issued
         }
     
     @classmethod

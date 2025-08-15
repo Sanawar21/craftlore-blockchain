@@ -23,7 +23,6 @@ class WorkshopAccount(BaseAccount):
         
         # Connected entities (using public keys)
         self.employed_artisans = []
-        self.work_orders_issued = []
         self.products_produced = []
         self.raw_materials_received = []
         self.suppliers = []
@@ -32,6 +31,10 @@ class WorkshopAccount(BaseAccount):
         self.quality_reports_issued = []
         self.sustainability_metrics = []
         self.fair_trade_reports = []
+        
+        # Work orders assigned to this workshop (for acceptance)
+        self.work_orders_assigned = []  # Work orders directly assigned to this workshop
+        self.work_orders_sub_assigned = []  # Work orders sub-assigned to this workshop by other entities
         
         # Production metrics (privacy-safe aggregates)
         self.production_metrics = {
@@ -50,7 +53,6 @@ class WorkshopAccount(BaseAccount):
             'production_capacity': self.production_capacity,
             'traditional_methods': self.traditional_methods,
             'employed_artisans': self.employed_artisans,
-            'work_orders_issued': self.work_orders_issued,
             'products_produced': self.products_produced,
             'raw_materials_received': self.raw_materials_received,
             'suppliers': self.suppliers,
@@ -59,6 +61,8 @@ class WorkshopAccount(BaseAccount):
             'quality_reports_issued': self.quality_reports_issued,
             'sustainability_metrics': self.sustainability_metrics,
             'fair_trade_reports': self.fair_trade_reports,
+            'work_orders_assigned': self.work_orders_assigned,
+            'work_orders_sub_assigned': self.work_orders_sub_assigned,
             'production_metrics': self.production_metrics
         })
         return data

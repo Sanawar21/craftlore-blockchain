@@ -20,7 +20,8 @@ class ArtisanAccount(BaseAccount):
         self.years_experience = 0  # Professional background metric
         self.traditional_techniques = []  # Traditional methods mastered
         
-        self.work_orders_assigned = []
+        self.work_orders_assigned = []  # Work orders directly assigned to this artisan
+        self.work_orders_sub_assigned = []  # Work orders sub-assigned to this artisan by workshops
         self.workshops_worked_for = []
         self.payment_records = []
         self.skill_certificates = []
@@ -46,6 +47,7 @@ class ArtisanAccount(BaseAccount):
             'years_experience': self.years_experience,
             'traditional_techniques': self.traditional_techniques,
             'work_orders_assigned': self.work_orders_assigned,
+            'work_orders_sub_assigned': self.work_orders_sub_assigned,
             'workshops_worked_for': self.workshops_worked_for,
             'payment_records': self.payment_records,
             'skill_certificates': self.skill_certificates,

@@ -293,15 +293,13 @@ class AssetCreationHandler:
                 self._update_supplier_account_for_raw_material(context, asset.owner, asset.asset_id, timestamp)
                 
             elif asset_type == AssetType.WORK_ORDER:
+                # Update work order issuer's work_orders_issued list
+                self._update_work_order_issuer_account_on_creation(context, asset, timestamp)
+                
                 # Update assignee account if work order has an assignee
                 if hasattr(asset, 'assignee_id') and asset.assignee_id:
                     # Note: Account state updates can be added here if needed
                     pass
-                
-                # Update assigner account if it's a workshop
-                if hasattr(asset, 'assigner_id') and asset.assigner_id:
-                    assigner_account_type = self.asset_utils.get_account_type(context, asset.assigner_id)
-                    # Note: Account state updates can be added here if needed
                         
             elif asset_type == AssetType.PRODUCT_BATCH:
                 # Update creator account
@@ -361,4 +359,55 @@ class AssetCreationHandler:
             
         except Exception as e:
             print(f"Warning: Could not update supplier account: {str(e)}")
+            # Don't fail the transaction, just log the warning
+
+    def _update_work_order_issuer_account_on_creation(self, context: Context, work_order_asset, timestamp: str):
+        """Update work order issuer's account when a work order is created."""
+        try:
+            # Get the issuer public key (could be assigner_id or owner)
+            issuer_public_key = getattr(work_order_asset, 'assigner_id', None) or work_order_asset.owner
+            
+            if not issuer_public_key:
+                print("Warning: Could not identify work order issuer for account update")
+                return
+                
+            # Get issuer account data
+            account_data = self.asset_utils.get_account(context, issuer_public_key)
+            if not account_data:
+                print(f"Warning: Could not find issuer account for {issuer_public_key}")
+                return
+                
+            # Import account creation function from asset_transfer
+            from handlers.asset_transfer import _create_account_from_data
+            
+            # Create account object dynamically based on account type
+            account = _create_account_from_data(account_data)
+            
+            # Add work order to issuer's work_orders_issued list (bidirectional relationship)
+            work_order_id = work_order_asset.asset_id
+            if hasattr(account, 'work_orders_issued'):
+                if work_order_id not in account.work_orders_issued:
+                    account.work_orders_issued.append(work_order_id)
+                    print(f"✅ Added work order {work_order_id} to issuer's work_orders_issued list")
+            
+            # Add history entry for work order creation
+            account.add_history_entry({
+                'action': 'work_order_created',
+                'work_order_id': work_order_id,
+                'assignee_id': getattr(work_order_asset, 'assignee_id', ''),
+                'created_at': timestamp
+            }, timestamp)
+            
+            # Update the account data with new history
+            account_data['history'] = account.history
+            
+            # Store updated account
+            account_address = self.address_generator.generate_account_address(issuer_public_key)
+            serialized_account = self.serializer.to_bytes(account.to_dict())
+            
+            context.set_state({account_address: serialized_account})
+            print(f"✅ Updated issuer account for work order creation: {work_order_id}")
+            
+        except Exception as e:
+            print(f"Warning: Could not update work order issuer account: {str(e)}")
             # Don't fail the transaction, just log the warning

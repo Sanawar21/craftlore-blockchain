@@ -179,6 +179,20 @@ class CraftLoreClient:
         
         return self._submit_transaction(payload)
     
+    def sub_assign_work_order(self, work_order_id: str, assignee_ids: List[str], 
+                             assignment_details: Dict = None, **kwargs) -> Dict:
+        """Sub-assign a work order to individual artisans or workshops."""
+        payload = {
+            'action': 'sub_assign_work_order',
+            'work_order_id': work_order_id,
+            'assignee_ids': assignee_ids,
+            'assignment_details': assignment_details or {},
+            'timestamp': self.serializer.get_current_timestamp(),
+            **kwargs
+        }
+        
+        return self._submit_transaction(payload)
+    
     def lock_asset(self, asset_id: str, asset_type: str, **kwargs) -> Dict:
         """Lock an asset to prevent modifications."""
         payload = {

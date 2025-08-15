@@ -6,5 +6,6 @@ __pycache__/
 *.pyd
 *.db
 *.sqlite3
-
+debug_enum.py
+test_accounts.py
   

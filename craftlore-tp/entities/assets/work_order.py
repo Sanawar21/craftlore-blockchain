@@ -12,13 +12,18 @@ class WorkOrder(BaseAsset):
         super().__init__(asset_id, public_key, AssetType.WORK_ORDER, timestamp)
         self.batch_id = ""
         self.assigner_id = ""  # ID of the account that created this work order
-        self.assignee_id = ""  # ID of the account assigned to fulfill this work order
+        self.assignee_id = ""  # ID of the account assigned to fulfill this work order (primary assignee)
         self.status = WorkOrderStatus.PENDING
         self.assignee_signature = ""  # Signature of the assigned account
         self.rejection_reason = ""  # Reason for rejection if status is REJECTED
         self.work_type = "production"  # production, repair, certification
         self.estimated_completion_date = ""
         self.actual_completion_date = ""
+        
+        # Sub-assignment tracking for workshop → artisan delegation
+        self.sub_assignees = []  # List of artisan public keys working on this order
+        self.sub_assignment_details = {}  # Dict mapping artisan_id to assignment details
+        self.is_sub_assigned = False  # Flag indicating if work has been delegated
 
 
     def to_dict(self) -> Dict:
@@ -32,7 +37,10 @@ class WorkOrder(BaseAsset):
             'rejection_reason': self.rejection_reason,
             'work_type': self.work_type,
             'estimated_completion_date': self.estimated_completion_date,
-            'actual_completion_date': self.actual_completion_date
+            'actual_completion_date': self.actual_completion_date,
+            'sub_assignees': self.sub_assignees,
+            'sub_assignment_details': self.sub_assignment_details,
+            'is_sub_assigned': self.is_sub_assigned
         })
         return data
 

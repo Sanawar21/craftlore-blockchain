@@ -53,6 +53,18 @@ class AssetUtils:
         if account_type not in [AccountType.ARTISAN.value, AccountType.WORKSHOP.value]:
             raise InvalidTransaction("Only artisan or workshop accounts can be assigned work orders")
     
+    def validate_workshop_account(self, context: Context, public_key: str):
+        """Validate that the account is a workshop."""
+        account_type = self.get_account_type(context, public_key)
+        if account_type != AccountType.WORKSHOP.value:
+            raise InvalidTransaction("Only workshop accounts can sub-assign work orders")
+    
+    def validate_artisan_account(self, context: Context, public_key: str):
+        """Validate that the account is an artisan."""
+        account_type = self.get_account_type(context, public_key)
+        if account_type != AccountType.ARTISAN.value:
+            raise InvalidTransaction("Only artisan accounts can be sub-assigned work orders")
+    
     def validate_account_exists(self, context: Context, public_key: str):
         """Validate that an account exists and is active."""
         account = self.get_account(context, public_key)
