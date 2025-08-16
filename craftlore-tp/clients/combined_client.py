@@ -130,8 +130,8 @@ class CraftLoreClient:
         )
     
     def create_work_order(self, work_order_id: str, buyer_id: str, product_batch_id: str,
-                         assignee_id: str, description: str, **kwargs) -> Dict:
-        """Create a work order."""
+                         assignee_id: str, description: str, order_quantity: int = 0, **kwargs) -> Dict:
+        """Create a work order with specified quantity."""
         return self.create_asset(
             asset_type='work_order',
             asset_id=work_order_id,
@@ -139,6 +139,7 @@ class CraftLoreClient:
             product_batch_id=product_batch_id,
             assignee_id=assignee_id,
             description=description,
+            order_quantity=order_quantity,
             **kwargs
         )
     
@@ -241,12 +242,15 @@ class CraftLoreClient:
         
         return self._submit_transaction(payload)
     
-    def create_products_from_batch(self, batch_id: str, product_ids: List[str], **kwargs) -> Dict:
-        """Create individual products from a batch."""
+    def complete_batch_production(self, batch_id: str, production_date: str = None, 
+                                 artisans_involved: List[str] = None, quality_notes: str = '', **kwargs) -> Dict:
+        """Complete batch production - mark batch as completed and update work order if linked."""
         payload = {
-            'action': 'create_products_from_batch',
+            'action': 'complete_batch_production',
             'batch_id': batch_id,
-            'product_ids': product_ids,
+            'production_date': production_date or self.serializer.get_current_timestamp(),
+            'artisans_involved': artisans_involved or [],
+            'quality_notes': quality_notes,
             'timestamp': self.serializer.get_current_timestamp(),
             **kwargs
         }

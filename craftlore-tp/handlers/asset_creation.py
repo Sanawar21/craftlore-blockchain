@@ -92,70 +92,6 @@ class AssetCreationHandler:
             'timestamp': timestamp
         }
     
-    def create_products_from_batch(self, context: Context, payload: Dict):
-        """Handle creation of individual products from a batch."""
-        required_fields = ['batch_id', 'product_count', 'buyer_public_key', 'timestamp']
-        for field in required_fields:
-            if field not in payload:
-                raise InvalidTransaction(f"Missing required field: {field}")
-        
-        batch_id = payload['batch_id']
-        product_count = payload['product_count']
-        buyer_public_key = payload['buyer_public_key']
-        timestamp = payload['timestamp']
-        signer_public_key = payload.get('signer_public_key')
-        
-        # Load batch
-        batch = self._get_asset(context, batch_id, 'product_batch')
-        if not batch:
-            raise InvalidTransaction(f"Product batch not found: {batch_id}")
-        
-        # Check if signer is the batch owner (assignee who completed production)
-        if batch.get('owner') != signer_public_key:
-            raise InvalidTransaction("Only the batch owner can create products from batch")
-        
-        # Check if batch is locked and complete
-        if not batch.get('is_locked', False):
-            raise InvalidTransaction("Batch must be locked before creating products")
-        
-        if not batch.get('is_complete', False):
-            raise InvalidTransaction("Batch must be complete before creating products")
-        
-        # Validate product count
-        max_quantity = batch.get('order_quantity', 0)
-        if product_count > max_quantity:
-            raise InvalidTransaction(f"Cannot create more products ({product_count}) than batch quantity ({max_quantity})")
-        
-        # Create individual products
-        product_ids = self._create_products_from_batch(context, batch_id, product_count, buyer_public_key, timestamp)
-        
-        # Update batch current quantity
-        batch['current_quantity'] = max(0, batch.get('current_quantity', max_quantity) - product_count)
-        batch['updated_timestamp'] = timestamp
-        
-        # Add history entry
-        self._add_asset_history(batch, {
-            'action': 'products_created_from_batch',
-            'actor_public_key': signer_public_key,
-            'details': f'{product_count} products created and transferred to {buyer_public_key}'
-        }, timestamp)
-        
-        # Store updated batch
-        self._store_asset(context, batch)
-        
-        # Update account states consistently
-        self._update_account_state_for_product_creation(context, product_ids, buyer_public_key, signer_public_key, timestamp)
-        
-        print(f"✅ Created {product_count} products from batch {batch_id}")
-        
-        return {
-            'status': 'success',
-            'batch_id': batch_id,
-            'product_count': product_count,
-            'product_ids': product_ids,
-            'buyer_public_key': buyer_public_key
-        }
-    
     def _initialize_asset_specific_fields(self, context: Context, asset, payload: Dict, asset_type: AssetType):
         """Initialize asset-specific fields based on type."""
         if asset_type == AssetType.RAW_MATERIAL:
@@ -205,50 +141,13 @@ class AssetCreationHandler:
             asset.assignee_id = assignee_id
             asset.work_type = payload.get('work_type', 'production')
             asset.estimated_completion_date = payload.get('estimated_completion_date', '')
+            asset.order_quantity = payload.get('order_quantity', 0)
             
         elif asset_type == AssetType.WARRANTY:
             asset.product_id = payload.get('product_id', '')
             asset.buyer_id = payload.get('buyer_id', asset.public_key)
             asset.warranty_period_months = payload.get('warranty_period_months', 12)
             asset.warranty_terms = payload.get('warranty_terms', '')
-    
-    def _create_products_from_batch(self, context: Context, batch_id: str, product_count: int, buyer_public_key: str, timestamp: str) -> List[str]:
-        """Create individual products from a batch (Flow 1, step 7)."""
-        product_ids = []
-        
-        # Get batch address for generating product addresses
-        batch_address = self.address_generator.generate_asset_address(batch_id, 'product_batch')
-        
-        for i in range(product_count):
-            # Generate product ID and address from batch
-            product_id = f"{batch_id}_product_{i}"
-            product_address = self.address_generator.generate_product_address_from_batch(batch_address, i)
-            
-            # Create product
-            product = Product(
-                asset_id=product_id,
-                public_key=buyer_public_key,  # Initial creator
-                timestamp=timestamp
-            )
-            
-            product.batch_id = batch_id
-            product.batch_index = i
-            product.owner = buyer_public_key
-            product.purchase_date = timestamp
-            
-            # Store product
-            product_data = product.to_dict()
-            context.set_state({
-                product_address: self.serializer.to_bytes(product_data)
-            })
-            
-            # Update indices
-            self._update_owner_index(context, product_id, buyer_public_key)
-            self._update_type_index(context, 'product', product_id)
-            
-            product_ids.append(product_id)
-        
-        return product_ids
     
     # Helper methods (imported from asset_utils)
     def _check_asset_not_exists(self, context: Context, asset_id: str, asset_type: str):
@@ -321,23 +220,6 @@ class AssetCreationHandler:
                     
         except Exception as e:
             print(f"Warning: Could not update account state for asset creation: {str(e)}")
-            # Don't fail the transaction, just log the warning
-    
-    def _update_account_state_for_product_creation(self, context: Context, product_ids: List[str], 
-                                                  buyer_public_key: str, creator_public_key: str, timestamp: str):
-        """Update account state when products are created and transferred to buyer."""
-        try:
-            # Update buyer account - they now own these products
-            # Note: Account state updates can be added here if needed
-            
-            # Update creator account based on their type
-            creator_account_type = self.asset_utils.get_account_type(context, creator_public_key)
-            # Note: Account state updates can be added here if needed
-            
-            print(f"✅ Created {len(product_ids)} products from batch")
-                    
-        except Exception as e:
-            print(f"Warning: Could not update account state for product creation: {str(e)}")
             # Don't fail the transaction, just log the warning
 
     def _update_supplier_account_for_raw_material(self, context: Context, supplier_public_key: str, raw_material_id: str, timestamp: str):

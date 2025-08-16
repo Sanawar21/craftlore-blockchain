@@ -155,7 +155,6 @@ result = client.create_work_order(
 
 ### Asset Operations  
 - `create_asset` - Create any asset type
-- `create_products_from_batch` - Generate products from batch
 - `transfer_asset` - Transfer ownership
 - `bulk_transfer` - Transfer multiple assets
 - `accept_asset` - Accept transferred asset

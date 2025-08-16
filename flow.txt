@@ -3,13 +3,13 @@ Flow 0:
 2. a artisan or a workshop purchases the raw material and becomes the producer
 
 Flow 1:
-1. a buyer (could be any account) creates a work order and a product batch.
+1. a buyer (could be any account) creates a work order.
 2. the buyer locks the work order.
-3. the assignee of the work order (could be a artisan or a workshop) accepts the work order but only if its locked and updates its status to "accepted" and the product batch is transfered to him (he becomes the owner)
+3. the assignee of the work order (could be a artisan or a workshop) accepts the work order but only if its locked and updates its status to "accepted" and he creates its product batch
 4. the assignee produces the product batch and updates its status accordingly.
 5. the assignee currently owns the product batch.
-6. after production is complete the assignee locks the product batch.
-7. the products are transfered to the buyer (each product individually). But the batch is still owned by the assignee.
+6. after production is complete the assignee locks the product batch and the products are generated on the blockchain.
+7. the products are transfered to the buyer. But the batch is still owned by the assignee.
 8. the addresses of the products are made up of the product batch address and the product's batch index
 9. The buyer may be a wholesaler or a retailer. so he may sell the products to other parties.
 

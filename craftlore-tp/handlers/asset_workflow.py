@@ -3,7 +3,7 @@
 Asset workflow operations for CraftLore Asset TP.
 """
 
-from typing import Dict
+from typing import Dict, List
 from datetime import datetime
 from sawtooth_sdk.processor.context import Context
 from sawtooth_sdk.processor.exceptions import InvalidTransaction
@@ -16,6 +16,8 @@ class AssetWorkflowHandler:
     """Handler for asset workflow operations."""
     
     def __init__(self, address_generator, serializer):
+        self.address_generator = address_generator
+        self.serializer = serializer
         self.asset_utils = AssetUtils(address_generator, serializer)
     
     def lock_asset(self, context: Context, transaction_data: Dict) -> Dict:
@@ -285,3 +287,192 @@ class AssetWorkflowHandler:
             
         except Exception as e:
             raise InvalidTransaction(f"Use raw material in batch failed: {str(e)}")
+
+    def complete_batch_production(self, context: Context, transaction_data: Dict) -> Dict:
+        """Complete batch production - mark as complete, generate individual products and transfer to buyer."""
+        try:
+            from core.enums import ProductBatchStatus, WorkOrderStatus
+            from entities.assets.product import Product
+            
+            batch_id = transaction_data['batch_id']
+            signer_public_key = transaction_data.get('signer_public_key')
+            timestamp = transaction_data.get('timestamp', datetime.utcnow().isoformat())
+            production_date = transaction_data.get('production_date', timestamp)
+            artisans_involved = transaction_data.get('artisans_involved', [])
+            quality_notes = transaction_data.get('quality_notes', '')
+            
+            # Get current batch
+            batch_data = self.asset_utils.get_asset(context, batch_id, 'product_batch')
+            if not batch_data:
+                raise InvalidTransaction(f"Product batch {batch_id} not found")
+            
+            # Check permissions - only batch owner (artisan/workshop) can complete
+            if batch_data.get('owner') != signer_public_key:
+                raise InvalidTransaction("Only the batch owner can complete production")
+            
+            # Validate account type
+            account_type = self.asset_utils.get_account_type(context, signer_public_key)
+            if account_type not in ['artisan', 'workshop']:
+                raise InvalidTransaction("Only artisan or workshop accounts can complete batch production")
+            
+            # Check if already completed
+            if batch_data.get('is_complete', False):
+                raise InvalidTransaction("Batch production is already completed")
+            
+            # Check if batch has required information
+            order_quantity = batch_data.get('order_quantity', 0)
+            if order_quantity <= 0:
+                raise InvalidTransaction("Batch must have valid order_quantity to complete production")
+            
+            # Lock the batch first (as per flow specification)
+            batch_data['is_locked'] = True
+            batch_data['locked_by'] = signer_public_key
+            batch_data['locked_timestamp'] = timestamp
+            
+            # Update batch data - mark as complete
+            batch_data['is_complete'] = True
+            batch_data['batch_status'] = ProductBatchStatus.COMPLETED.value
+            batch_data['production_date'] = production_date
+            batch_data['current_quantity'] = order_quantity  # Set to full quantity when completed
+            batch_data['updated_timestamp'] = timestamp
+            
+            # Update artisans involved if provided
+            if artisans_involved:
+                batch_data['artisans_involved'] = artisans_involved
+            
+            # Add quality notes if provided
+            if quality_notes:
+                if 'quality_control_reports' not in batch_data:
+                    batch_data['quality_control_reports'] = []
+                batch_data['quality_control_reports'].append({
+                    'timestamp': timestamp,
+                    'notes': quality_notes,
+                    'inspector': signer_public_key
+                })
+            
+            # Generate individual products (owned by batch creator initially)
+            product_ids = self._create_individual_products_from_batch(
+                context, batch_id, order_quantity, signer_public_key, timestamp
+            )
+            
+            # Add history entry for production completion and product generation
+            self.asset_utils.add_asset_history(batch_data, {
+                'action': 'production_completed_with_products_generated',
+                'actor': signer_public_key,
+                'production_date': production_date,
+                'quantity_produced': order_quantity,
+                'products_created': len(product_ids),
+                'products_owner': signer_public_key,
+                'artisans_involved': artisans_involved
+            }, timestamp)
+            
+            # Store updated batch
+            self.asset_utils.store_asset(context, batch_data)
+            
+            result = {
+                'status': 'success',
+                'message': f'Batch {batch_id} production completed. {order_quantity} products generated (owned by batch creator).',
+                'batch_id': batch_id,
+                'quantity_produced': order_quantity,
+                'products_generated': len(product_ids),
+                'product_ids': product_ids,
+                'products_owner': signer_public_key,
+                'production_date': production_date
+            }
+            
+            # Update work order status if batch is linked to a work order
+            work_order_id = batch_data.get('work_order_id')
+            if work_order_id:
+                try:
+                    work_order_data = self.asset_utils.get_asset(context, work_order_id, 'work_order')
+                    if work_order_data:
+                        work_order_data['status'] = WorkOrderStatus.COMPLETED.value
+                        work_order_data['actual_completion_date'] = timestamp
+                        work_order_data['updated_timestamp'] = timestamp
+                        
+                        # Add history entry to work order
+                        self.asset_utils.add_asset_history(work_order_data, {
+                            'action': 'completed_with_products_ready',
+                            'actor': signer_public_key,
+                            'batch_id': batch_id,
+                            'products_created': len(product_ids),
+                            'products_pending_transfer': True,
+                            'completion_date': timestamp
+                        }, timestamp)
+                        
+                        # Store updated work order
+                        self.asset_utils.store_asset(context, work_order_data)
+                        
+                        result['work_order_updated'] = True
+                        result['work_order_id'] = work_order_id
+                        result['transfer_required'] = True
+                        result['transfer_message'] = f"Products ready for manual transfer to buyer"
+                        
+                except Exception as e:
+                    print(f"Warning: Could not update work order {work_order_id}: {str(e)}")
+                    result['work_order_warning'] = str(e)
+            
+            return result
+            
+        except Exception as e:
+            raise InvalidTransaction(f"Complete batch production failed: {str(e)}")
+
+    def _create_individual_products_from_batch(self, context: Context, batch_id: str, 
+                                              product_count: int, batch_owner_public_key: str, 
+                                              timestamp: str) -> List[str]:
+        """Create individual products from a completed batch (owned by batch creator initially)."""
+        from entities.assets.product import Product
+        
+        product_ids = []
+        
+        for i in range(product_count):
+            # Generate product ID and address using standard asset addressing
+            product_id = f"{batch_id}_product_{i}"
+            product_address = self.address_generator.generate_asset_address(product_id, 'product')
+            
+            # Create product instance
+            product = Product(
+                asset_id=product_id,
+                public_key=batch_owner_public_key,  # Products are created and owned by batch creator
+                timestamp=timestamp
+            )
+            
+            # Set product properties
+            product.batch_id = batch_id
+            product.batch_index = i
+            product.owner = batch_owner_public_key  # Products remain with batch owner
+            product.purchase_date = ""  # No purchase yet, will be set when transferred
+            
+            # Add history entry for product creation (no transfer yet)
+            product.history = [{
+                'action': 'created_from_completed_batch',
+                'actor': batch_owner_public_key,
+                'batch_id': batch_id,
+                'batch_index': i,
+                'status': 'ready_for_transfer',
+                'timestamp': timestamp
+            }]
+            
+            # Store product on blockchain
+            product_data = product.to_dict()
+            context.set_state({
+                product_address: self.serializer.to_bytes(product_data)
+            })
+            
+            # Update indices for product discovery
+            self._update_owner_index(context, product_id, batch_owner_public_key)
+            self._update_type_index(context, 'product', product_id)
+            
+            product_ids.append(product_id)
+            
+            print(f"   ✅ Created product {product_id} (owned by batch creator)")
+        
+        return product_ids
+    
+    def _update_owner_index(self, context: Context, asset_id: str, owner_public_key: str):
+        """Update owner index for asset discovery."""
+        self.asset_utils.update_owner_index(context, asset_id, owner_public_key)
+    
+    def _update_type_index(self, context: Context, asset_type: str, asset_id: str):
+        """Update asset type index for discovery."""
+        self.asset_utils.update_type_index(context, asset_type, asset_id)

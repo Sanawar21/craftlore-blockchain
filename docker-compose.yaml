@@ -78,28 +78,28 @@ services:
         \""
 
   
-  hello-world-tp:
-    build: ./hello-world-tp
-    container_name: hello-world-tp
-    depends_on:
-      - validator
-      - devmode-engine
-      - rest-api
-    stop_signal: SIGKILL
-    volumes:
-      - ./hello-world-tp:/project
+  # hello-world-tp:
+  #   build: ./hello-world-tp
+  #   container_name: hello-world-tp
+  #   depends_on:
+  #     - validator
+  #     - devmode-engine
+  #     - rest-api
+  #   stop_signal: SIGKILL
+  #   volumes:
+  #     - ./hello-world-tp:/project
 
-  simple-tp:
-    build: ./simple-tp
-    container_name: simple-tp
-    depends_on:
-      - validator
-      - devmode-engine
-      - rest-api
-    entrypoint: sleep infinity
-    stop_signal: SIGKILL
-    volumes:
-      - ./simple-tp:/app
+  # simple-tp:
+  #   build: ./simple-tp
+  #   container_name: simple-tp
+  #   depends_on:
+  #     - validator
+  #     - devmode-engine
+  #     - rest-api
+  #   entrypoint: sleep infinity
+  #   stop_signal: SIGKILL
+  #   volumes:
+  #     - ./simple-tp:/app
 
   # account-tp:
   #   build: ./account-tp
