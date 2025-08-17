@@ -80,16 +80,6 @@ class CraftLoreClient:
         
         return self._submit_transaction(payload)
     
-    def query_account(self, query_type: str = 'by_public_key', **params) -> Dict:
-        """Query account information."""
-        payload = {
-            'action': 'account_query',
-            'query_type': query_type,
-            **params
-        }
-        
-        return self._submit_transaction(payload)
-    
     def deactivate_account(self, target_public_key: str) -> Dict:
         """Deactivate an account."""
         payload = {

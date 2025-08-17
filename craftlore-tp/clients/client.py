@@ -64,17 +64,6 @@ class CraftLoreClient:
         }
         
         return self._submit_transaction(payload)
-    
-    def query_account(self, query_type: str = 'by_public_key', **kwargs) -> Dict:
-        """Query account information."""
-        payload = {
-            'action': 'account_query',
-            'query_type': query_type,
-            'timestamp': self.serializer.get_current_timestamp(),
-            **kwargs
-        }
-        
-        return self._submit_transaction(payload)
 
     # =============================================
     # ASSET OPERATIONS

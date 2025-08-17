@@ -151,7 +151,6 @@ result = client.create_work_order(
 - `account_authenticate` - Approve/reject accounts  
 - `account_update` - Update account information
 - `account_deactivate` - Deactivate account
-- `account_query` - Query account data
 
 ### Asset Operations  
 - `create_asset` - Create any asset type
