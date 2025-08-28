@@ -201,3 +201,7 @@ Important notes:
 - Every connection must be bidirectional.
 - Every entity must be queryable by its public key.
 - A product must have a link with the raw material it uses
+
+
+Packaging and logistics
+add Pricing

@@ -220,6 +220,19 @@ class CraftLoreClient:
         
         return self._submit_transaction(payload)
     
+    def update_asset(self, asset_id: str, asset_type: str, updates: dict, **kwargs) -> Dict:
+        """Update an asset with new data."""
+        payload = {
+            'action': 'update_asset',
+            'asset_id': asset_id,
+            'asset_type': asset_type,
+            'updates': updates,
+            'timestamp': self.serializer.get_current_timestamp(),
+            **kwargs
+        }
+        
+        return self._submit_transaction(payload)
+    
     def use_raw_material_in_batch(self, raw_material_id: str, batch_id: str, **kwargs) -> Dict:
         """Use a raw material in a product batch."""
         payload = {
