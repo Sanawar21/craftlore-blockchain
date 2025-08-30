@@ -29,6 +29,8 @@ class AssetType(Enum):
     PRODUCT_BATCH = "product_batch"
     WORK_ORDER = "work_order"
     WARRANTY = "warranty"
+    PACKAGING = "packaging"
+    LOGISTICS = "logistics"
 
 
 class AuthenticationStatus(Enum):
