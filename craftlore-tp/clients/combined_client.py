@@ -125,7 +125,7 @@ class CraftLoreClient:
         return self.create_asset(
             asset_type='work_order',
             asset_id=work_order_id,
-            buyer_id=buyer_id,
+            assigner_id=buyer_id,
             product_batch_id=product_batch_id,
             assignee_id=assignee_id,
             description=description,

@@ -10,8 +10,8 @@ from core.enums import AssetType
 class Packaging(BaseAsset):
     """Packaging asset for CraftLore."""
     
-    def __init__(self, asset_id: str, public_key: str, timestamp):
-        super().__init__(asset_id, public_key, AssetType.PACKAGING, timestamp)
+    def __init__(self, asset_id: str, owner: str, timestamp):
+        super().__init__(asset_id, owner, AssetType.PACKAGING, timestamp)
         self.product_id = ""
         self.product_batch_id = ""
         self.product_batch_index = 0

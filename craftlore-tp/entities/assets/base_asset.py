@@ -11,10 +11,10 @@ import inspect
 class BaseAsset:
     """Base class for all CraftLore assets with privacy-first design."""
 
-    def __init__(self, asset_id: str, public_key: str, asset_type: AssetType, timestamp):
-        # Core identifiers - public_key is PRIMARY identifier
+    def __init__(self, asset_id: str, owner: str, asset_type: AssetType, timestamp):
+        # Core identifiers
         self.asset_id = asset_id  # Human-readable reference
-        self.public_key = public_key  # PRIMARY IDENTIFIER
+        self.owner = owner
 
         # Asset metadata
         self.asset_type = asset_type
@@ -22,7 +22,6 @@ class BaseAsset:
         self.verification_status = VerificationStatus.UNVERIFIED
         
         # Privacy-safe professional data
-        self.owner = ""
         self.previous_owners = []  # List of public keys of previous owners
 
         # Timestamps
@@ -50,7 +49,6 @@ class BaseAsset:
         """Convert asset to dictionary for blockchain storage."""
         return {
             'asset_id': self.asset_id,
-            'public_key': self.public_key,
             'asset_type': self.asset_type.value,
             'authentication_status': self.authentication_status.value,
             'verification_status': self.verification_status.value,
@@ -74,7 +72,7 @@ class BaseAsset:
     @property
     def uneditable_fields(self) -> List[str]:
         """Fields that are read-only and cannot be directly modified in 'asset_edit' transaction."""
-        return ['asset_id', 'public_key', 'created_timestamp',
+        return ['asset_id', 'created_timestamp',
                 'updated_timestamp', 'history', 'is_deleted',
                 'connected_entities', 'is_locked', 'asset_type',
                 'authentication_status', 'verification_status',
@@ -93,32 +91,60 @@ class BaseAsset:
         type_hints = get_type_hints(cls.__init__)
 
         init_args = {}
+        consumed_keys = set()
+
         for param in sig.parameters.values():
-            if param.name == 'self':
+            if param.name == "self":
                 continue
 
-            value = data.get(param.name)
-            expected_type = type_hints.get(param.name)
+            if param.kind == inspect.Parameter.VAR_KEYWORD:
+                continue  # handle later
 
-            # Automatically convert to Enum if needed
+            value = data.get(param.name)
+            consumed_keys.add(param.name)
+
+            expected_type = type_hints.get(param.name)
             if expected_type and isinstance(expected_type, type) and issubclass(expected_type, Enum):
                 if isinstance(value, str):
                     value = expected_type(value)
 
             init_args[param.name] = value
 
-        # Instantiate with converted and filtered args
+        # Handle **kwargs: include all unmatched items
+        extra_kwargs = {}
+        if any(p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()):
+            for k, v in data.items():
+                if k in consumed_keys:
+                    continue
+                extra_kwargs[k] = cls._convert_enum_value(v)
+
+            init_args.update(extra_kwargs)
+
+        # Instantiate
         instance = cls(**init_args)
 
-        # Set all other non-init attributes
+        # Attach all fields from dict, converting enums if needed
         for key, value in data.items():
-            if not hasattr(instance, key):
-                setattr(instance, key, value)
-
-        # Convert other attributes with enums (outside constructor)
-        instance._convert_enum_fields(data)
+            setattr(instance, key, cls._convert_enum_value(value))
 
         return instance
+
+
+    @staticmethod
+    def _convert_enum_value(value):
+        """Convert a string back into an Enum if it matches any known Enum type."""
+        if isinstance(value, str):
+            for enum_cls in Enum.__subclasses__():
+                # Compare against enum member names
+                if value in enum_cls.__members__:
+                    return enum_cls[value]
+                # Compare against enum member values
+                for member in enum_cls:
+                    if value == member.value:
+                        return member
+        return value
+
+    
 
     def _convert_enum_fields(self, data: Dict):
         """Dynamically convert enum attributes (even if not in constructor)."""

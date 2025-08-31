@@ -25,7 +25,6 @@ class AssetType(Enum):
     """All supported asset types in CraftLore system."""
     RAW_MATERIAL = "raw_material"
     PRODUCT = "product"
-    BATCH = "batch"
     PRODUCT_BATCH = "product_batch"
     WORK_ORDER = "work_order"
     WARRANTY = "warranty"

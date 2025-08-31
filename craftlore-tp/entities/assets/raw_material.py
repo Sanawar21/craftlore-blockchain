@@ -11,8 +11,8 @@ from core.enums import AssetType
 class RawMaterial(BaseAsset):
     """Raw material asset for CraftLore."""
 
-    def __init__(self, asset_id: str, public_key: str, timestamp):
-        super().__init__(asset_id, public_key, AssetType.RAW_MATERIAL, timestamp)
+    def __init__(self, asset_id: str, owner: str, timestamp):
+        super().__init__(asset_id, owner, AssetType.RAW_MATERIAL, timestamp)
         self.material_type = ""  # e.g., "wool", "cotton", "silk"
         self.supplier_id = ""
         self.quantity = 0  # Quantity in standard units (e.g., kg, meters)

@@ -8,7 +8,7 @@ from typing import Dict, List, Optional
 from sawtooth_sdk.processor.context import Context
 from sawtooth_sdk.processor.exceptions import InvalidTransaction
 
-from entities.assets import Product, ProductBatch, RawMaterial, WorkOrder, Warranty
+from entities.assets import Product, ProductBatch, RawMaterial, WorkOrder, Warranty, Logistics, Packaging
 from core.enums import AssetType, WorkOrderStatus, ProductBatchStatus
 from .asset_utils import AssetUtils
 
@@ -27,7 +27,9 @@ class AssetCreationHandler:
             AssetType.PRODUCT: Product,
             AssetType.PRODUCT_BATCH: ProductBatch,
             AssetType.WORK_ORDER: WorkOrder,
-            AssetType.WARRANTY: Warranty
+            AssetType.WARRANTY: Warranty,
+            AssetType.LOGISTICS: Logistics,
+            AssetType.PACKAGING: Packaging
         }
     
     def create_asset(self, context: Context, payload: Dict):
@@ -63,19 +65,39 @@ class AssetCreationHandler:
         asset_class = self.ASSET_CLASSES.get(asset_type)
         if not asset_class:
             raise InvalidTransaction(f"Unsupported asset type: {asset_type_str}")
+
+        # asset = asset_class(
+        #     asset_id=asset_id,
+        #     owner=signer_public_key,
+        #     timestamp=timestamp
+        # )
         
-        asset = asset_class(
-            asset_id=asset_id,
-            public_key=signer_public_key,
-            timestamp=timestamp
-        )
-        
-        # Set initial owner
-        asset.owner = signer_public_key
+        # # Set initial owner
+        # asset.owner = signer_public_key
         
         # Handle asset-type-specific initialization
-        self._initialize_asset_specific_fields(context, asset, payload, asset_type)
+        # self._initialize_asset_specific_fields(context, asset, payload, asset_type)
+        if asset_type == AssetType.PRODUCT_BATCH:
+            creator_account_type = self.asset_utils.get_account_type(context, signer_public_key)
+            if creator_account_type not in ['artisan', 'workshop']:
+                raise InvalidTransaction("Only artisan or workshop accounts can create product batches directly. Other accounts should create work orders.")
+            
+            # Validate that order_quantity is provided and greater than 0
+            order_quantity = payload.get('order_quantity', 0)
+            if order_quantity <= 0:
+                raise InvalidTransaction("order_quantity must be specified and greater than 0 when creating a product batch")
         
+        elif asset_type == AssetType.WORK_ORDER:
+            # Rule: Only an artisan or workshop can be the assignee of a work order
+            assignee_id = payload.get('assignee_id', '')
+            if assignee_id:
+                assignee_account_type = self.asset_utils.get_account_type(context, assignee_id)
+                if assignee_account_type not in ['artisan', 'workshop']:
+                    raise InvalidTransaction("Only artisan or workshop accounts can be assigned to a work order.")
+
+        payload['owner'] = signer_public_key
+        asset = asset_class.from_dict(payload)
+
         # Store asset with all necessary indices
         self._store_asset_with_indices(context, asset)
         
@@ -91,63 +113,6 @@ class AssetCreationHandler:
             'owner': signer_public_key,
             'timestamp': timestamp
         }
-    
-    def _initialize_asset_specific_fields(self, context: Context, asset, payload: Dict, asset_type: AssetType):
-        """Initialize asset-specific fields based on type."""
-        if asset_type == AssetType.RAW_MATERIAL:
-            asset.material_type = payload.get('material_type', '')
-            asset.supplier_id = payload.get('supplier_id', '')
-            asset.quantity = payload.get('quantity', 0)
-            asset.quantity_unit = payload.get('quantity_unit', '')
-            asset.harvested_date = payload.get('harvested_date', '')
-            asset.source_location = payload.get('source_location', '')
-            asset.transaction_date = payload.get('timestamp', '')
-            
-        elif asset_type == AssetType.PRODUCT_BATCH:
-            # Validate that only artisan or workshop can create product batches directly
-            creator_account_type = self.asset_utils.get_account_type(context, asset.public_key)
-            if creator_account_type not in ['artisan', 'workshop']:
-                raise InvalidTransaction("Only artisan or workshop accounts can create product batches directly. Other accounts should create work orders.")
-            
-            # Validate that order_quantity is provided and greater than 0
-            order_quantity = payload.get('order_quantity', 0)
-            if order_quantity <= 0:
-                raise InvalidTransaction("order_quantity must be specified and greater than 0 when creating a product batch")
-            
-            asset.raw_materials_used = payload.get('raw_materials_used', [])
-            asset.order_quantity = order_quantity
-            asset.quantity_unit = payload.get('quantity_unit', '')
-            asset.producer_id = payload.get('producer_id', '')
-            asset.category = payload.get('category', '')
-            asset.name = payload.get('name', '')
-            asset.description = payload.get('description', '')
-            asset.work_order_id = payload.get('work_order_id', '')
-            asset.batch_status = ProductBatchStatus.PENDING
-            
-        elif asset_type == AssetType.PRODUCT:
-            asset.batch_id = payload.get('batch_id', '')
-            asset.batch_index = payload.get('batch_index', 0)
-            asset.purchase_date = payload.get('timestamp', '')
-            
-        elif asset_type == AssetType.WORK_ORDER:
-            asset.batch_id = payload.get('batch_id', '')
-            asset.assigner_id = payload.get('assigner_id', asset.public_key)
-            assignee_id = payload.get('assignee_id', '')
-            
-            # Rule: Only an artisan or workshop can be the assignee of a work order
-            if assignee_id:
-                self.asset_utils.validate_artisan_or_workshop_account(context, assignee_id)
-            
-            asset.assignee_id = assignee_id
-            asset.work_type = payload.get('work_type', 'production')
-            asset.estimated_completion_date = payload.get('estimated_completion_date', '')
-            asset.order_quantity = payload.get('order_quantity', 0)
-            
-        elif asset_type == AssetType.WARRANTY:
-            asset.product_id = payload.get('product_id', '')
-            asset.buyer_id = payload.get('buyer_id', asset.public_key)
-            asset.warranty_period_months = payload.get('warranty_period_months', 12)
-            asset.warranty_terms = payload.get('warranty_terms', '')
     
     # Helper methods (imported from asset_utils)
     def _check_asset_not_exists(self, context: Context, asset_id: str, asset_type: str):

@@ -9,8 +9,8 @@ from core.enums import AssetType
 class Product(BaseAsset):
     """Product asset for CraftLore."""
     
-    def __init__(self, asset_id: str, public_key: str, timestamp):
-        super().__init__(asset_id, public_key, AssetType.PRODUCT, timestamp)
+    def __init__(self, asset_id: str, owner: str, timestamp):
+        super().__init__(asset_id, owner, AssetType.PRODUCT, timestamp)
         self.batch_id = ""  # ID of the batch this product belongs to
         self.batch_index = 0
         self.purchase_date = ""  # Date of purchase by current owner

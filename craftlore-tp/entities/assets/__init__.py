@@ -13,6 +13,8 @@ from .product_batch import ProductBatch
 from .raw_material import RawMaterial
 from .work_order import WorkOrder
 from .warranty import Warranty
+from .logistics import Logistics
+from .packaging import Packaging
 
 # Export all account classes for easy importing
 __all__ = [
@@ -22,4 +24,6 @@ __all__ = [
     'RawMaterial',
     'WorkOrder',
     'Warranty',
+    'Logistics',
+    'Packaging'
 ]

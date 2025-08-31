@@ -12,7 +12,7 @@ from .accounts import (
 
 # Import asset entities  
 from .assets import (
-    BaseAsset, RawMaterial, Product, ProductBatch, WorkOrder, Warranty
+    BaseAsset, RawMaterial, Product, ProductBatch, WorkOrder, Warranty, Logistics, Packaging
 )
 
 # Import asset factory
@@ -26,8 +26,8 @@ __all__ = [
     'AdminAccount', 'SuperAdminAccount', 'SupplierAccount',
     
     # Asset entities
-    'BaseAsset', 'RawMaterial', 'Product', 'ProductBatch', 'WorkOrder', 'Warranty',
-    
+    'BaseAsset', 'RawMaterial', 'Product', 'ProductBatch', 'WorkOrder', 'Warranty', 'Logistics', 'Packaging',
+
     # Factory
     'AssetFactory'
 ]

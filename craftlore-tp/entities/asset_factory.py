@@ -4,7 +4,7 @@ Asset Factory for creating asset instances from data.
 """
 
 from typing import Dict, Optional, Union
-from .assets import BaseAsset, Product, ProductBatch, RawMaterial, WorkOrder, Warranty
+from .assets import BaseAsset, Product, ProductBatch, RawMaterial, WorkOrder, Warranty, Packaging, Logistics
 from core.enums import AssetType
 
 
@@ -17,12 +17,16 @@ class AssetFactory:
         AssetType.PRODUCT_BATCH.value: ProductBatch,
         AssetType.WORK_ORDER.value: WorkOrder,
         AssetType.WARRANTY.value: Warranty,
+        AssetType.LOGISTICS.value: Logistics,
+        AssetType.PACKAGING.value: Packaging,
         # String aliases
         'raw_material': RawMaterial,
         'product': Product,
         'product_batch': ProductBatch,
         'work_order': WorkOrder,
         'warranty': Warranty,
+        'packaging': Packaging,
+        'logistics': Logistics
     }
     
     @classmethod
@@ -54,20 +58,18 @@ class AssetFactory:
         try:
             # Extract basic fields
             asset_id = asset_data.get('asset_id', '')
-            public_key = asset_data.get('public_key', asset_data.get('owner', ''))
+            owner = asset_data.get('owner', asset_data.get('public_key', '')) # public_key is kept for robustness from previous implementations
             timestamp = asset_data.get('timestamp', asset_data.get('created_at', ''))
             
             # Create instance
-            asset = asset_class(
-                asset_id=asset_id,
-                public_key=public_key,
-                timestamp=timestamp
+            asset = asset_class.from_dict(
+                asset_data.update({
+                    'asset_id': asset_id,
+                    'owner': owner,
+                    'timestamp': timestamp
+                })
             )
-            
-            # Set all other fields from data
-            for key, value in asset_data.items():
-                if hasattr(asset, key):
-                    setattr(asset, key, value)
+        
             
             return asset
             

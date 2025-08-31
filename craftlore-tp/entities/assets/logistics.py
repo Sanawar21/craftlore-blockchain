@@ -10,8 +10,8 @@ from core.enums import AssetType
 class Logistics(BaseAsset):
     """Logistics asset for CraftLore."""
     
-    def __init__(self, asset_id: str, public_key: str, timestamp):
-        super().__init__(asset_id, public_key, AssetType.LOGISTICS, timestamp)
+    def __init__(self, asset_id: str, owner: str, timestamp):
+        super().__init__(asset_id, owner, AssetType.LOGISTICS, timestamp)
         self.packages = []
         self.charges = {}
         self.routes = []

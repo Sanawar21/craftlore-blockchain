@@ -11,8 +11,8 @@ from core.enums import AssetType, WarrantyStatus
 class Warranty(BaseAsset):
     """Warranty asset for CraftLore products."""
     
-    def __init__(self, asset_id: str, public_key: str, timestamp):
-        super().__init__(asset_id, public_key, AssetType.WARRANTY, timestamp)
+    def __init__(self, asset_id: str, owner: str, timestamp):
+        super().__init__(asset_id, owner, AssetType.WARRANTY, timestamp)
         self.product_id = ""  # ID of the product this warranty covers
         self.buyer_id = ""  # ID of the buyer who registered the warranty
         self.warranty_period_months = 12  # Warranty period in months

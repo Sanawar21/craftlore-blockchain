@@ -11,8 +11,8 @@ from core.enums import AssetType, ProductBatchStatus
 class ProductBatch(BaseAsset):
     """Product batch asset for CraftLore."""
     
-    def __init__(self, asset_id: str, public_key: str, timestamp):
-        super().__init__(asset_id, public_key, AssetType.PRODUCT_BATCH, timestamp)
+    def __init__(self, asset_id: str, owner: str, timestamp):
+        super().__init__(asset_id, owner, AssetType.PRODUCT_BATCH, timestamp)
         self.raw_materials_used = []  # List of raw material IDs used in this batch
         self.order_quantity = 0  # Total number of products in this batch
         self.quantity_unit = ""  # Unit of measurement (e.g., "pieces", "
