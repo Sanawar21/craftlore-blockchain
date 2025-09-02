@@ -5,7 +5,7 @@ Serialization utilities for CraftLore Combined TP.
 
 import json
 from typing import Dict, Any, Union
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class SerializationHelper:
@@ -23,22 +23,6 @@ class SerializationHelper:
     
     @staticmethod
     def get_current_timestamp() -> str:
-        """Get current timestamp as ISO string."""
-        return datetime.now().isoformat()
+        """Get current UTC timestamp as ISO string."""
+        return datetime.now(timezone.utc).isoformat()
     
-    @staticmethod
-    def format_timestamp(timestamp: Union[float, int, str]) -> str:
-        """Format timestamp to ISO string."""
-        if isinstance(timestamp, str):
-            return timestamp
-        return datetime.fromtimestamp(timestamp).isoformat()
-    
-    @staticmethod
-    def serialize_enum(enum_value) -> str:
-        """Serialize enum value to string."""
-        return enum_value.value if hasattr(enum_value, 'value') else str(enum_value)
-    
-    @staticmethod
-    def safe_dict_get(data: Dict, key: str, default=None):
-        """Safely get value from dictionary."""
-        return data.get(key, default)
