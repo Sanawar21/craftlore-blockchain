@@ -19,9 +19,9 @@ class EmailIndexUpdater(BaseListener):
 
         address = self.address_generator.generate_email_index_address(account.email)
         
-        if event.context.get_state([address]):
+        if event.context.get_state([address]).get(address):
             raise InvalidTransaction(f"{account.email} is already taken")
         
         event.context.set_state({
-            address: self.process_data_for_setting_state(data)
+            address: self.serialize_for_state(data)
         })

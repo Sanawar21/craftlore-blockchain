@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Any, Dict, Callable
 from collections import defaultdict
+from sawtooth_sdk.processor.exceptions import InvalidTransaction
 from sawtooth_sdk.processor.context import Context
 import json
 
@@ -40,5 +41,8 @@ class EventsManager:
     def propagate(self, event_type: EventType, transaction, context: Context):
         context_ = EventContext(event_type=event_type, transaction=transaction, context=context)
         for _, listener in self.listeners[event_type]:
-            listener.on_event(context_)  # Pass context; handlers add/get data
+            try:
+                listener.on_event(context_)  # Pass context; handlers add/get data
+            except Exception as e:
+                raise InvalidTransaction(f"Error in listener {listener.__class__.__name__}: {str(e)}\nExecution order: {[(p, l.__class__.__name__) for p, l in self.listeners[event_type]]}")
         return context_

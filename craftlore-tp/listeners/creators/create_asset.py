@@ -43,7 +43,7 @@ class AssetCreationHandler(BaseListener):
             raise InvalidTransaction("Asset already exists")
 
         context.set_state({
-            asset_address: self.process_data_for_setting_state(asset_data)
+            asset_address: self.serialize_for_state(asset_data)
         })
 
         event.add_data({

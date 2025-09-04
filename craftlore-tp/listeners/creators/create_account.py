@@ -28,7 +28,10 @@ class AccountCreationHandler(BaseListener):
 
         # Process the fields as needed
         account_type_str = fields.get("account_type")
-        account_type = AccountType(account_type_str)
+        try:
+            account_type = AccountType(account_type_str)
+        except ValueError:
+            raise InvalidTransaction(f"Invalid account type: {account_type_str}")
         account_class = self.account_types.get(account_type)
 
         if not account_class:
@@ -39,11 +42,11 @@ class AccountCreationHandler(BaseListener):
 
         account_address = self.address_generator.generate_account_address(account.public_key)
 
-        if context.get_state([account_address]):
+        if context.get_state([account_address]).get(account_address):
             raise InvalidTransaction("Account already exists")
 
         context.set_state({
-            account_address: self.process_data_for_setting_state(account_data)
+            account_address: self.serialize_for_state(account_data)
         })
 
         event.add_data({

@@ -18,7 +18,10 @@ class OwnerHistoryUpdater(BaseListener):
             raise InvalidTransaction("Entity data or address not found in event context for OwnerHistoryUpdater")
 
         owner_address = self.address_generator.generate_account_address(entity.asset_owner)
-        owner_data = event.context.get_state([owner_address])  # Ensure owner account exists
+        entries = event.context.get_state([owner_address])  # Ensure owner account exists
+
+        if entries:
+            owner_data = self.serializer.from_bytes(entries[0].data)
 
         if event.event_type == EventType.ASSET_CREATED:
             owner_data["assets"].append(entity.uid)
@@ -31,7 +34,7 @@ class OwnerHistoryUpdater(BaseListener):
         })
 
         event.context.set_state({
-            entity_address: self.process_data_for_setting_state(owner_data)
+            entity_address: self.serialize_for_state(owner_data)
         })
 
         event.add_data({
