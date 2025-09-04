@@ -13,7 +13,7 @@ from utils.address_generator import CraftLoreAddressGenerator
 from utils.serialization import SerializationHelper
 from listeners import registered_listeners
 from events import EventsManager
-
+from models.enums import EventType
 
 class CraftLoreTransactionHandler(TransactionHandler):
     """Unified transaction handler for CraftLore account and asset operations."""
@@ -52,7 +52,8 @@ class CraftLoreTransactionHandler(TransactionHandler):
             if not event:
                 raise InvalidTransaction("Transaction must specify an event from `models.enums.EventType`")
 
-            print(f"Event recieved: {event}")
+            event = EventType(event)
+            print(f"Event received: {event}")
 
             self.events_manager.propagate(event, transaction, context)
 

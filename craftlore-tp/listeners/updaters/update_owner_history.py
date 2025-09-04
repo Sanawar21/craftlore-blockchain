@@ -29,6 +29,7 @@ class OwnerHistoryUpdater(BaseListener):
         owner_data["history"].append({
             "event": event.event_type.value,
             "actor": event.signer_public_key,
+            "targets": [entity.uid],
             "transaction": event.signature,
             "timestamp": event.timestamp
         })

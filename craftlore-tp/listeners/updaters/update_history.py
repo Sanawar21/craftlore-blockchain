@@ -20,6 +20,7 @@ class HistoryUpdater(BaseListener):
         entity.history.append({
             "event": event.event_type.value,
             "actor": event.signer_public_key,
+            "targets": [entity.uid] if isinstance(entity, BaseAsset) else [entity.public_key],
             "transaction": event.signature,
             "timestamp": event.timestamp
         })

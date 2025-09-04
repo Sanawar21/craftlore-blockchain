@@ -36,13 +36,16 @@ class EventsManager:
     def register(self, listener):
         for event_type, priority in zip(listener.event_types, listener.priorities):
             self.listeners[event_type].append((priority, listener))
-            self.listeners[event_type].sort(key=lambda x: x[0], reverse=True)
+            
     
     def propagate(self, event_type: EventType, transaction, context: Context):
         context_ = EventContext(event_type=event_type, transaction=transaction, context=context)
-        for _, listener in self.listeners[event_type]:
-            try:
-                listener.on_event(context_)  # Pass context; handlers add/get data
-            except Exception as e:
-                raise InvalidTransaction(f"Error in listener {listener.__class__.__name__}: {str(e)}\nExecution order: {[(p, l.__class__.__name__) for p, l in self.listeners[event_type]]}")
+        self.listeners[event_type].sort(key=lambda x: x[0], reverse=True)
+        print(f"Propagating event: {event_type} to {len(self.listeners[event_type])} listeners")
+        for _, listener in self.listeners[event_type]: 
+            print(f"Executing listener: {listener.__class__.__name__} for event: {event_type}")
+            # try:
+            listener.on_event(context_)  # Pass context; handlers add/get data
+            # except Exception as e:
+            #     raise InvalidTransaction(f"Error in listener {listener.__class__.__name__}: {str(e)} Execution order: {[(p, l.__class__.__name__) for p, l in self.listeners[event_type]]}")
         return context_

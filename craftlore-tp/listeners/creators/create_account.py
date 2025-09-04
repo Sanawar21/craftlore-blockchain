@@ -42,7 +42,7 @@ class AccountCreationHandler(BaseListener):
 
         account_address = self.address_generator.generate_account_address(account.public_key)
 
-        if context.get_state([account_address]).get(account_address):
+        if context.get_state([account_address]):
             raise InvalidTransaction("Account already exists")
 
         context.set_state({
