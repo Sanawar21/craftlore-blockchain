@@ -7,7 +7,10 @@ class EmailIndexUpdater(BaseListener):
         super().__init__([EventType.ACCOUNT_CREATED], priorities=[-1000])  # run in the last
 
     def on_event(self, event: EventContext):
-        account: BaseAccount = event.get_data("account")
+        account: BaseAccount = event.get_data("entity")
+
+        if not account:
+            raise InvalidTransaction("Account data not found in event context for EmailIndexUpdater")
 
         data = {
             "public_key": account.public_key,

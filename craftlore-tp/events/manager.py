@@ -16,10 +16,12 @@ class EventContext:
         self.signature: str = transaction.signature
         self.payload: dict[str, Any] = json.loads(transaction.payload.decode('utf-8'))
         self.signer_public_key: str = transaction.header.signer_public_key
+        self.timestamp = self.payload.get("timestamp", None)  # Assuming timestamp is part of the payload
 
-    def add_data(self, key: str, value: Any) -> None:
+    def add_data(self, data: dict) -> None:
         """Add data to the shared generated_data dictionary."""
-        self.generated_data[key] = value
+        self.generated_data.update(data)
+
 
     def get_data(self, key: str) -> Any:
         """Retrieve data from the shared generated_data dictionary."""
@@ -30,7 +32,7 @@ class EventsManager:
     def __init__(self):
         self.listeners: Dict[EventType, list] = defaultdict(list)
 
-    def register(self, event_type: EventType, listener):
+    def register(self, listener):
         for event_type, priority in zip(listener.event_types, listener.priorities):
             self.listeners[event_type].append((priority, listener))
             self.listeners[event_type].sort(key=lambda x: x[0], reverse=True)

@@ -6,6 +6,7 @@ Serialization utilities for CraftLore Combined TP.
 import json
 from typing import Dict, Any, Union
 from datetime import datetime, timezone
+from uuid import uuid4
 
 
 class SerializationHelper:
@@ -26,3 +27,7 @@ class SerializationHelper:
         """Get current UTC timestamp as ISO string."""
         return datetime.now(timezone.utc).isoformat()
     
+    @staticmethod
+    def create_asset_id() -> str:
+        """Create a unique identifier for an asset using UUID4."""
+        return str(uuid4())

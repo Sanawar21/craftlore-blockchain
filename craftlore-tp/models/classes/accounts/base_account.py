@@ -12,6 +12,7 @@ class BaseAccount(BaseModel):
     public_key: str  # PRIMARY IDENTIFIER
     email: str   # ONLY personal data for off-chain linking
     account_type: AccountType
+    assets: list = Field(default_factory=list)
     authentication_status: AuthenticationStatus = AuthenticationStatus.PENDING
     work_orders_issued: list = Field(default_factory=list)
     region: str = Field(default_factory=str)

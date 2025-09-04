@@ -47,11 +47,10 @@ class CraftLoreAddressGenerator:
     # ASSET ADDRESS GENERATION
     # ==============================================
     
-    def generate_asset_address(self, asset_id: str, asset_type: str) -> str:
+    def generate_asset_address(self, asset_id: str) -> str:
         """Generate address for an asset."""
-        type_prefix = self.ASSET_TYPE_PREFIXES.get(asset_type, '1f')  # Default fallback
         asset_hash = hashlib.sha512(asset_id.encode()).hexdigest()
-        return self.FAMILY_NAMESPACE + type_prefix + asset_hash[:62]
+        return self.FAMILY_NAMESPACE + asset_hash[:62]
     
 
   
