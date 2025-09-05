@@ -3,12 +3,13 @@
 Base account entity for CraftLore Account TP.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from ...enums import AuthenticationStatus, AccountType
+from abc import ABC
 
-
-class BaseAccount(BaseModel):
+class BaseAccount(BaseModel, ABC):
     """Base account model for CraftLore Account TP."""
+    model_config = ConfigDict(use_enum_values=True)
     public_key: str  # PRIMARY IDENTIFIER
     email: str   # ONLY personal data for off-chain linking
     account_type: AccountType

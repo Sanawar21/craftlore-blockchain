@@ -49,8 +49,7 @@ class CraftLoreAddressGenerator:
     
     def generate_asset_address(self, asset_id: str) -> str:
         """Generate address for an asset."""
-        asset_hash = hashlib.sha512(asset_id.encode()).hexdigest()
-        return self.FAMILY_NAMESPACE + asset_hash[:62]
+        return self._generate_address(self.ASSET_PREFIX, asset_id)
     
 
   

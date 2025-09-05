@@ -22,6 +22,8 @@ class OwnerHistoryUpdater(BaseListener):
 
         if entries:
             owner_data = self.serializer.from_bytes(entries[0].data)
+        else:
+            raise InvalidTransaction("Owner account does not exist for OwnerHistoryUpdater")
 
         if event.event_type == EventType.ASSET_CREATED:
             owner_data["assets"].append(entity.uid)
@@ -34,11 +36,14 @@ class OwnerHistoryUpdater(BaseListener):
             "timestamp": event.timestamp
         })
 
+        if event.event_type == EventType.ASSET_CREATED:
+            owner_data["raw_materials_created"].append(entity.uid)
+
         event.context.set_state({
-            entity_address: self.serialize_for_state(owner_data)
+            owner_address: self.serialize_for_state(owner_data)
         })
 
         event.add_data({
             "owner_address": owner_address,
-            "owner": self.account_types[owner_data["account_type"]].model_validate(owner_data)
+            "owner": self.account_types[AccountType(owner_data["account_type"])].model_validate(owner_data)
         })

@@ -25,6 +25,8 @@ class AssetCreationHandler(BaseListener):
         fields = fields.copy() 
 
         fields["asset_owner"] = signer_public_key
+        fields["created_timestamp"] = event.timestamp
+        fields["supplier_public_key"] = signer_public_key
 
         # Process the fields as needed
         asset_type_str = fields.get("asset_type")

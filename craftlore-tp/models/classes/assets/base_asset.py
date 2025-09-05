@@ -3,12 +3,14 @@
 Base asset entity for CraftLore Account TP.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from ...enums import AuthenticationStatus, AssetType
+from abc import ABC
 
 
-class BaseAsset(BaseModel):
+class BaseAsset(BaseModel, ABC):
     """Base asset model for CraftLore Account TP."""
+    model_config = ConfigDict(use_enum_values=True)
     uid: str  # PRIMARY IDENTIFIER
     asset_owner: str
     asset_type: AssetType

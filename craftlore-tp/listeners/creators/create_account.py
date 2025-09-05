@@ -25,6 +25,7 @@ class AccountCreationHandler(BaseListener):
         fields = fields.copy() 
 
         fields["public_key"] = signer_public_key
+        fields["created_timestamp"] = event.timestamp
 
         # Process the fields as needed
         account_type_str = fields.get("account_type")
