@@ -1,9 +1,8 @@
 from typing import Any
 
 
-from .. import BaseListener, EventType, EventContext, InvalidTransaction
-from models.enums import AssetType
-from models.classes.assets import (RawMaterial,)
+from .. import BaseListener, EventContext, InvalidTransaction
+from models.enums import AssetType, EventType
 
 
 class AssetCreationHandler(BaseListener):
@@ -26,7 +25,11 @@ class AssetCreationHandler(BaseListener):
 
         fields["asset_owner"] = signer_public_key
         fields["created_timestamp"] = event.timestamp
-        fields["supplier_public_key"] = signer_public_key
+
+        if fields.get("asset_type") == AssetType.RAW_MATERIAL.value:
+            fields["supplier"] = event.signer_public_key
+        elif fields.get("asset_type") == AssetType.WORK_ORDER.value:
+            fields["assigner"] = event.signer_public_key
 
         # Process the fields as needed
         asset_type_str = fields.get("asset_type")

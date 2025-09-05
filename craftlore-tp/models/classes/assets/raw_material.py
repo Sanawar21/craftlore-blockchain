@@ -12,7 +12,7 @@ class RawMaterial(BaseAsset):
     """Raw material asset that is produced by suppliers and is used in batches."""
     asset_type: AssetType = Field(default=AssetType.RAW_MATERIAL)
     material_type: str  # e.g., "wool", "cotton", "silk"
-    supplier_public_key: str = Field(default_factory=str)
+    supplier: str = Field(default_factory=str)
     quantity: float  # Quantity in standard units (e.g., kg, meters)
     quantity_unit: str
     unit_price: float  # Price per unit of quantity

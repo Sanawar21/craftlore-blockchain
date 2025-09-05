@@ -1,2 +1,7 @@
 from .create_account import AccountCreationHandler
 from .create_asset import AssetCreationHandler
+
+listeners = [
+    AccountCreationHandler,
+    AssetCreationHandler,
+]

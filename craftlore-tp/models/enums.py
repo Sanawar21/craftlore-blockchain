@@ -12,9 +12,11 @@ class AuthenticationStatus(BaseEnum):
 
 class AccountType(BaseEnum):
     SUPPLIER = "supplier"
+    ARTISAN = "artisan"
 
 class AssetType(BaseEnum):
     RAW_MATERIAL = "raw_material"
+    WORK_ORDER = "work_order"
 
 class EventType(BaseEnum):
     ACCOUNT_CREATED = "create/account"
@@ -23,3 +25,24 @@ class EventType(BaseEnum):
     ASSET_CREATED = "create/asset"
     ASSET_UPDATED = "update/asset"
     ASSET_DELETED = "delete/asset"
+
+class SubEventType(BaseEnum):
+    """Sub-event types for more granular event handling."""
+    WORK_ORDER_CREATED = "create/asset/work_order"
+
+class ArtisanSkillLevel(BaseEnum):
+    BEGINNER = "beginner"
+    INTERMEDIATE = "intermediate"
+    EXPERT = "expert"
+
+class WorkOrderStatus(BaseEnum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    REJECTED = "rejected"
+
+class WorkOrderType(BaseEnum):
+    PRODUCTION = "production"
+    REPAIR = "repair"
+    

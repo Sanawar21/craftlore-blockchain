@@ -1,6 +1,6 @@
-from .. import BaseListener, EventType, EventContext, InvalidTransaction
+from .. import BaseListener, EventContext, InvalidTransaction
 from models.classes.accounts import BaseAccount
-
+from models.enums import EventType
 
 class EmailIndexUpdater(BaseListener):
     def __init__(self):

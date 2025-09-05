@@ -5,7 +5,7 @@ from sawtooth_sdk.processor.exceptions import InvalidTransaction
 from sawtooth_sdk.processor.context import Context
 import json
 
-from models.enums import EventType
+from models.enums import EventType, SubEventType
 
 
 class EventContext:
@@ -39,13 +39,23 @@ class EventsManager:
             
     
     def propagate(self, event_type: EventType, transaction, context: Context):
-        context_ = EventContext(event_type=event_type, transaction=transaction, context=context)
-        self.listeners[event_type].sort(key=lambda x: x[0], reverse=True)
-        print(f"Propagating event: {event_type} to {len(self.listeners[event_type])} listeners")
-        for _, listener in self.listeners[event_type]: 
-            print(f"Executing listener: {listener.__class__.__name__} for event: {event_type}")
-            # try:
-            listener.on_event(context_)  # Pass context; handlers add/get data
-            # except Exception as e:
-            #     raise InvalidTransaction(f"Error in listener {listener.__class__.__name__}: {str(e)} Execution order: {[(p, l.__class__.__name__) for p, l in self.listeners[event_type]]}")
+        events = [event_type]
+
+        for sub_event in SubEventType:
+            if sub_event.value.startswith(event_type.value):
+                events.append(sub_event)
+
+        context_ = EventContext(event_type=None, transaction=transaction, context=context)
+        for event in events:
+            event_type = event
+            context_.event_type = event_type
+            self.listeners[event_type].sort(key=lambda x: x[0], reverse=True)
+            print(f"Propagating event: {event_type} to {len(self.listeners[event_type])} listeners")
+            for _, listener in self.listeners[event_type]: 
+                print(f"Executing listener: {listener.__class__.__name__} for event: {event_type}")
+                # try:
+                listener.on_event(context_)  # Pass context; handlers add/get data
+                # except Exception as e:
+                #     raise InvalidTransaction(f"Error in listener {listener.__class__.__name__}: {str(e)} Execution order: {[(p, l.__class__.__name__) for p, l in self.listeners[event_type]]}")
+
         return context_

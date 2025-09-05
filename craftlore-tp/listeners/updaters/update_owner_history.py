@@ -1,7 +1,7 @@
-from .. import BaseListener, EventType, EventContext, InvalidTransaction
+from .. import BaseListener, EventContext, InvalidTransaction
 from models.classes.accounts import BaseAccount, SupplierAccount
-from models.classes.assets import BaseAsset, RawMaterial
-from models.enums import AccountType, AssetType
+from models.classes.assets import BaseAsset, RawMaterial, WorkOrder
+from models.enums import AccountType, AssetType, EventType
 
 class OwnerHistoryUpdater(BaseListener):
     def __init__(self):
@@ -28,16 +28,21 @@ class OwnerHistoryUpdater(BaseListener):
         if event.event_type == EventType.ASSET_CREATED:
             owner_data["assets"].append(entity.uid)
       
+        targets = [entity.uid]
+
+        if entity.asset_type == AssetType.RAW_MATERIAL.value and isinstance(entity, RawMaterial):
+            owner_data["raw_materials_created"].append(entity.uid)
+        elif entity.asset_type == AssetType.WORK_ORDER.value and isinstance(entity, WorkOrder):
+            targets.append(entity.assignee)
+            owner_data["work_orders_issued"].append(entity.uid)
+
         owner_data["history"].append({
             "event": event.event_type.value,
             "actor": event.signer_public_key,
-            "targets": [entity.uid],
+            "targets": targets,
             "transaction": event.signature,
             "timestamp": event.timestamp
         })
-
-        if event.event_type == EventType.ASSET_CREATED:
-            owner_data["raw_materials_created"].append(entity.uid)
 
         event.context.set_state({
             owner_address: self.serialize_for_state(owner_data)

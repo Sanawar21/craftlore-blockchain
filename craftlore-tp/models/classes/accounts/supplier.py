@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Artisan account entity for CraftLore Account TP.
+Supplier account entity for CraftLore Account TP.
 """
 
 from pydantic import Field

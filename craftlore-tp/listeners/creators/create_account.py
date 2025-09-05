@@ -1,8 +1,8 @@
 from typing import Any
 
 
-from .. import BaseListener, EventType, EventContext, InvalidTransaction
-from models.enums import AccountType
+from .. import BaseListener, EventContext, InvalidTransaction
+from models.enums import AccountType, EventType
 from models.classes.accounts import (SupplierAccount,)
 
 
