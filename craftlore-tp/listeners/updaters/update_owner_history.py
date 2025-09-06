@@ -1,13 +1,13 @@
 from .. import BaseListener, EventContext, InvalidTransaction
 from models.classes.accounts import BaseAccount, SupplierAccount
 from models.classes.assets import BaseAsset, RawMaterial, WorkOrder
-from models.enums import AccountType, AssetType, EventType
+from models.enums import AccountType, AssetType, EventType, SubEventType
 
 class OwnerHistoryUpdater(BaseListener):
     def __init__(self):
         super().__init__(
-            [EventType.ASSET_CREATED],
-            priorities=[0]
+            [EventType.ASSET_CREATED, SubEventType.BATCH_CREATED],
+            priorities=[0, 0]
         )  # default priority
 
     def on_event(self, event: EventContext):
@@ -25,8 +25,8 @@ class OwnerHistoryUpdater(BaseListener):
         else:
             raise InvalidTransaction("Owner account does not exist for OwnerHistoryUpdater")
 
-        if event.event_type == EventType.ASSET_CREATED:
-            owner_data["assets"].append(entity.uid)
+        # if event.event_type == EventType.ASSET_CREATED:
+        owner_data["assets"].append(entity.uid)
       
         targets = [entity.uid]
 

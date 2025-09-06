@@ -15,7 +15,7 @@ class RawMaterial(BaseAsset):
     supplier: str = Field(default_factory=str)
     quantity: float  # Quantity in standard units (e.g., kg, meters)
     quantity_unit: str
-    unit_price: float  # Price per unit of quantity
+    unit_price_usd: float  # Price per unit of quantity
     processor_public_key: str = Field(default_factory=str)  # Workshop or artisan that processes this raw material
     harvested_date: str 
     source_location: str = Field(default_factory=str)

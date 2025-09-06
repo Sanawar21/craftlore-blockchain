@@ -17,6 +17,8 @@ class AccountType(BaseEnum):
 class AssetType(BaseEnum):
     RAW_MATERIAL = "raw_material"
     WORK_ORDER = "work_order"
+    PRODUCT = "product"
+    PRODUCT_BATCH = "product_batch"
 
 class EventType(BaseEnum):
     ACCOUNT_CREATED = "create/account"
@@ -25,10 +27,15 @@ class EventType(BaseEnum):
     ASSET_CREATED = "create/asset"
     ASSET_UPDATED = "update/asset"
     ASSET_DELETED = "delete/asset"
+    WORK_ORDER_ACCEPTED = "accept/work_order"
+    WORK_ORDER_REJECTED = "reject/work_order"
+    WORK_ORDER_COMPLETED = "complete/work_order"
 
 class SubEventType(BaseEnum):
     """Sub-event types for more granular event handling."""
     WORK_ORDER_CREATED = "create/asset/work_order"
+    BATCH_CREATED = "accept/work_order/batch_created"
+
 
 class ArtisanSkillLevel(BaseEnum):
     BEGINNER = "beginner"
@@ -38,9 +45,13 @@ class ArtisanSkillLevel(BaseEnum):
 class WorkOrderStatus(BaseEnum):
     PENDING = "pending"
     ACCEPTED = "accepted"
-    IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
     REJECTED = "rejected"
+
+class BatchStatus(BaseEnum):
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+
 
 class WorkOrderType(BaseEnum):
     PRODUCTION = "production"

@@ -25,7 +25,7 @@ def main():
         material_type="Wood",
         quantity=100.0,
         quantity_unit="kg",
-        unit_price=5.0,
+        unit_price_usd=5.0,
         harvested_date=client.serializer.get_current_timestamp(),
     )
     print(f"   Result: {result.get('status', 'unknown')}")

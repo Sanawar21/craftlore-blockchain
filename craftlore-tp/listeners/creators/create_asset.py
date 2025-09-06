@@ -2,12 +2,13 @@ from typing import Any
 
 
 from .. import BaseListener, EventContext, InvalidTransaction
-from models.enums import AssetType, EventType
+from models.enums import AssetType, EventType, SubEventType
+from models.classes.assets import WorkOrder
 
 
 class AssetCreationHandler(BaseListener):
     def __init__(self):
-        super().__init__([EventType.ASSET_CREATED], priorities=[1000]) # run before every other listener
+        super().__init__([EventType.ASSET_CREATED, SubEventType.BATCH_CREATED], priorities=[1000, 1000]) # run before every other listener
 
     def on_event(self, event: EventContext):
         # Handle asset creation event
@@ -18,8 +19,17 @@ class AssetCreationHandler(BaseListener):
         signer_public_key = event.signer_public_key
 
         fields: dict[str, Any] = payload.get("fields")
+
+        # if event.event_type == SubEventType.BATCH_CREATED:
+        #     fields = {"asset_type": AssetType.PRODUCT_BATCH.value}
+        # elif not fields:
+        #     raise InvalidTransaction("Missing 'fields' key in payload")
+
         if not fields:
             raise InvalidTransaction("Missing 'fields' key in payload")
+
+        if event.event_type == SubEventType.BATCH_CREATED:
+            fields["asset_type"] = AssetType.PRODUCT_BATCH.value
 
         fields = fields.copy() 
 
@@ -30,6 +40,16 @@ class AssetCreationHandler(BaseListener):
             fields["supplier"] = event.signer_public_key
         elif fields.get("asset_type") == AssetType.WORK_ORDER.value:
             fields["assigner"] = event.signer_public_key
+        elif fields.get("asset_type") == AssetType.PRODUCT_BATCH.value:
+            work_order: WorkOrder = event.get_data("entity")
+            fields["producer"] = event.signer_public_key
+            fields["quantity"] = work_order.requested_quantity
+            fields["unit"] = work_order.requested_quantity_unit
+            fields["product_description"] = work_order.product_description
+            fields["specifications"] = work_order.specifications
+            fields["design_reference"] = work_order.design_reference
+            fields["special_instructions"] = work_order.special_instructions
+            fields["work_order"] = work_order.uid
 
         # Process the fields as needed
         asset_type_str = fields.get("asset_type")

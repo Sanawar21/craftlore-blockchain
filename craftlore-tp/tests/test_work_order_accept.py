@@ -14,7 +14,7 @@ def main():
 
     print("1. Create Account for baap")
     account_type = AccountType.ARTISAN
-    email = "baap.com"
+    email = "baap5.com"
     result = baap.create_account(
         account_type, 
         email,
@@ -26,7 +26,7 @@ def main():
 
     print("2. Create Account for chacha")
     account_type = AccountType.SUPPLIER
-    email = "chacha.com"
+    email = "chacha5.com"
     result = chacha.create_account(account_type, email)
     print(f"   Result: {result.get('status', 'unknown')}")
     print(f"   Message: {result.get('message', '')}")
@@ -46,6 +46,17 @@ def main():
     print(f"   Result: {result.get('status', 'unknown')}")
     print(f"   Message: {result.get('message', '')}")
     time.sleep(1)
+
+    print("\n3. Accept Work Order by baap")
+    work_order_id = result.get("uid")
+    if not work_order_id:
+        print("   Error: Work order ID not found, cannot accept work order.")
+        return
+    result = baap.accept_work_order(work_order_id)
+    print(f"   Result: {result.get('status', 'unknown')}")
+    print(f"   Message: {result.get('message', '')}")
+    time.sleep(1)
+    
 
 if __name__ == "__main__":
     main()

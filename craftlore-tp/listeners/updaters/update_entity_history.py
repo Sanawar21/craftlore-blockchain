@@ -1,22 +1,22 @@
 from .. import BaseListener, EventContext, InvalidTransaction
 from models.classes.accounts import BaseAccount, SupplierAccount
 from models.classes.assets import BaseAsset, RawMaterial
-from models.enums import AccountType, AssetType, EventType
+from models.enums import AccountType, AssetType, EventType, SubEventType
 
-class HistoryUpdater(BaseListener):
+class EntityHistoryUpdater(BaseListener):
     """Updates entity history on creation"""
     def __init__(self):
         super().__init__(
-            [EventType.ACCOUNT_CREATED, EventType.ASSET_CREATED],
-            priorities=[0, 0]
+            [EventType.ACCOUNT_CREATED, EventType.ASSET_CREATED, SubEventType.BATCH_CREATED],
+            priorities=[0, 0, 0]
         )  # default priority
 
     def on_event(self, event: EventContext):
-        entity = event.get_data("entity")
+        entity: BaseAccount | BaseAsset = event.get_data("entity")
         entity_address = event.get_data("entity_address")
 
         if not entity or not entity_address:
-            raise InvalidTransaction("Entity data or address not found in event context for HistoryUpdater")
+            raise InvalidTransaction("Entity data or address not found in event context for EntityHistoryUpdater")
 
         entity.history.append({
             "event": event.event_type.value,

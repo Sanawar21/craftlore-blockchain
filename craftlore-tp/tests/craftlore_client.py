@@ -59,18 +59,37 @@ class CraftLoreClient:
 
     def create_asset(self, asset_type: AssetType, uid: str = None, **kwargs) -> Dict:
         """Create a new asset."""
+        uid = self.serializer.create_asset_id() if uid is None else uid
         payload = {
             'event': EventType.ASSET_CREATED.value,
             'timestamp': self.serializer.get_current_timestamp(),
             "fields": {
                 'asset_type': asset_type.value,
-                'uid': self.serializer.create_asset_id() if uid is None else uid,
+                'uid': uid,
                 **kwargs
             }
         }
-        
-        return self._submit_transaction(payload)
-    
+
+        result = self._submit_transaction(payload)
+        result.update({'uid': uid})
+        return result
+
+    def accept_work_order(self, work_order_id: str, uid: str = None) -> Dict:
+        """Accept a work order."""
+        uid = self.serializer.create_asset_id() if uid is None else uid
+        payload = {
+            'event': EventType.WORK_ORDER_ACCEPTED.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'work_order': work_order_id,
+                'uid': uid
+            }
+        }
+
+        result = self._submit_transaction(payload)
+        result.update({'uid': uid})
+        return result
+
     def _submit_transaction(self, payload: Dict) -> Dict:
         """Submit a transaction to the blockchain."""
         try:
@@ -85,7 +104,7 @@ class CraftLoreClient:
 
             if 'link' in response:
                 # Wait for batch to be committed
-                batch_status = self._wait_for_batch_completion(response['link'], timeout=5)
+                batch_status = self._wait_for_batch_completion(response['link'], timeout=30)
                 return batch_status
             else:
                 return {

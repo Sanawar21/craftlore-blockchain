@@ -26,7 +26,9 @@ class BaseListener(ABC):
         }
         self.asset_types: Dict[AssetType, BaseAsset] = {
             AssetType.RAW_MATERIAL: RawMaterial,
-            AssetType.WORK_ORDER: WorkOrder
+            AssetType.WORK_ORDER: WorkOrder,
+            AssetType.PRODUCT_BATCH: ProductBatch,
+            # AssetType.PRODUCT: Product
         }
 
 
