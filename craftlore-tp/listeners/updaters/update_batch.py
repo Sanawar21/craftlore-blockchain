@@ -20,10 +20,23 @@ class BatchUpdater(BaseListener):
             batch_data = self.serializer.from_bytes(entries[0].data)
         else:
             raise InvalidTransaction("Batch does not exist for BatchUpdater")
+
+        fields = event.payload.get("fields")
+        
+        if not fields:
+            raise InvalidTransaction("Missing 'fields' key in payload")
+        
         batch = ProductBatch.model_validate(batch_data)
         batch.production_date = event.timestamp
         batch.status = BatchStatus.COMPLETED
+        batch.quantity = fields.get("quantity", batch.quantity)
+        batch.units_produced = fields.get("units_produced")
+
+        if batch.units_produced is None:
+            raise InvalidTransaction("Missing 'units_produced' in payload fields")
+
         batch.history.append({
+            "source": self.__class__.__name__,
             "event": event.event_type.value,
             "actor": event.signer_public_key,
             "targets": [batch.uid, work_order.uid],

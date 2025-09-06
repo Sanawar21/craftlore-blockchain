@@ -37,6 +37,7 @@ class OwnerHistoryUpdater(BaseListener):
             owner_data["work_orders_issued"].append(entity.uid)
 
         owner_data["history"].append({
+            "source": self.__class__.__name__,
             "event": event.event_type.value,
             "actor": event.signer_public_key,
             "targets": targets,

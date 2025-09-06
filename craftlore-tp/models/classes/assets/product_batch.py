@@ -14,8 +14,9 @@ class ProductBatch(BaseAsset):
     """Represents a group of products produced together."""
     asset_type: AssetType = Field(default=AssetType.PRODUCT_BATCH)
     producer: str                        # Artisan or workshop public key
-    quantity: int
+    quantity: float
     unit: str                            # e.g. "pieces", "kg"
+    units_produced: Optional[float] = None  # Amount of individual products produced after the batch is completed 
 
     product_description: str             # Free text (e.g., "100 wool shawls")
     specifications: List[str] = Field(default_factory=list)

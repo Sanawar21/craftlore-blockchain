@@ -39,6 +39,7 @@ class AssigneeUpdater(BaseListener):
             targets = [entity.uid, assignee.public_key]
 
             assignee.history.append({
+                "source": self.__class__.__name__,
                 "event": event.event_type.value,
                 "actor": event.signer_public_key,
                 "targets": targets,
@@ -99,6 +100,7 @@ class AssigneeUpdater(BaseListener):
                     raise InvalidTransaction("Missing 'uid' for created batch in fields for AssigneeUpdater")
 
                 history_entry = {
+                    "source": self.__class__.__name__,
                     "event": event.event_type.value,
                     "actor": event.signer_public_key,
                     "targets": [work_order.uid, fields.get("uid")],
@@ -119,6 +121,7 @@ class AssigneeUpdater(BaseListener):
                 assignee.work_orders_rejected.append(work_order.uid)
 
                 history_entry = {
+                    "source": self.__class__.__name__,
                     "event": event.event_type.value,
                     "actor": event.signer_public_key,
                     "targets": [work_order.uid],
@@ -135,6 +138,7 @@ class AssigneeUpdater(BaseListener):
                 work_order.completion_date = event.timestamp
 
                 history_entry = {
+                    "source": self.__class__.__name__,
                     "event": event.event_type.value,
                     "actor": event.signer_public_key,
                     "targets": [work_order.uid, work_order.batch],

@@ -19,6 +19,7 @@ class EntityHistoryUpdater(BaseListener):
             raise InvalidTransaction("Entity data or address not found in event context for EntityHistoryUpdater")
 
         entity.history.append({
+            "source": self.__class__.__name__,
             "event": event.event_type.value,
             "actor": event.signer_public_key,
             "targets": [entity.uid] if isinstance(entity, BaseAsset) else [entity.public_key],

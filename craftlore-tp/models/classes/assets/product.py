@@ -11,3 +11,5 @@ class Product(BaseAsset):
     batch: str                        # Link to ProductBatch
     serial_no: int                       # Unique within batch
     price_usd: float
+    quantity: float 
+    unit: str  # e.g. "pieces", "

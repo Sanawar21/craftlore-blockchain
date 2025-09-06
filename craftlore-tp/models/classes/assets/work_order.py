@@ -21,7 +21,7 @@ class WorkOrder(BaseAsset):
     batch: Optional[str] = None
     
     # Order details
-    requested_quantity: int
+    requested_quantity: float
     requested_quantity_unit: str                  # e.g. "pieces", "kg"
     product_description: str             # Free text (e.g., "100 wool shawls")
     specifications: List[str] = Field(default_factory=list)
