@@ -17,6 +17,7 @@ class ArtisanAccount(BaseAccount):
     traditional_techniques: list = Field(default_factory=list)  # Traditional methods mastered
     work_orders_assigned: list = Field(default_factory=list)  # Work orders directly assigned to this artisan
     work_orders_accepted: list = Field(default_factory=list)  # Work orders accepted by this artisan
+    work_orders_rejected: list = Field(default_factory=list)  # Work orders rejected by this artisan
     work_orders_sub_assigned: list = Field(default_factory=list)  # Work orders sub-assigned to this artisan by workshops
     workshops_worked_for: list = Field(default_factory=list)
     

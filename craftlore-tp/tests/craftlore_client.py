@@ -90,6 +90,19 @@ class CraftLoreClient:
         result.update({'uid': uid})
         return result
 
+    def reject_work_order(self, work_order_id: str, rejection_reason: str) -> Dict:
+        """Reject a work order."""
+        payload = {
+            'event': EventType.WORK_ORDER_REJECTED.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'work_order': work_order_id,
+                'rejection_reason': rejection_reason
+            }
+        }
+
+        return self._submit_transaction(payload)
+
     def _submit_transaction(self, payload: Dict) -> Dict:
         """Submit a transaction to the blockchain."""
         try:

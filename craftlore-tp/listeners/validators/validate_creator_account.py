@@ -9,6 +9,8 @@ class ValidateCreatorAccount(BaseListener):
         super().__init__([EventType.ASSET_CREATED], priorities=[-100])  # run after updating owner history
         self.valid_creators = {
             AccountType.SUPPLIER: [AssetType.RAW_MATERIAL, AssetType.WORK_ORDER],
+            AccountType.ARTISAN: [AssetType.WORK_ORDER, AssetType.PRODUCT_BATCH],
+            # AccountType.WORKSHOP: [AssetType.WORK_ORDER, AssetType.PRODUCT_BATCH]
         }
 
     def on_event(self, event: EventContext):
