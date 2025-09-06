@@ -31,6 +31,6 @@ class WorkOrder(BaseAsset):
     # Contract details
     total_price_usd: float
     estimated_completion_date: str = Field(default_factory=str)
-    completion_date: str = Field(default_factory=str)
+    completion_date: str = Field(default_factory=str) # updated after packaging
     rejection_reason: str = Field(default_factory=str)
 

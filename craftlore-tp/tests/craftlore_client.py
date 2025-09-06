@@ -74,9 +74,9 @@ class CraftLoreClient:
         result.update({'uid': uid})
         return result
 
-    def accept_work_order(self, work_order_id: str, uid: str = None) -> Dict:
+    def accept_work_order(self, work_order_id: str, batch_uid: str = None) -> Dict:
         """Accept a work order."""
-        uid = self.serializer.create_asset_id() if uid is None else uid
+        uid = self.serializer.create_asset_id() if batch_uid is None else batch_uid
         payload = {
             'event': EventType.WORK_ORDER_ACCEPTED.value,
             'timestamp': self.serializer.get_current_timestamp(),
@@ -98,6 +98,18 @@ class CraftLoreClient:
             "fields": {
                 'work_order': work_order_id,
                 'rejection_reason': rejection_reason
+            }
+        }
+
+        return self._submit_transaction(payload)
+
+    def complete_work_order(self, work_order_id: str) -> Dict:
+        """Complete a work order."""
+        payload = {
+            'event': EventType.WORK_ORDER_COMPLETED.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'work_order': work_order_id
             }
         }
 

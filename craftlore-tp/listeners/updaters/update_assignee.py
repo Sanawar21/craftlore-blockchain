@@ -8,8 +8,8 @@ from models.enums import AccountType, SubEventType, EventType, WorkOrderStatus
 class AssigneeUpdater(BaseListener):
     def __init__(self):
         super().__init__(
-            [SubEventType.WORK_ORDER_CREATED, EventType.WORK_ORDER_ACCEPTED, EventType.WORK_ORDER_REJECTED],
-            priorities=[0, 1000, 1000]
+            [SubEventType.WORK_ORDER_CREATED, EventType.WORK_ORDER_ACCEPTED, EventType.WORK_ORDER_REJECTED, EventType.WORK_ORDER_COMPLETED],
+            priorities=[0, 1000, 1000, 1000]
         )  # default priority
 
     def on_event(self, event: EventContext):
@@ -56,7 +56,7 @@ class AssigneeUpdater(BaseListener):
                 "assignee": assignee
             })
         
-        elif event.event_type in {EventType.WORK_ORDER_ACCEPTED, EventType.WORK_ORDER_REJECTED}:
+        elif event.event_type in {EventType.WORK_ORDER_ACCEPTED, EventType.WORK_ORDER_REJECTED, EventType.WORK_ORDER_COMPLETED}:
             context = event.context
             payload = event.payload
             signer_public_key = event.signer_public_key
@@ -126,6 +126,22 @@ class AssigneeUpdater(BaseListener):
                     "timestamp": event.timestamp
                 }
 
+            elif event.event_type == EventType.WORK_ORDER_COMPLETED:
+                if work_order.status != WorkOrderStatus.ACCEPTED:
+                    raise InvalidTransaction(f"Work order status must be 'accepted' to complete, current status: {work_order.status}")
+                
+                assignee.work_orders_completed.append(work_order.uid)
+                work_order.status = WorkOrderStatus.COMPLETED
+                work_order.completion_date = event.timestamp
+
+                history_entry = {
+                    "event": event.event_type.value,
+                    "actor": event.signer_public_key,
+                    "targets": [work_order.uid, work_order.batch],
+                    "transaction": event.signature,
+                    "timestamp": event.timestamp
+                }                
+            
             assignee.history.append(history_entry)
             work_order.history.append(history_entry)
 

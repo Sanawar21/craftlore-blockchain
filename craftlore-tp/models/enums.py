@@ -45,12 +45,13 @@ class ArtisanSkillLevel(BaseEnum):
 class WorkOrderStatus(BaseEnum):
     PENDING = "pending"
     ACCEPTED = "accepted"
-    COMPLETED = "completed"
+    COMPLETED = "completed"    
     REJECTED = "rejected"
 
 class BatchStatus(BaseEnum):
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
+    PACKAGED = "packaged" # packaging will be done after completion
 
 
 class WorkOrderType(BaseEnum):

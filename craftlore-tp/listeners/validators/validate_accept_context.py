@@ -6,7 +6,8 @@ from models.enums import AccountType, SubEventType, EventType, WorkOrderStatus
 
 class ValidateAcceptContext(BaseListener):
     def __init__(self):
-        super().__init__([EventType.WORK_ORDER_ACCEPTED], priorities=[-100])  # run after updating acceptor history
+        super().__init__([EventType.WORK_ORDER_ACCEPTED, EventType.WORK_ORDER_REJECTED, EventType.WORK_ORDER_COMPLETED],
+                          priorities=[-100, -100, -100])  # run after updating acceptor history
 
     def on_event(self, event: EventContext):
         assignee: BaseAccount = event.get_data("assignee")
@@ -24,7 +25,7 @@ class ValidateAcceptContext(BaseListener):
         if entity.is_deleted:
             raise InvalidTransaction("Work order is deleted")
 
-        # The following is getting checked in AssigneeUpdater already      
+        # The following is getting checked in AssigneeUpdater and BatchUpdater already      
         # if entity.status != WorkOrderStatus.PENDING:
         #     raise InvalidTransaction(f"Work order status must be 'pending' to accept, current status: {entity.status}")
 
