@@ -37,15 +37,26 @@ class EventsManager:
         for event_type, priority in zip(listener.event_types, listener.priorities):
             self.listeners[event_type].append((priority, listener))
             
-    
+    def __should_propagate(self, event: EventContext, sub_event: SubEventType) -> bool:
+        """Check if the conditions for propagating the sub-event are met."""
+        if sub_event == SubEventType.BATCH_CREATED:
+            return sub_event.value.startswith(event.event_type.value)
+        elif sub_event == SubEventType.WORK_ORDER_CREATED:
+            if event.payload.get("fields", {}).get("asset_type") == "work_order":
+                return True
+        elif sub_event == SubEventType.PACKAGING_CREATED:
+            if event.payload.get("fields", {}).get("asset_type") == "packaging":
+                return True
+        return False
+
     def propagate(self, event_type: EventType, transaction, context: Context):
         events = [event_type]
+        context_ = EventContext(event_type=event_type, transaction=transaction, context=context)
 
         for sub_event in SubEventType:
-            if sub_event.value.startswith(event_type.value):
+            if self.__should_propagate(context_, sub_event):
                 events.append(sub_event)
 
-        context_ = EventContext(event_type=None, transaction=transaction, context=context)
         for event in events:
             event_type = event
             context_.event_type = event_type

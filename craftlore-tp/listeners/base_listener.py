@@ -28,6 +28,7 @@ class BaseListener(ABC):
             AssetType.RAW_MATERIAL: RawMaterial,
             AssetType.WORK_ORDER: WorkOrder,
             AssetType.PRODUCT_BATCH: ProductBatch,
+            AssetType.PACKAGING: Packaging,
             # AssetType.PRODUCT: Product
         }
 

@@ -12,9 +12,7 @@ class AssetCreationHandler(BaseListener):
 
     def on_event(self, event: EventContext):
         # Handle asset creation event
-        transaction = event.transaction
         context = event.context
-        signature = event.signature
         payload = event.payload
         signer_public_key = event.signer_public_key
 

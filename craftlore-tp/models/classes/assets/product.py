@@ -13,3 +13,4 @@ class Product(BaseAsset):
     price_usd: float
     quantity: float 
     unit: str  # e.g. "pieces", "
+    packaging: Optional[str] = None         # Link to Packaging

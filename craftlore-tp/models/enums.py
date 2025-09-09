@@ -19,6 +19,7 @@ class AssetType(BaseEnum):
     WORK_ORDER = "work_order"
     PRODUCT = "product"
     PRODUCT_BATCH = "product_batch"
+    PACKAGING = "packaging"
 
 class EventType(BaseEnum):
     ACCOUNT_CREATED = "create/account"
@@ -34,6 +35,7 @@ class EventType(BaseEnum):
 class SubEventType(BaseEnum):
     """Sub-event types for more granular event handling."""
     WORK_ORDER_CREATED = "create/asset/work_order"
+    PACKAGING_CREATED = "create/asset/packaging"
     BATCH_CREATED = "accept/work_order/batch_created"
 
 
