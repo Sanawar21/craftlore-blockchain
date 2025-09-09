@@ -16,6 +16,7 @@ class BaseAccount(BaseModel, ABC):
     assets: list = Field(default_factory=list)
     authentication_status: AuthenticationStatus = AuthenticationStatus.PENDING
     work_orders_issued: list = Field(default_factory=list)
+    packages_recieved: list = Field(default_factory=list)
     region: str = Field(default_factory=str)
     specializations: list = Field(default_factory=list)
     certifications: list = Field(default_factory=list)

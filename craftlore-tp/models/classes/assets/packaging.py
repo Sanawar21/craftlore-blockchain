@@ -16,10 +16,11 @@ class Packaging(BaseAsset):
     asset_type: AssetType = Field(default=AssetType.PACKAGING)
     products: List[str]   # List of product ids included in this packaging
     package_type: str
+    price_usd: float
     materials_used: List[str] = Field(default_factory=list)
     labelling: dict = Field(default_factory=dict)
     seal_id: str
     net_weight: float
     gross_weight: float
-    package_width: Optional[float] = None
-    package_height: Optional[float] = None
+    package_width: float
+    package_height: float

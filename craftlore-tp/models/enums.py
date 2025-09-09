@@ -20,6 +20,7 @@ class AssetType(BaseEnum):
     PRODUCT = "product"
     PRODUCT_BATCH = "product_batch"
     PACKAGING = "packaging"
+    LOGISTICS = "logistics"
 
 class EventType(BaseEnum):
     ACCOUNT_CREATED = "create/account"
@@ -53,10 +54,13 @@ class WorkOrderStatus(BaseEnum):
 class BatchStatus(BaseEnum):
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
-    PACKAGED = "packaged" # packaging will be done after completion
+
+class LogisticsStatus(BaseEnum):
+    PENDING = "pending"                  # Shipment planned but not yet dispatched
+    DISPATCHED = "dispatched"            # Left origin location
+    DELIVERED = "delivered"              # Delivered to final destination
 
 
 class WorkOrderType(BaseEnum):
     PRODUCTION = "production"
     REPAIR = "repair"
-    
