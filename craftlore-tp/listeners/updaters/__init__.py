@@ -4,6 +4,7 @@ from .update_entity_history import EntityHistoryUpdater
 from .update_assignee import AssigneeUpdater
 from .update_batch import BatchUpdater
 from .package_products import PackageProducts
+from .add_raw_material import AddToBatch
 
 listeners = [
     EmailIndexUpdater,
@@ -12,4 +13,5 @@ listeners = [
     AssigneeUpdater,
     BatchUpdater,
     PackageProducts,
+    AddToBatch
 ]

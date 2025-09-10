@@ -32,6 +32,8 @@ class EventType(BaseEnum):
     WORK_ORDER_ACCEPTED = "accept/work_order"
     WORK_ORDER_REJECTED = "reject/work_order"
     WORK_ORDER_COMPLETED = "complete/work_order"
+    ADD_RAW_MATERIAL = "add/raw_material"
+    ADD_SUB_ASSIGNEE = "add/sub_assignee"
 
 class SubEventType(BaseEnum):
     """Sub-event types for more granular event handling."""

@@ -6,16 +6,15 @@ from models.enums import AccountType, AssetType, EventType, SubEventType
 class OwnerHistoryUpdater(BaseListener):
     def __init__(self):
         super().__init__(
-            [EventType.ASSET_CREATED, SubEventType.BATCH_CREATED],
-            priorities=[0, 0]
+            [EventType.ASSET_CREATED, SubEventType.BATCH_CREATED, EventType.ADD_RAW_MATERIAL],
+            priorities=[0, 0, 0]
         )  # default priority
 
     def on_event(self, event: EventContext):
         entity: BaseAsset = event.get_data("entity")
-        entity_address = event.get_data("entity_address")
 
-        if not entity or not entity_address:
-            raise InvalidTransaction("Entity data or address not found in event context for OwnerHistoryUpdater")
+        if not entity:
+            raise InvalidTransaction("Entity data not found in event context for OwnerHistoryUpdater")
 
         owner_address = self.address_generator.generate_account_address(entity.asset_owner)
         entries = event.context.get_state([owner_address])  # Ensure owner account exists
@@ -25,8 +24,8 @@ class OwnerHistoryUpdater(BaseListener):
         else:
             raise InvalidTransaction("Owner account does not exist for OwnerHistoryUpdater")
 
-        # if event.event_type == EventType.ASSET_CREATED:
-        owner_data["assets"].append(entity.uid)
+        if event.event_type in (EventType.ASSET_CREATED, SubEventType.BATCH_CREATED):
+            owner_data["assets"].append(entity.uid)
       
         targets = [entity.uid]
 
@@ -35,6 +34,8 @@ class OwnerHistoryUpdater(BaseListener):
         elif entity.asset_type == AssetType.WORK_ORDER.value and isinstance(entity, WorkOrder):
             targets.append(entity.assignee)
             owner_data["work_orders_issued"].append(entity.uid)
+        elif event.event_type == EventType.ADD_RAW_MATERIAL:
+            targets.append(event.payload.get("fields").get("raw_material"))
 
         owner_data["history"].append({
             "source": self.__class__.__name__,
