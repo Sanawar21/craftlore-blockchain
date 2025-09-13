@@ -13,6 +13,7 @@ class AuthenticationStatus(BaseEnum):
 class AccountType(BaseEnum):
     SUPPLIER = "supplier"
     ARTISAN = "artisan"
+    BUYER = "buyer"
 
 class AssetType(BaseEnum):
     RAW_MATERIAL = "raw_material"
@@ -24,11 +25,8 @@ class AssetType(BaseEnum):
 
 class EventType(BaseEnum):
     ACCOUNT_CREATED = "create/account"
-    ACCOUNT_UPDATED = "update/account"
-    ACCOUNT_DELETED = "delete/account"
     ASSET_CREATED = "create/asset"
-    ASSET_UPDATED = "update/asset"
-    ASSET_DELETED = "delete/asset"
+    ASSETS_TRANSFERRED = "transfer/asset"
     WORK_ORDER_ACCEPTED = "accept/work_order"
     WORK_ORDER_REJECTED = "reject/work_order"
     WORK_ORDER_COMPLETED = "complete/work_order"
@@ -40,6 +38,7 @@ class SubEventType(BaseEnum):
     WORK_ORDER_CREATED = "create/asset/work_order"
     PACKAGING_CREATED = "create/asset/packaging"
     BATCH_CREATED = "accept/work_order/batch_created"
+    LOGISTICS_CREATED = "create/asset/logistics"
 
 
 class ArtisanSkillLevel(BaseEnum):
@@ -56,12 +55,6 @@ class WorkOrderStatus(BaseEnum):
 class BatchStatus(BaseEnum):
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
-
-class LogisticsStatus(BaseEnum):
-    PENDING = "pending"                  # Shipment planned but not yet dispatched
-    DISPATCHED = "dispatched"            # Left origin location
-    DELIVERED = "delivered"              # Delivered to final destination
-
 
 class WorkOrderType(BaseEnum):
     PRODUCTION = "production"

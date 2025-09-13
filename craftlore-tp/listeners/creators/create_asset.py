@@ -8,7 +8,7 @@ from models.classes.assets import WorkOrder
 
 class AssetCreationHandler(BaseListener):
     def __init__(self):
-        super().__init__([EventType.ASSET_CREATED, SubEventType.BATCH_CREATED], priorities=[1000, 1000]) # run before every other listener
+        super().__init__([EventType.ASSET_CREATED, SubEventType.BATCH_CREATED, SubEventType.LOGISTICS_CREATED], priorities=[1000, 1000, 0]) # run before every other listener
 
     def on_event(self, event: EventContext):
         # Handle asset creation event
@@ -28,6 +28,9 @@ class AssetCreationHandler(BaseListener):
 
         if event.event_type == SubEventType.BATCH_CREATED:
             fields["asset_type"] = AssetType.PRODUCT_BATCH.value
+        elif event.event_type == SubEventType.LOGISTICS_CREATED:
+            fields = fields.get("logistics", {})
+            fields["asset_type"] = AssetType.LOGISTICS.value
 
         fields = fields.copy() 
 
@@ -48,6 +51,14 @@ class AssetCreationHandler(BaseListener):
             fields["design_reference"] = work_order.design_reference
             fields["special_instructions"] = work_order.special_instructions
             fields["work_order"] = work_order.uid
+        elif fields.get("asset_type") == AssetType.LOGISTICS.value: 
+            transfer_fields = payload.get("fields", {})
+            if event.event_type == EventType.ASSET_CREATED:
+                raise InvalidTransaction("Logistic assets can only be created when transferring assets.")
+            fields["assets"] = transfer_fields.get("assets")
+            fields["recipient"] = transfer_fields.get("recipient")
+        elif fields.get("asset_type") == AssetType.PRODUCT.value:
+            raise InvalidTransaction("Direct creation of Product assets is not supported. Create a ProductBatch instead or accept a WorkOrder.")
 
         # Process the fields as needed
         asset_type_str = fields.get("asset_type")

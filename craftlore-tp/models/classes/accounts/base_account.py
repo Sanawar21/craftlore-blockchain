@@ -6,6 +6,8 @@ Base account entity for CraftLore Account TP.
 from pydantic import BaseModel, Field, ConfigDict
 from ...enums import AuthenticationStatus, AccountType
 from abc import ABC
+import cbor2
+
 
 class BaseAccount(BaseModel, ABC):
     """Base account model for CraftLore Account TP."""
@@ -16,11 +18,16 @@ class BaseAccount(BaseModel, ABC):
     assets: list = Field(default_factory=list)
     authentication_status: AuthenticationStatus = AuthenticationStatus.PENDING
     work_orders_issued: list = Field(default_factory=list)
-    packages_recieved: list = Field(default_factory=list)
     region: str = Field(default_factory=str)
     specializations: list = Field(default_factory=list)
     certifications: list = Field(default_factory=list)
     created_timestamp: str = Field(default_factory=str)
-    updated_timestamp: str = Field(default_factory=str)
     is_deleted: bool = False
     history: list = Field(default_factory=list)
+
+    def to_cbor(self) -> bytes: # TODO: Implement in code
+        return cbor2.dumps(self.model_dump())
+
+    @classmethod
+    def from_cbor(cls, data: bytes) -> "BaseAccount":
+        return cls.model_validate(cbor2.loads(data))

@@ -6,18 +6,17 @@ Logistics asset entity for CraftLore Account TP.
 from pydantic import Field
 from typing import List, Optional
 from . import BaseAsset
-from models.enums import AssetType, LogisticsStatus
+from models.enums import AssetType
 
 class Logistics(BaseAsset):
     """Represents the movement of packaged goods through the supply chain."""
     asset_type: AssetType = Field(default=AssetType.LOGISTICS)
 
     # Links
-    packaging_ids: List[str]             # One or more packaging assets being shipped
+    assets: List[str]             # One or more packaging assets being shipped
 
     # Transport details
     carrier: str                         # e.g., "DHL", "FedEx", "Local Courier"
-    transport_mode: str                  # e.g., "air", "sea", "road", "rail"
     tracking_id: Optional[str] = None    # Courier/Shipping company tracking number
 
     # Route
@@ -27,12 +26,8 @@ class Logistics(BaseAsset):
     transit_points: List[str] = Field(default_factory=list)  # e.g., ports, warehouses
 
     # Dates
-    dispatch_date: str = Field(default_factory=str)
+    dispatch_date: str
     estimated_delivery_date: str = Field(default_factory=str)
-    actual_delivery_date: str = Field(default_factory=str)
-
-    # Status
-    current_status: LogisticsStatus = Field(default=LogisticsStatus.PENDING)
 
     # Financials
     freight_cost_usd: Optional[float] = None

@@ -40,13 +40,15 @@ class EventsManager:
     def __should_propagate(self, event: EventContext, sub_event: SubEventType) -> bool:
         """Check if the conditions for propagating the sub-event are met."""
         if sub_event == SubEventType.BATCH_CREATED:
-            return sub_event.value.startswith(event.event_type.value)
+            return event.event_type == EventType.WORK_ORDER_ACCEPTED
         elif sub_event == SubEventType.WORK_ORDER_CREATED:
             if event.payload.get("fields", {}).get("asset_type") == "work_order":
-                return True
+                return event.event_type == EventType.ASSET_CREATED
         elif sub_event == SubEventType.PACKAGING_CREATED:
             if event.payload.get("fields", {}).get("asset_type") == "packaging":
-                return True
+                return event.event_type == EventType.ASSET_CREATED
+        elif sub_event == SubEventType.LOGISTICS_CREATED:
+            return event.event_type == EventType.ASSETS_TRANSFERRED
         return False
 
     def propagate(self, event_type: EventType, transaction, context: Context):

@@ -121,6 +121,20 @@ class CraftLoreClient:
 
         return self._submit_transaction(payload)
 
+    def transfer_assets(self, assets: list, recipient: str, logistics: dict) -> Dict:
+        """Transfer assets to a new owner."""
+        payload = {
+            'event': EventType.ASSETS_TRANSFERRED.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                "assets": assets,
+                'recipient': recipient,
+                'logistics': logistics,
+            }
+        }
+
+        return self._submit_transaction(payload)
+
     def _submit_transaction(self, payload: Dict) -> Dict:
         """Submit a transaction to the blockchain."""
         try:

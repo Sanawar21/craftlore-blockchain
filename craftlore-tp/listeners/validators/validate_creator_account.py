@@ -10,6 +10,7 @@ class ValidateCreatorAccount(BaseListener):
         self.valid_creators = {
             AccountType.SUPPLIER: [AssetType.RAW_MATERIAL, AssetType.WORK_ORDER],
             AccountType.ARTISAN: [AssetType.WORK_ORDER, AssetType.PRODUCT_BATCH, AssetType.PACKAGING],
+            AccountType.BUYER: [AssetType.WORK_ORDER],
             # AccountType.WORKSHOP: [AssetType.WORK_ORDER, AssetType.PRODUCT_BATCH]
         }
 

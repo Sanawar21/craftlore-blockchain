@@ -4,3 +4,4 @@ from .work_order import WorkOrder
 from .product_batch import ProductBatch
 from .product import Product
 from .packaging import Packaging
+from .logistics import Logistics
