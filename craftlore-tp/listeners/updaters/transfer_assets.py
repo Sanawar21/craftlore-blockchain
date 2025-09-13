@@ -2,7 +2,7 @@ from typing import Any
 
 from .. import BaseListener, EventContext, InvalidTransaction
 from models.classes.accounts import ArtisanAccount
-from models.classes.assets import RawMaterial
+from models.classes.assets import RawMaterial, Packaging, BaseAsset
 from models.enums import AccountType, AssetType, SubEventType, EventType, WorkOrderStatus, BatchStatus
 
 class AssetsTransferrer(BaseListener):
@@ -18,6 +18,7 @@ class AssetsTransferrer(BaseListener):
         fields = payload.get("fields", {})
         asset_ids = fields.get("assets")
         recipient = fields.get("recipient")
+        logistics = fields.get("logistics")
 
         if not asset_ids or not recipient:
             raise InvalidTransaction("Missing 'assets' or 'recipient' in payload fields")
@@ -26,20 +27,29 @@ class AssetsTransferrer(BaseListener):
         for asset_id in asset_ids:
             asset, asset_address = self.get_asset(asset_id, event)
             assets.append((asset, asset_address))
-
-        recipient_account, recipient_address = self.get_account(recipient, event)
-        old_owner_account, old_owner_address = self.get_account(event.signer_public_key, event)
-
+    
         asset_uids = [asset.uid for asset, _ in assets]
 
         history = {
                 "source": self.__class__.__name__,
                 "event": event.event_type.value,
                 "actor": event.signer_public_key,
-                "targets": asset_uids + [recipient],
+                "targets": asset_uids + [recipient, logistics["uid"]],
                 "transaction": event.signature,
                 "timestamp": event.timestamp
             }
+        
+        for asset, asset_address in assets.copy():
+            if isinstance(asset, Packaging):
+                for product_id in asset.products:
+                    product_asset, product_address = self.get_asset(product_id, event)
+                    assets.append((product_asset, product_address))
+
+
+        recipient_account, recipient_address = self.get_account(recipient, event)
+        old_owner_account, old_owner_address = self.get_account(event.signer_public_key, event)
+
+
 
         asset_objs = []
 
@@ -49,6 +59,7 @@ class AssetsTransferrer(BaseListener):
         
             asset.asset_owner = recipient
             asset.previous_owners.append(event.signer_public_key)
+            asset.transfer_logistics.append(logistics["uid"])
             recipient_account.assets.append(asset.uid)
             old_owner_account.assets.remove(asset.uid)     
 

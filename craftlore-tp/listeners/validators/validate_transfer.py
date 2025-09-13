@@ -1,7 +1,7 @@
 from .. import BaseListener, EventContext, InvalidTransaction
 from models.classes.accounts import BaseAccount
 from models.classes.assets import BaseAsset
-from models.enums import BatchStatus, EventType, SubEventType
+from models.enums import BatchStatus, EventType, SubEventType, AssetType
 
 from typing import List
 
@@ -24,6 +24,15 @@ class ValidateTransfer(BaseListener):
         for asset in assets:
             if asset.is_deleted:
                 raise InvalidTransaction(f"Asset {asset.uid} is deleted")
+            if asset.asset_type == AssetType.RAW_MATERIAL:
+                if asset.processor_public_key:
+                    raise InvalidTransaction("Processed raw materials cannot be transferred")
+            if asset.asset_type == AssetType.WORK_ORDER:
+                raise InvalidTransaction("Work orders cannot be transferred")
+            if asset.asset_type == AssetType.PRODUCT_BATCH:
+                raise InvalidTransaction("Batches cannot be transferred")
+            if asset.asset_type == AssetType.LOGISTICS:
+                raise InvalidTransaction("Logistics assets cannot be transferred")
 
         if recipient.is_deleted:
             raise InvalidTransaction("New owner account is deleted")

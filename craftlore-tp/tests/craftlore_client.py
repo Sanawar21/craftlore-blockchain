@@ -123,6 +123,8 @@ class CraftLoreClient:
 
     def transfer_assets(self, assets: list, recipient: str, logistics: dict) -> Dict:
         """Transfer assets to a new owner."""
+        uid = logistics.get("uid", self.serializer.create_asset_id())
+        logistics['uid'] = uid  # Ensure logistics has a UID
         payload = {
             'event': EventType.ASSETS_TRANSFERRED.value,
             'timestamp': self.serializer.get_current_timestamp(),
@@ -133,7 +135,9 @@ class CraftLoreClient:
             }
         }
 
-        return self._submit_transaction(payload)
+        result = self._submit_transaction(payload)
+        result.update({'uid': uid})
+        return result
 
     def add_raw_material_to_batch(self, batch: str, raw_material: str, usage_quantity: float) -> Dict:
         """Add raw material to a product batch."""

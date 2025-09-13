@@ -7,7 +7,7 @@ from pydantic import Field, BaseModel
 
 from . import BaseAsset
 from models.enums import AssetType
-from typing import List
+from typing import List, Optional
 
 class UsageRecord(BaseModel):
     batch: str  # Product batch UID
@@ -22,7 +22,7 @@ class RawMaterial(BaseAsset):
     quantity: float  # Quantity in standard units (e.g., kg, meters)
     quantity_unit: str
     unit_price_usd: float  # Price per unit of quantity
-    processor_public_key: str = Field(default_factory=str)  # Workshop or artisan that processes this raw material
+    processor_public_key: Optional[str] = Field(default=None)    # Workshop or artisan that processes this raw material
     harvested_date: str 
     source_location: str = Field(default_factory=str)
     batches_used_in: List[UsageRecord] = Field(default_factory=list)  # List of product batches that used this raw material

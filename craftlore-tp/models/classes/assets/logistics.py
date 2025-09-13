@@ -11,6 +11,7 @@ from models.enums import AssetType
 class Logistics(BaseAsset):
     """Represents the movement of packaged goods through the supply chain."""
     asset_type: AssetType = Field(default=AssetType.LOGISTICS)
+    transaction: str                 # Link to transfer transaction UID
 
     # Links
     assets: List[str]             # One or more packaging assets being shipped

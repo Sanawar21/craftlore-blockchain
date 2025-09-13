@@ -57,6 +57,7 @@ class AssetCreationHandler(BaseListener):
                 raise InvalidTransaction("Logistic assets can only be created when transferring assets.")
             fields["assets"] = transfer_fields.get("assets")
             fields["recipient"] = transfer_fields.get("recipient")
+            fields["transaction"] = event.signature
         elif fields.get("asset_type") == AssetType.PRODUCT.value:
             raise InvalidTransaction("Direct creation of Product assets is not supported. Create a ProductBatch instead or accept a WorkOrder.")
 

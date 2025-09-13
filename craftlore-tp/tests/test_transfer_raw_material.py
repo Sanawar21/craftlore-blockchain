@@ -13,9 +13,9 @@ def main():
     print("=" * 60)
     
     emails = {
-        artisan.public_key: "artisan5.com",
-        supplier.public_key: "supplier5.com",
-        buyer.public_key: "buyer5.com"
+        artisan.public_key: "artisan.com",
+        supplier.public_key: "supplier.com",
+        buyer.public_key: "buyer.com"
     }
 
     print("1. Create Account for artisan")
