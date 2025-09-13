@@ -2,7 +2,7 @@ from typing import Any
 
 from .. import BaseListener, EventContext, InvalidTransaction
 from models.classes.accounts import BaseAccount
-from models.classes.assets import ProductBatch, RawMaterial
+from models.classes.assets import ProductBatch, RawMaterial, UsageRecord
 from models.enums import AssetType, SubEventType, EventType, WorkOrderStatus, BatchStatus
 
 class AddToBatch(BaseListener):
@@ -36,8 +36,17 @@ class AddToBatch(BaseListener):
         batch: ProductBatch = ProductBatch.model_validate(batch_data)
         raw_material: RawMaterial = RawMaterial.model_validate(raw_material_data)
 
-        batch.raw_materials.append({raw_material.uid: fields["usage_quantity"]})
-        raw_material.batches_used_in.append({ batch.uid: fields["usage_quantity"] })
+        batch.raw_materials.append(UsageRecord(
+            batch=batch.uid,
+            usage_quantity=fields["usage_quantity"],
+            raw_material=raw_material.uid
+        ))
+        raw_material.batches_used_in.append(UsageRecord(
+            batch=batch.uid,
+            usage_quantity=fields["usage_quantity"],
+            raw_material=raw_material.uid
+        ))
+        raw_material.processor_public_key = event.signer_public_key
 
         history_entry = {
             "source": self.__class__.__name__,

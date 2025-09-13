@@ -8,6 +8,7 @@ from typing import List, Optional
 
 from . import BaseAsset
 from models.enums import AssetType, WorkOrderStatus, BatchStatus
+from .raw_material import UsageRecord
 
 # --- Product Batch ---
 class ProductBatch(BaseAsset):
@@ -15,7 +16,7 @@ class ProductBatch(BaseAsset):
     asset_type: AssetType = Field(default=AssetType.PRODUCT_BATCH)
     producer: str                        # Artisan or workshop public key
     quantity: float
-    raw_materials: List[str] = Field(default_factory=list)  # List of raw material ids used in this batch
+    raw_materials: List[UsageRecord] = Field(default_factory=list)  # List of raw material usage records for this batch
     unit: str                            # e.g. "pieces", "kg"
     units_produced: Optional[float] = None  # Amount of individual products produced after the batch is completed 
 

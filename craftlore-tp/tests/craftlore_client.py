@@ -135,6 +135,20 @@ class CraftLoreClient:
 
         return self._submit_transaction(payload)
 
+    def add_raw_material_to_batch(self, batch: str, raw_material: str, usage_quantity: float) -> Dict:
+        """Add raw material to a product batch."""
+        payload = {
+            'event': EventType.ADD_RAW_MATERIAL.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'batch': batch,
+                'raw_material': raw_material,
+                'usage_quantity': usage_quantity
+            }
+        }
+
+        return self._submit_transaction(payload)
+
     def _submit_transaction(self, payload: Dict) -> Dict:
         """Submit a transaction to the blockchain."""
         try:

@@ -3,10 +3,16 @@
 Raw material asset entity for CraftLore Account TP.
 """
 
-from pydantic import Field
+from pydantic import Field, BaseModel
 
 from . import BaseAsset
 from models.enums import AssetType
+from typing import List
+
+class UsageRecord(BaseModel):
+    batch: str  # Product batch UID
+    usage_quantity: float  # Quantity of raw material used in this batch
+    raw_material: str
 
 class RawMaterial(BaseAsset):
     """Raw material asset that is produced by suppliers and is used in batches."""
@@ -19,5 +25,5 @@ class RawMaterial(BaseAsset):
     processor_public_key: str = Field(default_factory=str)  # Workshop or artisan that processes this raw material
     harvested_date: str 
     source_location: str = Field(default_factory=str)
-    batches_used_in: list = Field(default_factory=list)  # List of product batches that used this raw material
+    batches_used_in: List[UsageRecord] = Field(default_factory=list)  # List of product batches that used this raw material
 
