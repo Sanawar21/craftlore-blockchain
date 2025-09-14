@@ -13,7 +13,7 @@ def main():
 
     print("1. Create Account")
     account_type = AccountType.ARTISAN
-    email = "bet.com"
+    email = "beta2.com"
     result = client.create_account(account_type, email,skill_level=ArtisanSkillLevel.EXPERT,
         years_of_experience=10)
     print(f"   Result: {result.get('status', 'unknown')}")
@@ -31,6 +31,18 @@ def main():
     print(f"   Result: {result.get('status', 'unknown')}")
     print(f"   Message: {result.get('message', '')}")
     time.sleep(1)
+
+    print("\n3. Complete Batch")
+    batch_id = result.get('uid')
+    result = client.complete_batch(
+        batch_id=batch_id,
+        units_produced=50,
+        products_price=20.0,
+        produced_quantity=99
+    )
+    print(f"   Result: {result.get('status', 'unknown')}")
+    print(f"   Message: {result.get('message', '')}")
+
 
 if __name__ == "__main__":
     main()

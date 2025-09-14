@@ -6,6 +6,7 @@ from .update_batch import BatchUpdater
 from .package_products import PackageProducts
 from .add_raw_material import AddToBatch
 from .transfer_assets import AssetsTransferrer
+from .producer_updater import ProducerUpdater
 
 listeners = [
     EmailIndexUpdater,
@@ -15,5 +16,6 @@ listeners = [
     BatchUpdater,
     PackageProducts,
     AddToBatch,
-    AssetsTransferrer
+    AssetsTransferrer,
+    ProducerUpdater,
 ]

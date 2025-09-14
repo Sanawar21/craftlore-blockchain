@@ -32,6 +32,7 @@ class EventType(BaseEnum):
     WORK_ORDER_COMPLETED = "complete/work_order"
     ADD_RAW_MATERIAL = "add/raw_material"
     ADD_SUB_ASSIGNEE = "add/sub_assignee"
+    BATCH_COMPLETED = "complete/batch"
 
 class SubEventType(BaseEnum):
     """Sub-event types for more granular event handling."""

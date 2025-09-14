@@ -8,14 +8,24 @@ from models.enums import AccountType, SubEventType, EventType, WorkOrderStatus, 
 class ProductsCreationHandler(BaseListener):
     def __init__(self):
         super().__init__(
-            [EventType.WORK_ORDER_COMPLETED],
-            priorities=[-200]
+            [EventType.WORK_ORDER_COMPLETED, EventType.BATCH_COMPLETED],
+            priorities=[-200, -200]
         )  # default priority
 
     def on_event(self, event: EventContext):
         batch: ProductBatch = event.get_data("batch")
-        work_order: WorkOrder = event.get_data("entity")
         producer: BaseAccount = event.get_data("assignee")
+        fields = event.payload.get("fields")
+
+        if event.event_type == EventType.WORK_ORDER_COMPLETED:
+            work_order: WorkOrder = event.get_data("entity")
+            products_price = fields.get("products_price", work_order.total_price_usd / batch.units_produced)
+            targets = [work_order.uid, batch.uid]
+        elif event.event_type == EventType.BATCH_COMPLETED:
+            products_price = fields.get("products_price") 
+            if products_price is None:
+                raise InvalidTransaction("Missing 'products_price' in payload fields for batch completion")
+            targets = [batch.uid]
 
         assert isinstance(batch.units_produced, int), "units_produced should be an integer in batch"
 
@@ -26,7 +36,7 @@ class ProductsCreationHandler(BaseListener):
                 "uid": batch.uid + f"-{i}",
                 "batch": batch.uid,
                 "serial_no": i,
-                "price_usd": work_order.total_price_usd / batch.units_produced,  # Default price, can be updated
+                "price_usd": products_price,
                 "quantity": batch.quantity / batch.units_produced,
                 "unit": batch.unit,
                 "created_timestamp": event.timestamp,
@@ -37,7 +47,7 @@ class ProductsCreationHandler(BaseListener):
                 "source": self.__class__.__name__,
                 "event": event.event_type.value,
                 "actor": event.signer_public_key,
-                "targets": [product.uid, batch.uid, work_order.uid],
+                "targets": targets + [product.uid],
                 "transaction": event.signature,
                 "timestamp": event.timestamp
             })

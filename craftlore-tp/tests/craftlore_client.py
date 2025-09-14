@@ -103,7 +103,7 @@ class CraftLoreClient:
 
         return self._submit_transaction(payload)
 
-    def complete_work_order(self, work_order_id: str, units_produced: int, produced_quantity: float = None) -> Dict:
+    def complete_work_order(self, work_order_id: str, units_produced: int, produced_quantity: float = None, products_price: float = None) -> Dict:
         """Complete a work order."""
         fields = {
             'work_order': work_order_id,
@@ -111,7 +111,10 @@ class CraftLoreClient:
         }
 
         if produced_quantity is not None:
-            fields['produced_quantity'] = produced_quantity
+            fields['quantity'] = produced_quantity
+
+        if products_price is not None:
+            fields['products_price'] = products_price
 
         payload = {
             'event': EventType.WORK_ORDER_COMPLETED.value,
@@ -152,6 +155,28 @@ class CraftLoreClient:
         }
 
         return self._submit_transaction(payload)
+
+    def complete_batch(self, batch_id: str, units_produced: int,  products_price: float, produced_quantity: float = None) -> Dict:
+        """Complete a product batch."""
+        fields = {
+            'batch': batch_id,
+            'units_produced': units_produced,
+            'products_price': products_price
+        }
+
+        if produced_quantity is not None:
+            fields['quantity'] = produced_quantity
+
+
+        payload = {
+            'event': EventType.BATCH_COMPLETED.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": fields
+        }
+
+        return self._submit_transaction(payload)
+
+
 
     def _submit_transaction(self, payload: Dict) -> Dict:
         """Submit a transaction to the blockchain."""
