@@ -42,15 +42,16 @@ class AssetCreationHandler(BaseListener):
         elif fields.get("asset_type") == AssetType.WORK_ORDER.value:
             fields["assigner"] = event.signer_public_key
         elif fields.get("asset_type") == AssetType.PRODUCT_BATCH.value:
-            work_order: WorkOrder = event.get_data("entity")
             fields["producer"] = event.signer_public_key
-            fields["quantity"] = work_order.requested_quantity
-            fields["unit"] = work_order.requested_quantity_unit
-            fields["product_description"] = work_order.product_description
-            fields["specifications"] = work_order.specifications
-            fields["design_reference"] = work_order.design_reference
-            fields["special_instructions"] = work_order.special_instructions
-            fields["work_order"] = work_order.uid
+            if event.event_type == SubEventType.BATCH_CREATED:                
+                work_order: WorkOrder = event.get_data("entity")
+                fields["quantity"] = work_order.requested_quantity
+                fields["unit"] = work_order.requested_quantity_unit
+                fields["product_description"] = work_order.product_description
+                fields["specifications"] = work_order.specifications
+                fields["design_reference"] = work_order.design_reference
+                fields["special_instructions"] = work_order.special_instructions
+                fields["work_order"] = work_order.uid
         elif fields.get("asset_type") == AssetType.LOGISTICS.value: 
             transfer_fields = payload.get("fields", {})
             if event.event_type == EventType.ASSET_CREATED:
