@@ -61,6 +61,8 @@ class AssetCreationHandler(BaseListener):
             fields["transaction"] = event.signature
         elif fields.get("asset_type") == AssetType.PRODUCT.value:
             raise InvalidTransaction("Direct creation of Product assets is not supported. Create a ProductBatch instead or accept a WorkOrder.")
+        elif fields.get("asset_type") == AssetType.SUB_ASSIGNMENT.value:
+            fields["assigner"] = event.signer_public_key
 
         # Process the fields as needed
         asset_type_str = fields.get("asset_type")

@@ -32,7 +32,8 @@ class BaseListener(ABC):
             AssetType.PRODUCT_BATCH: ProductBatch,
             AssetType.PACKAGING: Packaging,
             AssetType.PRODUCT: Product,
-            AssetType.LOGISTICS: Logistics
+            AssetType.LOGISTICS: Logistics,
+            AssetType.SUB_ASSIGNMENT: SubAssignment
         }
 
     def get_asset(self, asset_id: str, context: EventContext) -> Tuple[BaseAsset, str]:

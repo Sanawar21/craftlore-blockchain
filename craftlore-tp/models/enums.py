@@ -22,6 +22,7 @@ class AssetType(BaseEnum):
     PRODUCT_BATCH = "product_batch"
     PACKAGING = "packaging"
     LOGISTICS = "logistics"
+    SUB_ASSIGNMENT = "sub_assignment"
 
 class EventType(BaseEnum):
     ACCOUNT_CREATED = "create/account"
@@ -40,12 +41,18 @@ class SubEventType(BaseEnum):
     PACKAGING_CREATED = "create/asset/packaging"
     BATCH_CREATED = "accept/work_order/batch_created"
     LOGISTICS_CREATED = "create/asset/logistics"
+    SUB_ASSIGNMENT_CREATED = "create/asset/sub_assignment"
 
 
 class ArtisanSkillLevel(BaseEnum):
     BEGINNER = "beginner"
     INTERMEDIATE = "intermediate"
     EXPERT = "expert"
+
+class SubAssignmentStatus(BaseEnum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
 
 class WorkOrderStatus(BaseEnum):
     PENDING = "pending"

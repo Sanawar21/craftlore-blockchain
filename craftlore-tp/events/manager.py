@@ -49,6 +49,9 @@ class EventsManager:
                 return event.event_type == EventType.ASSET_CREATED
         elif sub_event == SubEventType.LOGISTICS_CREATED:
             return event.event_type == EventType.ASSETS_TRANSFERRED
+        elif sub_event == SubEventType.SUB_ASSIGNMENT_CREATED:
+            if event.payload.get("fields", {}).get("asset_type") == "sub_assignment":
+                return event.event_type == EventType.ASSET_CREATED
         return False
 
     def propagate(self, event_type: EventType, transaction, context: Context):

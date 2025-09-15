@@ -19,6 +19,6 @@ class ArtisanAccount(BaseAccount):
     work_orders_accepted: list = Field(default_factory=list)  # Work orders accepted by this artisan
     work_orders_rejected: list = Field(default_factory=list)  # Work orders rejected by this artisan
     work_orders_completed: list = Field(default_factory=list)  # Work orders completed by this artisan
-    work_orders_sub_assigned: list = Field(default_factory=list)  # Work orders sub-assigned to this artisan by workshops
-    workshops_worked_for: list = Field(default_factory=list)
-    
+    sub_assignments: list = Field(default_factory=list)  # Sub-assignments assigned to this artisan
+    sub_assignments_accepted: list = Field(default_factory=list)  # Sub-assignments accepted by this artisan
+    sub_assignments_rejected: list = Field(default_factory=list)  # Sub-assignments rejected by this artisan
