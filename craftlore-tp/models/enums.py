@@ -32,7 +32,8 @@ class EventType(BaseEnum):
     WORK_ORDER_REJECTED = "reject/work_order"
     WORK_ORDER_COMPLETED = "complete/work_order"
     ADD_RAW_MATERIAL = "add/raw_material"
-    ADD_SUB_ASSIGNEE = "add/sub_assignee"
+    SUBASSIGNMENT_ACCEPTED = "accept/sub_assignment"
+    SUBASSIGNMENT_REJECTED = "reject/sub_assignment"
     BATCH_COMPLETED = "complete/batch"
 
 class SubEventType(BaseEnum):

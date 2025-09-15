@@ -90,6 +90,18 @@ class CraftLoreClient:
         result.update({'uid': uid})
         return result
 
+    def accept_sub_assignment(self, subassignment: str) -> Dict:
+        """Accept a sub-assignment."""
+        payload = {
+            'event': EventType.SUBASSIGNMENT_ACCEPTED.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'subassignment': subassignment,
+            }
+        }
+
+        return self._submit_transaction(payload)
+
     def reject_work_order(self, work_order_id: str, rejection_reason: str) -> Dict:
         """Reject a work order."""
         payload = {
@@ -102,6 +114,21 @@ class CraftLoreClient:
         }
 
         return self._submit_transaction(payload)
+
+    def reject_sub_assignment(self, subassignment: str, rejection_reason: str) -> Dict:
+        """Reject a sub-assignment."""
+        payload = {
+            'event': EventType.SUBASSIGNMENT_REJECTED.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'subassignment': subassignment,
+                'rejection_reason': rejection_reason
+            }
+        }
+
+        return self._submit_transaction(payload)
+
+
 
     def complete_work_order(self, work_order_id: str, units_produced: int, produced_quantity: float = None, products_price: float = None) -> Dict:
         """Complete a work order."""

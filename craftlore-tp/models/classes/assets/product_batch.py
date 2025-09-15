@@ -29,4 +29,4 @@ class ProductBatch(BaseAsset):
     # Links
     work_order: Optional[str] = None  # If produced for a WorkOrder
     production_date: str = Field(default_factory=str)
-    sub_assignees: List[str] = Field(default_factory=list)  # Other artisans involved
+    sub_assignments: List[str] = Field(default_factory=list)  # Sub-assignments of other artisans for this batch

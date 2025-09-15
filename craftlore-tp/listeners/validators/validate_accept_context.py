@@ -6,8 +6,8 @@ from models.enums import AccountType, SubEventType, EventType, WorkOrderStatus
 
 class ValidateAcceptContext(BaseListener):
     def __init__(self):
-        super().__init__([EventType.WORK_ORDER_ACCEPTED, EventType.WORK_ORDER_REJECTED, EventType.WORK_ORDER_COMPLETED],
-                          priorities=[-100, -100, -100])  # run after updating acceptor history
+        super().__init__([EventType.WORK_ORDER_ACCEPTED, EventType.WORK_ORDER_REJECTED, EventType.WORK_ORDER_COMPLETED, EventType.SUBASSIGNMENT_ACCEPTED, EventType.SUBASSIGNMENT_REJECTED],
+                          priorities=[-100, -100, -100, -100, -100])  # run after updating acceptor history
 
     def on_event(self, event: EventContext):
         assignee: BaseAccount = event.get_data("assignee")
