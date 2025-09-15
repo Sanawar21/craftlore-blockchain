@@ -1,4 +1,0 @@
-sawtooth-sdk
-requests
-sawtooth-signing
-protobuf
