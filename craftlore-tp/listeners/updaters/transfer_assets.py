@@ -69,7 +69,7 @@ class AssetsTransferrer(BaseListener):
             asset.history.append(history)
 
             event.context.set_state({
-                asset_address: self.serialize_for_state(asset.model_dump())
+                asset_address: self.serialize_for_state(asset)
             })
             asset_objs.append(asset)
 
@@ -83,6 +83,6 @@ class AssetsTransferrer(BaseListener):
         })
 
         event.context.set_state({
-            recipient_address: self.serialize_for_state(recipient_account.model_dump()),
-            old_owner_address: self.serialize_for_state(old_owner_account.model_dump())
+            recipient_address: self.serialize_for_state(recipient_account),
+            old_owner_address: self.serialize_for_state(old_owner_account)
         })

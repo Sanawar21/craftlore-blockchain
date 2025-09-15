@@ -71,15 +71,13 @@ class AssetCreationHandler(BaseListener):
             raise InvalidTransaction(f"Unsupported asset type: {asset_type_str}")
 
         asset = asset_class.model_validate(fields)
-        asset_data = asset.model_dump()
-
         asset_address = self.address_generator.generate_asset_address(asset.uid)
 
         if context.get_state([asset_address]):
             raise InvalidTransaction("Asset already exists")
 
         context.set_state({
-            asset_address: self.serialize_for_state(asset_data)
+            asset_address: self.serialize_for_state(asset)
         })
 
         event.add_data({

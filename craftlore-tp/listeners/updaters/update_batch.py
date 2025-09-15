@@ -44,7 +44,7 @@ class BatchUpdater(BaseListener):
             "timestamp": event.timestamp
         })
         event.context.set_state({
-            batch_address: self.serialize_for_state(batch.model_dump())
+            batch_address: self.serialize_for_state(batch)
         })
         event.add_data({
             "batch": batch

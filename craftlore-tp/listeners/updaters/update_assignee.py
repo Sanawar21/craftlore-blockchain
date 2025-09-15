@@ -20,19 +20,8 @@ class AssigneeUpdater(BaseListener):
             if not entity or not entity_address:
                 raise InvalidTransaction("Entity data or address not found in event context for AssigneeUpdater")
 
-            assignee_address = self.address_generator.generate_account_address(entity.assignee)
-            entries = event.context.get_state([assignee_address])  # Ensure assignee account exists
-
-            if entries:
-                assignee_data = self.serializer.from_bytes(entries[0].data)
-            else:
-                raise InvalidTransaction("Assignee account does not exist for AssigneeUpdater")
-
-            if assignee_data.get("account_type") == AccountType.ARTISAN.value:
-                assignee: ArtisanAccount = self.account_types[AccountType.ARTISAN].model_validate(assignee_data)
-            # add elif for workshop
-            else:
-                raise InvalidTransaction("Assignee must be an Artisan or Supplier account")
+            assignee, assignee_address = self.get_account(entity.assignee, event)
+            assert isinstance(assignee, ArtisanAccount), "Assignee must be an ArtisanAccount"
 
             assignee.work_orders_assigned.append(entity.uid)
         
@@ -49,7 +38,7 @@ class AssigneeUpdater(BaseListener):
 
 
             event.context.set_state({
-                assignee_address: self.serialize_for_state(assignee.model_dump())
+                assignee_address: self.serialize_for_state(assignee)
             })
 
             event.add_data({
@@ -70,23 +59,11 @@ class AssigneeUpdater(BaseListener):
             if not work_order_id:
                 raise InvalidTransaction("Missing 'work_order' in fields for AssigneeUpdater")          
 
-            work_order_address = self.address_generator.generate_asset_address(work_order_id)
-            entries = context.get_state([work_order_address])
-            if entries:
-                work_order_data = self.serializer.from_bytes(entries[0].data)
-            else:
-                raise InvalidTransaction("Work order does not exist for AssigneeUpdater")
-
-            assignee_address = self.address_generator.generate_account_address(signer_public_key)
-            entries = context.get_state([assignee_address])  # Ensure assignee account exists
-            if entries:
-                assignee_data = self.serializer.from_bytes(entries[0].data)
-            else:
-                raise InvalidTransaction("Assignee account does not exist for AssigneeUpdater")
-
-            work_order = WorkOrder.model_validate(work_order_data)
-            assignee = self.account_types[AccountType(assignee_data.get("account_type"))].model_validate(assignee_data)  
-        
+            work_order, work_order_address = self.get_asset(work_order_id, event)
+            assignee, assignee_address = self.get_account(signer_public_key, event)
+            assert isinstance(work_order, WorkOrder), "Asset must be a WorkOrder"
+            assert isinstance(assignee, ArtisanAccount), "Assignee must be an ArtisanAccount"
+  
             if event.event_type == EventType.WORK_ORDER_ACCEPTED:
 
                 assignee.work_orders_accepted.append(work_order.uid)
@@ -150,8 +127,8 @@ class AssigneeUpdater(BaseListener):
             work_order.history.append(history_entry)
 
             context.set_state({
-                assignee_address: self.serialize_for_state(assignee.model_dump()),
-                work_order_address: self.serialize_for_state(work_order.model_dump())
+                assignee_address: self.serialize_for_state(assignee),
+                work_order_address: self.serialize_for_state(work_order)
             })
 
 

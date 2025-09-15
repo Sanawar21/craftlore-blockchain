@@ -49,8 +49,8 @@ class ProducerUpdater(BaseListener):
             producer.history.append(history_entry)
 
             context.set_state({
-                batch_address: self.serialize_for_state(batch.model_dump()),
-                producer_address: self.serialize_for_state(producer.model_dump())
+                batch_address: self.serialize_for_state(batch),
+                producer_address: self.serialize_for_state(producer)
             })
 
 

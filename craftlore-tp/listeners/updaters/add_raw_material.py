@@ -12,15 +12,6 @@ class AddToBatch(BaseListener):
             priorities=[100]
         )  # default priority
 
-    def __load_asset_by_id(self, context: EventContext, asset_id: str, asset_type: AssetType) -> Any:
-        asset_address = self.address_generator.generate_asset_address(asset_id)
-        entries = context.context.get_state([asset_address])
-        if entries:
-            asset_data = self.serializer.from_bytes(entries[0].data)
-            return asset_data
-        else:
-            raise InvalidTransaction(f"{asset_type.value.replace('_', ' ').title()} with ID {asset_id} does not exist")
-
     def on_event(self, event: EventContext):
         payload = event.payload
         fields = payload.get("fields", {})
@@ -30,11 +21,10 @@ class AddToBatch(BaseListener):
         batch_id = fields["batch"]
         raw_material_id = fields["raw_material"]
 
-        batch_data = self.__load_asset_by_id(event, batch_id, AssetType.PRODUCT_BATCH)
-        raw_material_data = self.__load_asset_by_id(event, raw_material_id, AssetType.RAW_MATERIAL)
-
-        batch: ProductBatch = ProductBatch.model_validate(batch_data)
-        raw_material: RawMaterial = RawMaterial.model_validate(raw_material_data)
+        batch, batch_address = self.get_asset(batch_id, event)
+        raw_material, raw_material_address = self.get_asset(raw_material_id, event)
+        assert isinstance(batch, ProductBatch), "Asset must be a ProductBatch"
+        assert isinstance(raw_material, RawMaterial), "Asset must be a RawMaterial"
 
         batch.raw_materials.append(UsageRecord(
             batch=batch.uid,
@@ -60,12 +50,9 @@ class AddToBatch(BaseListener):
         batch.history.append(history_entry)
         raw_material.history.append(history_entry)
 
-        batch_address = self.address_generator.generate_asset_address(batch.uid)
-        raw_material_address = self.address_generator.generate_asset_address(raw_material.uid)
-
         event.context.set_state({
-            batch_address: self.serialize_for_state(batch.model_dump()),
-            raw_material_address: self.serialize_for_state(raw_material.model_dump())
+            batch_address: self.serialize_for_state(batch),
+            raw_material_address: self.serialize_for_state(raw_material)
         })
 
         event.add_data({

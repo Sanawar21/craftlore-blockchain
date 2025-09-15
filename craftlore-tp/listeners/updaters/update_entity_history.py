@@ -28,5 +28,5 @@ class EntityHistoryUpdater(BaseListener):
         })
 
         event.context.set_state({
-            entity_address: self.serialize_for_state(entity.model_dump())
+            entity_address: self.serialize_for_state(entity)
         })

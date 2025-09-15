@@ -10,6 +10,7 @@ from events import EventContext
 
 from models.classes.accounts import *
 from models.classes.assets import *
+from models.classes.base_class import BaseClass
 
 class BaseListener(ABC):
     """Base class for all event listeners."""
@@ -54,8 +55,10 @@ class BaseListener(ABC):
         else:
             raise InvalidTransaction(f"Account with public key {public_key} does not exist.")
 
-    def serialize_for_state(self, data):
-        return self.serializer.to_bytes(data)
+    def serialize_for_state(self, obj: BaseClass, email_index_case=False) -> bytes:
+        if email_index_case:
+            return self.serializer.to_bytes(obj)
+        return self.serializer.to_bytes(obj.model_dump())
 
     @abstractmethod
     def on_event(self, event: EventContext):

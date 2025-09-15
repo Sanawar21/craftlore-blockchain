@@ -23,5 +23,5 @@ class EmailIndexUpdater(BaseListener):
             raise InvalidTransaction(f"{account.email} is already taken")
         
         event.context.set_state({
-            address: self.serialize_for_state(data)
+            address: self.serialize_for_state(data, email_index_case=True)
         })

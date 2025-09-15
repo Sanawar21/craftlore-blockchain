@@ -39,15 +39,13 @@ class AccountCreationHandler(BaseListener):
             raise InvalidTransaction(f"Unsupported account type: {account_type_str}")
 
         account = account_class.model_validate(fields)
-        account_data = account.model_dump()
-
         account_address = self.address_generator.generate_account_address(account.public_key)
 
         if context.get_state([account_address]):
             raise InvalidTransaction("Account already exists")
 
         context.set_state({
-            account_address: self.serialize_for_state(account_data)
+            account_address: self.serialize_for_state(account)
         })
 
         event.add_data({

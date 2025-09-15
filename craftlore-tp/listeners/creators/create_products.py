@@ -58,7 +58,7 @@ class ProductsCreationHandler(BaseListener):
                 raise InvalidTransaction(f"Product with UID {product.uid} already exists")
 
             event.context.set_state({
-                product_address: self.serialize_for_state(product.model_dump())
+                product_address: self.serialize_for_state(product)
             })
 
             products.append(product)
@@ -75,7 +75,7 @@ class ProductsCreationHandler(BaseListener):
         producer_address = self.address_generator.generate_account_address(producer.public_key)
 
         event.context.set_state({
-            producer_address: self.serialize_for_state(producer.model_dump())
+            producer_address: self.serialize_for_state(producer)
         })
         event.add_data({
             "products": products
