@@ -202,6 +202,32 @@ class CraftLoreClient:
         }
 
         return self._submit_transaction(payload)
+    
+    def delete_asset(self, uid: str, deletion_reason: str) -> Dict:
+        """Delete an asset."""
+        payload = {
+            'event': EventType.ENTITY_DELETED.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'uid': uid,
+                'deletion_reason': deletion_reason
+            }
+        }
+
+        return self._submit_transaction(payload)
+
+    def delete_account(self, public_key: str, deletion_reason: str) -> Dict:
+        """Delete an account."""
+        payload = {
+            'event': EventType.ENTITY_DELETED.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'public_key': public_key,
+                'deletion_reason': deletion_reason
+            }
+        }
+
+        return self._submit_transaction(payload)
 
 
 

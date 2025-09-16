@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, ConfigDict
 from ..enums import AuthenticationStatus
 from abc import ABC
 import cbor2
+from typing import Optional
 
 class BaseClass(BaseModel, ABC):
     """Base class model for CraftLore Account TP."""
@@ -16,6 +17,7 @@ class BaseClass(BaseModel, ABC):
     authentication_status: AuthenticationStatus = AuthenticationStatus.PENDING
     created_timestamp: str = Field(default_factory=str)
     is_deleted: bool = False
+    deletion_reason: Optional[str] = None
     history: list = Field(default_factory=list)
 
     def to_cbor(self) -> bytes: # TODO: Implement in code
@@ -32,5 +34,6 @@ class BaseClass(BaseModel, ABC):
             "model_config",
             "authentication_status",
             "is_deleted",
+            "deletion_reason",
             "history",
         }

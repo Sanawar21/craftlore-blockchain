@@ -8,6 +8,7 @@ from .add_raw_material import AddToBatch
 from .transfer_assets import AssetsTransferrer
 from .producer_updater import ProducerUpdater
 from .update_subassignee import SubAssigneeUpdater
+from .delete_entity import DeleteEntity
 
 listeners = [
     EmailIndexUpdater,
@@ -19,5 +20,6 @@ listeners = [
     AddToBatch,
     AssetsTransferrer,
     ProducerUpdater,
-    SubAssigneeUpdater
+    SubAssigneeUpdater,
+    DeleteEntity,
 ]
