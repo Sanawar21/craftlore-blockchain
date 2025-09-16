@@ -18,3 +18,13 @@ class SubAssignment(BaseAsset):
     assignee: str                     # Artisan or workshop public key
     assigner: str                     # Producer public key
     rejection_reason: Optional[str] = None # Filled if status is REJECTED
+
+    @property
+    def forbidden_fields(self) :
+        """Fields that should not be set during creation."""
+        return super().forbidden_fields.union({
+            # sub assignment
+            "status",
+            "rejection_reason",
+        })
+    

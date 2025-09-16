@@ -27,3 +27,12 @@ class RawMaterial(BaseAsset):
     source_location: str = Field(default_factory=str)
     batches_used_in: List[UsageRecord] = Field(default_factory=list)  # List of product batches that used this raw material
 
+
+    @property
+    def forbidden_fields(self) :
+        """Fields that should not be set during creation."""
+        return super().forbidden_fields.union({
+            # raw material
+            "processor_public_key",
+            "batches_used_in",
+        })

@@ -39,6 +39,10 @@ class AccountCreationHandler(BaseListener):
             raise InvalidTransaction(f"Unsupported account type: {account_type_str}")
 
         account = account_class.model_validate(fields)
+        for field in account.forbidden_fields:
+            if field in fields:
+                raise InvalidTransaction(f"Field '{field}' cannot be set during account creation")
+            
         account_address = self.address_generator.generate_account_address(account.public_key)
 
         if context.get_state([account_address]):

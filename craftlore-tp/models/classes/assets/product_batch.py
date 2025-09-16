@@ -30,3 +30,15 @@ class ProductBatch(BaseAsset):
     work_order: Optional[str] = None  # If produced for a WorkOrder
     production_date: str = Field(default_factory=str)
     sub_assignments: List[str] = Field(default_factory=list)  # Sub-assignments of other artisans for this batch
+
+    @property
+    def forbidden_fields(self) :
+        """Fields that should not be set during creation."""
+        return super().forbidden_fields.union({
+            # product batch
+            "raw_materials"
+            "units_produced",
+            "status",
+            "production_date",
+            "sub_assignments",
+        })

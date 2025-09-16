@@ -14,3 +14,8 @@ class Product(BaseAsset):
     quantity: float 
     unit: str  # e.g. "pieces", "
     packaging: Optional[str] = None         # Link to Packaging
+
+    @property
+    def forbidden_fields(self) :
+        """Fields that should not be set during creation."""
+        return super().forbidden_fields

@@ -17,3 +17,10 @@ class BaseAccount(BaseClass):
     work_orders_issued: list = Field(default_factory=list)
     region: str = Field(default_factory=str)
     specializations: list = Field(default_factory=list)
+
+    @property
+    def forbidden_fields(self) :
+        return super().forbidden_fields.union({
+            "assets",
+            "work_orders_issued",
+        })

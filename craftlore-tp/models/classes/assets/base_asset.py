@@ -17,3 +17,12 @@ class BaseAsset(BaseClass):
     asset_type: AssetType
     transfer_logistics: list = Field(default_factory=list)
     previous_owners: list = Field(default_factory=list)
+
+    @property
+    def forbidden_fields(self) :
+        """Fields that should not be set during creation."""
+        return super().forbidden_fields.union({
+            # base asset
+            "transfer_logistics",
+            "previous_owners",
+        })

@@ -14,7 +14,7 @@ def main():
 
     print("1. Create Account for baap")
     account_type = AccountType.ARTISAN
-    email = "baap.com"
+    email = "baap21.com"
     result = baap.create_account(
         account_type, 
         email,
@@ -26,7 +26,7 @@ def main():
 
     print("2. Create Account for chacha")
     account_type = AccountType.SUPPLIER
-    email = "chacha.com"
+    email = "chacha21.com"
     result = chacha.create_account(account_type, email)
     print(f"   Result: {result.get('status', 'unknown')}")
     print(f"   Message: {result.get('message', '')}")

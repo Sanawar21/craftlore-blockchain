@@ -24,3 +24,8 @@ class Packaging(BaseAsset):
     gross_weight: float
     package_width: float
     package_height: float
+
+    @property
+    def forbidden_fields(self) :
+        """Fields that should not be set during creation."""
+        return super().forbidden_fields

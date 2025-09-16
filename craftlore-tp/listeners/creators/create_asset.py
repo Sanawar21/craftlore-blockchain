@@ -52,6 +52,10 @@ class AssetCreationHandler(BaseListener):
                 fields["design_reference"] = work_order.design_reference
                 fields["special_instructions"] = work_order.special_instructions
                 fields["work_order"] = work_order.uid
+            else:
+                if "work_order" in fields:
+                    raise InvalidTransaction("Cannot set 'work_order' field during ProductBatch creation. It is set automatically when accepting a WorkOrder.")
+
         elif fields.get("asset_type") == AssetType.LOGISTICS.value: 
             transfer_fields = payload.get("fields", {})
             if event.event_type == EventType.ASSET_CREATED:
@@ -73,6 +77,11 @@ class AssetCreationHandler(BaseListener):
             raise InvalidTransaction(f"Unsupported asset type: {asset_type_str}")
 
         asset = asset_class.model_validate(fields)
+        forbidden_fields = asset.forbidden_fields
+        for field in forbidden_fields:
+            if field in fields:
+                raise InvalidTransaction(f"Field '{field}' cannot be set during creation of asset type '{asset_type.value}'")
+            
         asset_address = self.address_generator.generate_asset_address(asset.uid)
 
         if context.get_state([asset_address]):

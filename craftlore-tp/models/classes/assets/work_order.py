@@ -34,3 +34,14 @@ class WorkOrder(BaseAsset):
     completion_date: str = Field(default_factory=str) # updated after packaging
     rejection_reason: str = Field(default_factory=str)
 
+
+    @property
+    def forbidden_fields(self) :
+        """Fields that should not be set during creation."""
+        return super().forbidden_fields.union({
+            # work order
+            "status",
+            "batch",
+            "completion_date",
+            "rejection_reason",
+        })

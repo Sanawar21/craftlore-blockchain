@@ -22,3 +22,15 @@ class ArtisanAccount(BaseAccount):
     sub_assignments: list = Field(default_factory=list)  # Sub-assignments assigned to this artisan
     sub_assignments_accepted: list = Field(default_factory=list)  # Sub-assignments accepted by this artisan
     sub_assignments_rejected: list = Field(default_factory=list)  # Sub-assignments rejected by this artisan
+
+    @property
+    def forbidden_fields(self) :
+        return super().forbidden_fields.union({
+            "work_orders_assigned",
+            "work_orders_accepted",
+            "work_orders_rejected",
+            "work_orders_completed",
+            "sub_assignments",
+            "sub_assignments_accepted",
+            "sub_assignments_rejected",
+        })

@@ -15,4 +15,9 @@ class SupplierAccount(BaseAccount):
     raw_materials_created: list = Field(default_factory=list)
     supplier_type: str = Field(default_factory=str)
 
-    
+    @property
+    def forbidden_fields(self) :
+        return super().forbidden_fields.union({
+            "raw_materials_supplied",
+            "raw_materials_created",
+        })    

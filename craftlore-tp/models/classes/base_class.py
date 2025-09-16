@@ -23,3 +23,14 @@ class BaseClass(BaseModel, ABC):
     @classmethod
     def from_cbor(cls, data: bytes) -> "BaseClass":
         return cls.model_validate(cbor2.loads(data))
+    
+    @property
+    def forbidden_fields(self) :
+        """Fields that should not be set during creation."""
+        return {
+            "tp_version",
+            "model_config",
+            "authentication_status",
+            "is_deleted",
+            "history",
+        }

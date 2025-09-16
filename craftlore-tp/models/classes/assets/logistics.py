@@ -33,3 +33,8 @@ class Logistics(BaseAsset):
     # Financials
     freight_cost_usd: Optional[float] = None
     insurance_details: Optional[dict] = Field(default_factory=dict)
+
+    @property
+    def forbidden_fields(self) :
+        """Fields that should not be set during creation."""
+        return super().forbidden_fields
