@@ -36,6 +36,7 @@ class EventType(BaseEnum):
     SUBASSIGNMENT_REJECTED = "reject/sub_assignment"
     BATCH_COMPLETED = "complete/batch"
     ENTITY_DELETED = "delete/entity"
+    PRODUCT_UNPACKED = "unpackage/product"
 
 class SubEventType(BaseEnum):
     """Sub-event types for more granular event handling."""

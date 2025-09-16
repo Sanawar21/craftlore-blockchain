@@ -9,6 +9,7 @@ from .transfer_assets import AssetsTransferrer
 from .producer_updater import ProducerUpdater
 from .update_subassignee import SubAssigneeUpdater
 from .delete_entity import DeleteEntity
+from .unpack_product import UnpackProduct
 
 listeners = [
     EmailIndexUpdater,
@@ -22,4 +23,5 @@ listeners = [
     ProducerUpdater,
     SubAssigneeUpdater,
     DeleteEntity,
+    UnpackProduct,
 ]

@@ -229,6 +229,17 @@ class CraftLoreClient:
 
         return self._submit_transaction(payload)
 
+    def unpack_product(self, product_id: str) -> Dict:
+        """Unpack a product from its packaging."""
+        payload = {
+            'event': EventType.PRODUCT_UNPACKED.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'uid': product_id
+            }
+        }
+
+        return self._submit_transaction(payload)
 
 
     def _submit_transaction(self, payload: Dict) -> Dict:
