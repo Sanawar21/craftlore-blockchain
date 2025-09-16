@@ -20,14 +20,11 @@ class AssetsTransferrer(BaseListener):
         recipient = fields.get("recipient")
         logistics = fields.get("logistics")
 
-        print("asset_ids in payload:", asset_ids)
-
         if not asset_ids or not recipient:
             raise InvalidTransaction("Missing 'assets' or 'recipient' in payload fields")
 
         # drop duplicates
         asset_ids = list(set(asset_ids))
-        print("Unique asset_ids to transfer:", asset_ids)
 
         assets = []
         for asset_id in asset_ids:
@@ -35,7 +32,6 @@ class AssetsTransferrer(BaseListener):
             assets.append((asset, asset_address))
     
         asset_uids = [asset.uid for asset, _ in assets]
-        print("Asset UIDs to transfer:", asset_uids)
 
         history = {
                 "source": self.__class__.__name__,
@@ -56,9 +52,6 @@ class AssetsTransferrer(BaseListener):
                         continue
                     product_asset, product_address = self.get_asset(product_id, event)
                     assets.append((product_asset, product_address))
-
-        print("Final list of assets to transfer (including unpackaged products):", [asset.uid for asset, _ in assets])
-        print("Packagings included in transfer:", packagings_included)
 
         recipient_account, recipient_address = self.get_account(recipient, event)
         old_owner_account, old_owner_address = self.get_account(event.signer_public_key, event)
