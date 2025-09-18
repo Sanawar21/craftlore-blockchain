@@ -1,4 +1,4 @@
-from .craftlore_client import CraftLoreClient
+from ..craftlore_client import CraftLoreClient
 from models.enums import AccountType, AssetType, ArtisanSkillLevel
 import time
 
@@ -46,17 +46,6 @@ def main():
     print(f"   Result: {result.get('status', 'unknown')}")
     print(f"   Message: {result.get('message', '')}")
     time.sleep(1)
-
-    print("\n3. Reject Work Order by baap")
-    work_order_id = result.get("uid")
-    if not work_order_id:
-        print("   Error: Work order ID not found, cannot reject work order.")
-        return
-    result = baap.reject_work_order(work_order_id, "paise kam hain")
-    print(f"   Result: {result.get('status', 'unknown')}")
-    print(f"   Message: {result.get('message', '')}")
-    time.sleep(1)
-    
 
 if __name__ == "__main__":
     main()

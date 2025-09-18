@@ -15,3 +15,7 @@ class BuyerAccount(BaseAccount):
     @property
     def forbidden_fields(self) :
         return super().forbidden_fields
+
+    @property
+    def editable_fields(self) -> set:
+        return super().editable_fields

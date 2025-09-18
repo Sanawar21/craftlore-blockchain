@@ -36,3 +36,10 @@ class RawMaterial(BaseAsset):
             "processor_public_key",
             "batches_used_in",
         })
+    
+    @property
+    def editable_fields(self) -> set:
+        """Fields that can be edited after creation."""
+        return super().editable_fields.union({
+            "unit_price_usd",
+        })

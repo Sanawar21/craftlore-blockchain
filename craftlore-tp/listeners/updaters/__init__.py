@@ -10,6 +10,7 @@ from .producer_updater import ProducerUpdater
 from .update_subassignee import SubAssigneeUpdater
 from .delete_entity import DeleteEntity
 from .unpack_product import UnpackProduct
+from .edit_entity import EditEntity
 
 listeners = [
     EmailIndexUpdater,
@@ -24,4 +25,5 @@ listeners = [
     SubAssigneeUpdater,
     DeleteEntity,
     UnpackProduct,
+    EditEntity,
 ]

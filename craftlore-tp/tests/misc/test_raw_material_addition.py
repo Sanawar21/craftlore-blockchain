@@ -1,4 +1,4 @@
-from .craftlore_client import CraftLoreClient
+from ..craftlore_client import CraftLoreClient
 from models.enums import AccountType, AssetType, ArtisanSkillLevel
 import time
 

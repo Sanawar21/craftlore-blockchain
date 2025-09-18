@@ -29,3 +29,8 @@ class Packaging(BaseAsset):
     def forbidden_fields(self) :
         """Fields that should not be set during creation."""
         return super().forbidden_fields
+    
+    @property
+    def editable_fields(self) -> set:
+        """Fields that can be edited after creation."""
+        return super().editable_fields

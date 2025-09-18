@@ -1,4 +1,4 @@
-from .craftlore_client import CraftLoreClient
+from ..craftlore_client import CraftLoreClient
 from models.enums import AccountType, AssetType, ArtisanSkillLevel
 import time
 
@@ -13,7 +13,7 @@ def main():
     print("=" * 60)
     
 
-    emails = {"baap": "baap22.com", "chacha": "chacha22.com", "seth": "seth22.com"}
+    emails = {"baap": "baap1.com", "chacha": "chacha1.com", "seth": "seth1.com"}
 
     print("0. Create Account for chacha")
     account_type = AccountType.ARTISAN
@@ -84,19 +84,5 @@ def main():
     )
     print(f"   Result: {result.get('status', 'unknown')}")
     print(f"   Message: {result.get('message', '')}")
-
-    time.sleep(1)
-
-    print("\n5. Accept Sub-Assignment by chacha")
-    assignment_id = result.get("uid")
-    if not assignment_id:
-        print("   Error: Sub-assignment ID not found, cannot accept sub-assignment.")
-        return
-    result = chacha.accept_sub_assignment(assignment_id)
-    print(f"   Result: {result.get('status', 'unknown')}")
-    print(f"   Message: {result.get('message', '')}")
-
-
-
 if __name__ == "__main__":
     main()

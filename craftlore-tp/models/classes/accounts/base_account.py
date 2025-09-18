@@ -24,3 +24,10 @@ class BaseAccount(BaseClass):
             "assets",
             "work_orders_issued",
         })
+
+    @property
+    def editable_fields(self) -> set:
+        return super().editable_fields.union({
+            "region",
+            "specializations",
+        })

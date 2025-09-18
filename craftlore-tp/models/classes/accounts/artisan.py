@@ -34,3 +34,12 @@ class ArtisanAccount(BaseAccount):
             "sub_assignments_accepted",
             "sub_assignments_rejected",
         })
+    
+    @property
+    def editable_fields(self) -> set:
+        return super().editable_fields.union({
+            "skill_level",
+            "craft_categories",
+            "years_of_experience",
+            "traditional_techniques",
+        })

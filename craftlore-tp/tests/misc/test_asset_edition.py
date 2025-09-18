@@ -1,4 +1,4 @@
-from .craftlore_client import CraftLoreClient, AccountType, EventType, AssetType
+from ..craftlore_client import CraftLoreClient, AccountType, EventType, AssetType
 import time
 
 def main():
@@ -12,7 +12,7 @@ def main():
 
     print("1. Create Account")
     account_type = AccountType.SUPPLIER
-    email = "bet1a1.com"
+    email = "bet1a11.com"
     result = client.create_account(account_type, email)
     print(f"   Result: {result.get('status', 'unknown')}")
     print(f"   Message: {result.get('message', '')}")
@@ -32,18 +32,18 @@ def main():
     print(f"   Message: {result.get('message', '')}")
     time.sleep(1)
 
-    print("\n3. Delete Asset")
+    print("\n3. Edit Asset")
     uid = result.get("uid")
     if uid:
-        result = client.delete_asset(uid=uid, deletion_reason="No longer needed")
+        result = client.edit_asset(uid=uid, updates={"unit_price_usd": 10.0})
         print(f"   Result: {result.get('status', 'unknown')}")
         print(f"   Message: {result.get('message', '')}")
     else:
-        print("   Skipping deletion: No UID returned from asset creation.")
+        print("   Skipping edit: No UID returned from asset creation.")
 
-    print("\n4. Delete Account")
+    print("\n4. Edit Account")
     public_key = client.signer.get_public_key().as_hex()
-    result = client.delete_account(public_key=public_key, deletion_reason="Testing deletion")
+    result = client.edit_account(public_key=public_key, updates={"supplier_type": "wood supplier"})
     print(f"   Result: {result.get('status', 'unknown')}")
     print(f"   Message: {result.get('message', '')}")
 

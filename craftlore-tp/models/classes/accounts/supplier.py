@@ -20,4 +20,10 @@ class SupplierAccount(BaseAccount):
         return super().forbidden_fields.union({
             "raw_materials_supplied",
             "raw_materials_created",
-        })    
+        })  
+
+    @property
+    def editable_fields(self) -> set:
+        return super().editable_fields.union({
+            "supplier_type",
+        })  

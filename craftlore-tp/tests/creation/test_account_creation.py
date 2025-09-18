@@ -1,4 +1,4 @@
-from .craftlore_client import CraftLoreClient, AccountType, EventType
+from ..craftlore_client import CraftLoreClient, AccountType, EventType
 import time
 
 def main():

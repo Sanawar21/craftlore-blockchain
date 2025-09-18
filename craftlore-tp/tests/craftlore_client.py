@@ -229,6 +229,32 @@ class CraftLoreClient:
 
         return self._submit_transaction(payload)
 
+    def edit_asset(self, uid: str, updates: Dict) -> Dict:
+        """Edit an asset."""
+        payload = {
+            'event': EventType.ENTITY_EDITED.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'uid': uid,
+                'updates': updates
+            }
+        }
+
+        return self._submit_transaction(payload)
+
+    def edit_account(self, public_key: str, updates: Dict) -> Dict:
+        """Edit an account."""
+        payload = {
+            'event': EventType.ENTITY_EDITED.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'public_key': public_key,
+                'updates': updates
+            }
+        }
+
+        return self._submit_transaction(payload)
+
     def unpack_product(self, product_id: str) -> Dict:
         """Unpack a product from its packaging."""
         payload = {

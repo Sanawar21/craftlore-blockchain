@@ -26,3 +26,8 @@ class BaseAsset(BaseClass):
             "transfer_logistics",
             "previous_owners",
         })
+
+    @property
+    def editable_fields(self) -> set:
+        """Fields that can be edited after creation."""
+        return super().editable_fields

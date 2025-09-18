@@ -27,7 +27,7 @@ class BaseClass(BaseModel, ABC):
         return cls.model_validate(cbor2.loads(data))
     
     @property
-    def forbidden_fields(self) :
+    def forbidden_fields(self) -> set:
         """Fields that should not be set during creation."""
         return {
             "tp_version",
@@ -37,3 +37,8 @@ class BaseClass(BaseModel, ABC):
             "deletion_reason",
             "history",
         }
+
+    @property
+    def editable_fields(self) -> set:
+        """Fields that can be edited after creation."""
+        return set()
