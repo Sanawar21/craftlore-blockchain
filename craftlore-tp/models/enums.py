@@ -14,6 +14,18 @@ class AccountType(BaseEnum):
     SUPPLIER = "supplier"
     ARTISAN = "artisan"
     BUYER = "buyer"
+    ADMIN = "admin"
+
+class AdminPermissionLevel(BaseEnum):
+    MODERATOR = "moderator"
+    AUTHENTICATOR = "authenticator"
+    SUPER_ADMIN = "super_admin"
+    CERTIFIER = "certifier"
+
+class AdminAccountStatus(BaseEnum):
+    ACTIVE = "active"
+    SUSPENDED = "suspended"
+    DEACTIVATED = "deactivated"
 
 class AssetType(BaseEnum):
     RAW_MATERIAL = "raw_material"
@@ -38,6 +50,8 @@ class EventType(BaseEnum):
     ENTITY_EDITED = "edit/entity"
     ENTITY_DELETED = "delete/entity"
     PRODUCT_UNPACKED = "unpackage/product"
+    # admin
+    BOOTSTRAP = "bootstrap"
 
 
 class SubEventType(BaseEnum):

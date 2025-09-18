@@ -24,7 +24,8 @@ class BaseListener(ABC):
         self.account_types: Dict[AccountType, BaseAccount] = {
             AccountType.SUPPLIER: SupplierAccount,
             AccountType.ARTISAN: ArtisanAccount,
-            AccountType.BUYER: BuyerAccount
+            AccountType.BUYER: BuyerAccount,
+            AccountType.ADMIN: AdminAccount,
         }
         self.asset_types: Dict[AssetType, BaseAsset] = {
             AssetType.RAW_MATERIAL: RawMaterial,

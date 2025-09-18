@@ -51,7 +51,9 @@ class CraftLoreAddressGenerator:
         """Generate address for an asset."""
         return self._generate_address(self.ASSET_PREFIX, asset_id)
     
-
+    def generate_bootstrap_address(self) -> str:
+        """Generate address for bootstrap status."""
+        return self._generate_address(self.BOOTSTRAP_PREFIX, 'bootstrap_complete')
   
     # ==============================================
     # UTILITY METHODS

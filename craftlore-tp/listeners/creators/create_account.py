@@ -29,6 +29,8 @@ class AccountCreationHandler(BaseListener):
 
         # Process the fields as needed
         account_type_str = fields.get("account_type")
+        if account_type_str  == AccountType.ADMIN.value:
+            raise InvalidTransaction("Admin accounts must be created by the super admin.")
         try:
             account_type = AccountType(account_type_str)
         except ValueError:

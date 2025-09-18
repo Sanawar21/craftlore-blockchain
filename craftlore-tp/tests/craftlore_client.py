@@ -266,6 +266,16 @@ class CraftLoreClient:
         }
 
         return self._submit_transaction(payload)
+    
+    def bootstrap(self, email: str) -> Dict:
+        """Bootstrap the system by creating a super admin account."""
+        payload = {
+            'event': EventType.BOOTSTRAP.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "email": email
+        }
+
+        return self._submit_transaction(payload)
 
 
     def _submit_transaction(self, payload: Dict) -> Dict:
