@@ -29,7 +29,7 @@ def main():
         public_key=admin.public_key,
         email=email,
         permission_level=permission_level,
-        details=details,
+        action_details=details,
         about="Admin account for moderation"
     )
     print(f"   Result: {result.get('status', 'unknown')}")
@@ -44,7 +44,7 @@ def main():
         public_key=imposter.public_key,
         email=email,
         permission_level=permission_level,
-        details=details,
+        action_details=details,
         about="I should not be able to do this"
     )
     print(f"   Result: {result.get('status', 'unknown')}")

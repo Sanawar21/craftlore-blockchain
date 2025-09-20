@@ -8,7 +8,8 @@ from models.classes.assets import WorkOrder
 
 class AssetCreationHandler(BaseListener):
     def __init__(self):
-        super().__init__([EventType.ASSET_CREATED, SubEventType.BATCH_CREATED, SubEventType.LOGISTICS_CREATED], priorities=[1000, 1000, 0]) # run before every other listener
+        super().__init__([EventType.ASSET_CREATED, SubEventType.BATCH_CREATED, SubEventType.LOGISTICS_CREATED, EventType.CERTIFICATION_ISSUED],
+                          priorities=[1000, 1000, 0, 1000]) # run before every other listener
 
     def on_event(self, event: EventContext):
         # Handle asset creation event
@@ -31,6 +32,8 @@ class AssetCreationHandler(BaseListener):
         elif event.event_type == SubEventType.LOGISTICS_CREATED:
             fields = fields.get("logistics", {})
             fields["asset_type"] = AssetType.LOGISTICS.value
+        elif event.event_type == EventType.CERTIFICATION_ISSUED:
+            fields["asset_type"] = AssetType.CERTIFICATION.value
 
         fields = fields.copy() 
 
@@ -55,7 +58,6 @@ class AssetCreationHandler(BaseListener):
             else:
                 if "work_order" in fields:
                     raise InvalidTransaction("Cannot set 'work_order' field during ProductBatch creation. It is set automatically when accepting a WorkOrder.")
-
         elif fields.get("asset_type") == AssetType.LOGISTICS.value: 
             transfer_fields = payload.get("fields", {})
             if event.event_type == EventType.ASSET_CREATED:
@@ -67,6 +69,9 @@ class AssetCreationHandler(BaseListener):
             raise InvalidTransaction("Direct creation of Product assets is not supported. Create a ProductBatch instead or accept a WorkOrder.")
         elif fields.get("asset_type") == AssetType.SUB_ASSIGNMENT.value:
             fields["assigner"] = event.signer_public_key
+        elif fields.get("asset_type") == AssetType.CERTIFICATION.value:
+            fields["issuer"] = event.signer_public_key
+
 
         # Process the fields as needed
         asset_type_str = fields.get("asset_type")

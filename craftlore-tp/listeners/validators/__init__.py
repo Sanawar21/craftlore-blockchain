@@ -5,6 +5,7 @@ from .validate_raw_material_addtion import ValidateRawMaterialAddition
 from .validate_transfer import ValidateTransfer
 from .validate_batch_completion import ValidateBatchCompletion
 from .validate_subassignment import ValidateSubAssignment
+from .validate_admin import ValidateAdminAccount
 
 listeners = [
     ValidateCreatorAccount,
@@ -13,5 +14,6 @@ listeners = [
     ValidateRawMaterialAddition,
     ValidateTransfer,
     ValidateBatchCompletion,
-    ValidateSubAssignment
+    ValidateSubAssignment,
+    ValidateAdminAccount
 ]

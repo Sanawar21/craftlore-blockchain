@@ -15,7 +15,7 @@ class AdminAccount(BaseAccount):
     account_type: AccountType = Field(default=AccountType.ADMIN)
     about: str
     permission_level: AdminPermissionLevel
-    actions: List[str] = Field(default_factory=list)  # Transaction signatures of actions taken by this admin
+    actions: List[dict] = Field(default_factory=list)  # Transaction signatures and details of actions taken by this admin
     status: AdminAccountStatus = Field(default=AdminAccountStatus.ACTIVE)
 
     @property

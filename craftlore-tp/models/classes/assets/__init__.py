@@ -6,3 +6,4 @@ from .product import Product
 from .packaging import Packaging
 from .logistics import Logistics
 from .sub_assignment import SubAssignment
+from .certification import Certification

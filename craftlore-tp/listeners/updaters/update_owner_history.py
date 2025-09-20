@@ -6,8 +6,8 @@ from models.enums import AccountType, AssetType, EventType, SubEventType
 class OwnerHistoryUpdater(BaseListener):
     def __init__(self):
         super().__init__(
-            [EventType.ASSET_CREATED, SubEventType.BATCH_CREATED, EventType.ADD_RAW_MATERIAL, SubEventType.LOGISTICS_CREATED],
-            priorities=[0, 0, 0, -100]
+            [EventType.ASSET_CREATED, SubEventType.BATCH_CREATED, EventType.ADD_RAW_MATERIAL, SubEventType.LOGISTICS_CREATED, EventType.CERTIFICATION_ISSUED],
+            priorities=[0, 0, 0, -100, 0]
         )  # default priority
 
     def on_event(self, event: EventContext):

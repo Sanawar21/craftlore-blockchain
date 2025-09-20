@@ -35,6 +35,7 @@ class AssetType(BaseEnum):
     PACKAGING = "packaging"
     LOGISTICS = "logistics"
     SUB_ASSIGNMENT = "sub_assignment"
+    CERTIFICATION = "certification"
 
 class EventType(BaseEnum):
     ACCOUNT_CREATED = "create/account"
@@ -53,6 +54,7 @@ class EventType(BaseEnum):
     # admin
     BOOTSTRAP = "bootstrap"
     ADMIN_CREATED = "create/admin"
+    CERTIFICATION_ISSUED = "issue/certification"
 
 
 class SubEventType(BaseEnum):

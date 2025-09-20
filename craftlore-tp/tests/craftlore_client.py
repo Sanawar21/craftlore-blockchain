@@ -276,7 +276,7 @@ class CraftLoreClient:
 
         return self._submit_transaction(payload)
     
-    def create_admin(self, public_key: str, email: str, permission_level: str, details: str, **kwargs) -> Dict:
+    def create_admin(self, public_key: str, email: str, permission_level: str, action_details: str, **kwargs) -> Dict:
         """Create a new admin account."""
         payload = {
             'event': EventType.ADMIN_CREATED.value,
@@ -285,12 +285,32 @@ class CraftLoreClient:
                 'email': email,
                 'public_key': public_key,
                 'permission_level': permission_level,
-                'details': details,
+                'action_details': action_details,
                 **kwargs
             }
         }
         
         return self._submit_transaction(payload)
+
+    def issue_certification(self, action_details: str, uid: str = None, **kwargs) -> Dict:
+        """Issue a certification to an entity."""
+        uid = self.serializer.create_asset_id() if uid is None else uid
+        payload = {
+            'event': EventType.CERTIFICATION_ISSUED.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'uid': uid,
+                'action_details': action_details,
+                **kwargs
+            }
+        }
+        
+        result = self._submit_transaction(payload)
+        result.update({'uid': uid})
+        return result
+
+
+
 
 
     def _submit_transaction(self, payload: Dict) -> Dict:

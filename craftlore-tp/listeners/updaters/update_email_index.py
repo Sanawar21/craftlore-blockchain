@@ -4,7 +4,7 @@ from models.enums import EventType
 
 class EmailIndexUpdater(BaseListener):
     def __init__(self):
-        super().__init__([EventType.ACCOUNT_CREATED], priorities=[-1000])  # run in the last
+        super().__init__([EventType.ACCOUNT_CREATED, EventType.ADMIN_CREATED], priorities=[-1000, -1000])  # run in the last
 
     def on_event(self, event: EventContext):
         account: BaseAccount = event.get_data("entity")

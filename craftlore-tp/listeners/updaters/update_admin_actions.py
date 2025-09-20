@@ -7,15 +7,14 @@ class AdminActionsUpdater(BaseListener):
     """Updates admin actions on admin events"""
     def __init__(self):
         super().__init__(
-            [EventType.ADMIN_CREATED],
-            priorities=[0]
+            [EventType.ADMIN_CREATED, EventType.CERTIFICATION_ISSUED],
+            priorities=[0, -300]
         )  # default priority
 
     def on_event(self, event: EventContext):
         admin: AdminAccount = event.get_data("admin")
         admin_address = event.get_data("admin_address")
-        targets = event.get_data("targets", [])
-        details = event.payload.get("fields", {}).get("details")
+        details = event.payload.get("fields", {}).get("action_details")
 
         assert isinstance(details, str), "Action details must be a string"
 
@@ -27,9 +26,7 @@ class AdminActionsUpdater(BaseListener):
 
         admin.actions.append(
             {
-                "action": event.event_type.value,
                 "details": details,
-                "targets": targets,
                 "transaction": event.signature,
                 "timestamp": event.timestamp
             }

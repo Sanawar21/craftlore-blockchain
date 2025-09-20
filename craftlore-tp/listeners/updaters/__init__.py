@@ -12,6 +12,7 @@ from .delete_entity import DeleteEntity
 from .unpack_product import UnpackProduct
 from .edit_entity import EditEntity
 from .update_admin_actions import AdminActionsUpdater
+from .update_holder import CertificateHolderUpdater
 
 listeners = [
     EmailIndexUpdater,
@@ -27,5 +28,6 @@ listeners = [
     DeleteEntity,
     UnpackProduct,
     EditEntity,
-    AdminActionsUpdater
+    AdminActionsUpdater,
+    CertificateHolderUpdater,
 ]
