@@ -11,22 +11,22 @@ from models.enums import EventType, SubEventType
 class EventContext:
     def __init__(self, event_type: EventType, transaction: Any, context: Context):
         self.event_type = event_type
-        self.generated_data = {}
         self.transaction = transaction
         self.context = context
         self.signature: str = transaction.signature
         self.payload: dict[str, Any] = json.loads(transaction.payload.decode('utf-8'))
         self.signer_public_key: str = transaction.header.signer_public_key
         self.timestamp = self.payload.get("timestamp", None)  # Assuming timestamp is part of the payload
+        self.__generated_data = {}
 
     def add_data(self, data: dict) -> None:
-        """Add data to the shared generated_data dictionary."""
-        self.generated_data.update(data)
+        """Add data to the shared __generated_data dictionary."""
+        self.__generated_data.update(data)
 
 
-    def get_data(self, key: str) -> Any:
-        """Retrieve data from the shared generated_data dictionary."""
-        return self.generated_data.get(key)
+    def get_data(self, key: str, default: Any = None) -> Any:
+        """Retrieve data from the shared __generated_data dictionary."""
+        return self.__generated_data.get(key, default)
     
 
 class EventsManager:

@@ -52,6 +52,7 @@ class EventType(BaseEnum):
     PRODUCT_UNPACKED = "unpackage/product"
     # admin
     BOOTSTRAP = "bootstrap"
+    ADMIN_CREATED = "create/admin"
 
 
 class SubEventType(BaseEnum):

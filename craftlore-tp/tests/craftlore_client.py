@@ -20,14 +20,17 @@ from models.enums import AccountType, AssetType, EventType
 class CraftLoreClient:
     """Client for CraftLore Combined Transaction Processor."""
     
-    def __init__(self, base_url: str = 'http://rest-api:8008'):
+    def __init__(self, base_url: str = 'http://rest-api:8008', private_key: Optional[str] = None):
         self.base_url = base_url
         self.context = create_context('secp256k1')
         self.crypto_factory = CryptoFactory(self.context)
         self.serializer = SerializationHelper()
         
         # Generate a private key for this client session
-        self.private_key = self.context.new_random_private_key()
+        if private_key:
+            self.private_key = Secp256k1PrivateKey.from_hex(private_key)
+        else:
+            self.private_key = self.context.new_random_private_key()
         self.signer = self.crypto_factory.new_signer(self.private_key)
         self.public_key = self.signer.get_public_key().as_hex()
         
@@ -38,10 +41,6 @@ class CraftLoreClient:
         
         print(f"Client initialized with public key: {self.public_key}")
         print(f"Client private key: {self.private_key.as_hex()} (keep it secret!)")
-
-    # =============================================
-    # ACCOUNT OPERATIONS
-    # =============================================
 
     def create_account(self, account_type: AccountType, email: str, **kwargs) -> Dict:
         """Create a new account."""
@@ -275,6 +274,22 @@ class CraftLoreClient:
             "email": email
         }
 
+        return self._submit_transaction(payload)
+    
+    def create_admin(self, public_key: str, email: str, permission_level: str, details: str, **kwargs) -> Dict:
+        """Create a new admin account."""
+        payload = {
+            'event': EventType.ADMIN_CREATED.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'email': email,
+                'public_key': public_key,
+                'permission_level': permission_level,
+                'details': details,
+                **kwargs
+            }
+        }
+        
         return self._submit_transaction(payload)
 
 

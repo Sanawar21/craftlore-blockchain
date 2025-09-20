@@ -50,7 +50,8 @@ class BootstrapHandler(BaseListener):
             public_key=event.signer_public_key,
             email=email,
             authentication_status=AuthenticationStatus.APPROVED,
-            created_timestamp=event.timestamp
+            created_timestamp=event.timestamp,
+            about="Initial super admin account created during system bootstrap. Holds all permissions. Use wisely.",
         )
 
         account.history.append({

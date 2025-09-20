@@ -7,8 +7,8 @@ class EntityHistoryUpdater(BaseListener):
     """Updates entity history on creation"""
     def __init__(self):
         super().__init__(
-            [EventType.ACCOUNT_CREATED, EventType.ASSET_CREATED, SubEventType.BATCH_CREATED],
-            priorities=[0, 0, 0]
+            [EventType.ACCOUNT_CREATED, EventType.ASSET_CREATED, SubEventType.BATCH_CREATED, EventType.ADMIN_CREATED],
+            priorities=[0, 0, 0, 0]
         )  # default priority
 
     def on_event(self, event: EventContext):

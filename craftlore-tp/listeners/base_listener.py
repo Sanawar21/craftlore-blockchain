@@ -57,6 +57,15 @@ class BaseListener(ABC):
         else:
             raise InvalidTransaction(f"Account with public key {public_key} does not exist.")
 
+    def get_bootstrap_info(self, context: EventContext) -> Dict:
+        bootstrap_address = self.address_generator.generate_bootstrap_address()
+        entries = context.context.get_state([bootstrap_address])
+        if entries:
+            bootstrap_data = self.serializer.from_bytes(entries[0].data)
+            return bootstrap_data
+        else:
+            raise InvalidTransaction("System has not been bootstrapped yet.")
+
     def serialize_for_state(self, obj: BaseClass, email_index_case=False) -> bytes:
         if email_index_case:
             return self.serializer.to_bytes(obj)
