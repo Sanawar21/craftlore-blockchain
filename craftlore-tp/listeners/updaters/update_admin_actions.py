@@ -7,8 +7,8 @@ class AdminActionsUpdater(BaseListener):
     """Updates admin actions on admin events"""
     def __init__(self):
         super().__init__(
-            [EventType.ADMIN_CREATED, EventType.CERTIFICATION_ISSUED, EventType.MODERATOR_EDIT],
-            priorities=[0, -300, -300]  
+            [EventType.ADMIN_CREATED, EventType.CERTIFICATION_ISSUED, EventType.EDITED_BY_MODERATOR, EventType.ENTITY_AUTHENTICATED],
+            priorities=[0, -300, -300, -300]  
         )  # default priority
 
     def on_event(self, event: EventContext):

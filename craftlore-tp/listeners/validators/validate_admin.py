@@ -6,11 +6,12 @@ from models.enums import AccountType, AssetType, EventType, AdminPermissionLevel
 
 class ValidateAdminAccount(BaseListener):
     def __init__(self):
-        super().__init__([EventType.ADMIN_CREATED, EventType.CERTIFICATION_ISSUED, EventType.MODERATOR_EDIT], priorities=[-1000, -1000, -1000])  # run after updating owner history
+        super().__init__([EventType.ADMIN_CREATED, EventType.CERTIFICATION_ISSUED, EventType.EDITED_BY_MODERATOR, EventType.ENTITY_AUTHENTICATED], priorities=[-1000, -1000, -1000, -1000])  # run after updating owner history
         self.valid_admins = {
             AdminPermissionLevel.SUPER_ADMIN: [EventType.ADMIN_CREATED],
             AdminPermissionLevel.CERTIFIER: [EventType.CERTIFICATION_ISSUED],
-            AdminPermissionLevel.MODERATOR: [EventType.MODERATOR_EDIT],
+            AdminPermissionLevel.MODERATOR: [EventType.EDITED_BY_MODERATOR],
+            AdminPermissionLevel.AUTHENTICATOR: [EventType.ENTITY_AUTHENTICATED],
         }
 
     def on_event(self, event: EventContext):

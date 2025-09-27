@@ -312,7 +312,7 @@ class CraftLoreClient:
     def moderator_edit(self, action_details: str, edits: Dict[str, Dict]) -> Dict:
         """Perform moderation edits on entities."""
         payload = {
-            'event': EventType.MODERATOR_EDIT.value,
+            'event': EventType.EDITED_BY_MODERATOR.value,
             'timestamp': self.serializer.get_current_timestamp(),
             "fields": {
                 'updates': edits,
@@ -323,9 +323,33 @@ class CraftLoreClient:
         return self._submit_transaction(payload)
 
 
+    def authenticate_account(self, public_key: str, authentication_status: str, action_details: str) -> Dict:
+        """Authenticate an account."""
+        payload = {
+            'event': EventType.ENTITY_AUTHENTICATED.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'public_key': public_key,
+                'authentication_status': authentication_status,
+                'action_details': action_details
+            }
+        }
 
+        return self._submit_transaction(payload)
 
+    def authenticate_asset(self, uid: str, authentication_status: str, action_details: str) -> Dict:
+        """Authenticate an asset."""
+        payload = {
+            'event': EventType.ENTITY_AUTHENTICATED.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'uid': uid,
+                'authentication_status': authentication_status,
+                'action_details': action_details
+            }
+        }
 
+        return self._submit_transaction(payload)
 
     def _submit_transaction(self, payload: Dict) -> Dict:
         """Submit a transaction to the blockchain."""

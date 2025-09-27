@@ -8,7 +8,7 @@ from models.enums import AssetType, SubEventType, EventType, AdminAccountStatus,
 class ModeratorEdit(BaseListener):
     def __init__(self):
         super().__init__(
-            [EventType.MODERATOR_EDIT],
+            [EventType.EDITED_BY_MODERATOR],
             priorities=[1000]
         )  # default priority
 

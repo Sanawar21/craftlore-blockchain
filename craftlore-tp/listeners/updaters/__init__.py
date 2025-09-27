@@ -14,6 +14,7 @@ from .edit_entity import EditEntity
 from .update_admin_actions import AdminActionsUpdater
 from .update_holder import CertificateHolderUpdater
 from .moderator_edit import ModeratorEdit
+from .authenticate_entity import AuthenticateEntity
 
 listeners = [
     EmailIndexUpdater,
@@ -32,4 +33,5 @@ listeners = [
     AdminActionsUpdater,
     CertificateHolderUpdater,
     ModeratorEdit,
+    AuthenticateEntity,
 ]
