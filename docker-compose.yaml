@@ -76,21 +76,9 @@ services:
         tail -f /dev/null \
         \""
 
-  
-  # hello-world-tp:
-  #   build: ./hello-world-tp
-  #   container_name: hello-world-tp
-  #   depends_on:
-  #     - validator
-  #     - devmode-engine
-  #     - rest-api
-  #   stop_signal: SIGKILL
-  #   volumes:
-  #     - ./hello-world-tp:/project
-
-  # simple-tp:
-  #   build: ./simple-tp
-  #   container_name: simple-tp
+  # craftlore-tp:
+  #   build: ./craftlore-tp
+  #   container_name: craftlore-tp
   #   depends_on:
   #     - validator
   #     - devmode-engine
@@ -98,31 +86,7 @@ services:
   #   entrypoint: sleep infinity
   #   stop_signal: SIGKILL
   #   volumes:
-  #     - ./simple-tp:/app
-
-  # account-tp:
-  #   build: ./account-tp
-  #   container_name: account-tp
-  #   depends_on:
-  #     - validator
-  #     - devmode-engine
-  #     - rest-api
-  #   entrypoint: sleep infinity
-  #   stop_signal: SIGKILL
-  #   volumes:
-  #     - ./account-tp:/app
-
-  # asset-tp:
-  #   build: ./asset-tp
-  #   container_name: asset-tp
-  #   depends_on:
-  #     - validator
-  #     - devmode-engine
-  #     - rest-api
-  #   entrypoint: sleep infinity
-  #   stop_signal: SIGKILL
-  #   volumes:
-  #     - ./asset-tp:/app
+  #     - ./craftlore-tp:/app
 
   craftlore-tp:
     build: ./craftlore-tp
@@ -131,41 +95,7 @@ services:
       - validator
       - devmode-engine
       - rest-api
-    entrypoint: sleep infinity
+    entrypoint: python3 processor.py
     stop_signal: SIGKILL
     volumes:
       - ./craftlore-tp:/app
-
-  # account-tp:
-  #   build: ./account-tp
-  #   container_name: account-tp
-  #   depends_on:
-  #     - validator
-  #     - devmode-engine
-  #     - rest-api
-  #   entrypoint: sleep infinity
-  #   stop_signal: SIGKILL
-  #   volumes:
-  #     - ./account-tp:/app
-
-  # artisan-tp:
-  #   build: ./artisan-tp
-  #   container_name: artisan-tp
-  #   depends_on:
-  #     - validator
-  #     - devmode-engine
-  #     - rest-api
-  #   stop_signal: SIGKILL
-  #   volumes:
-  #     - ./artisan-tp:/project
-
-  # craftlore-tp:
-  #   build: ./craftloreSDK
-  #   container_name: craftlore-tp
-  #   depends_on:
-  #     - validator
-  #     - devmode-engine
-  #     - rest-api
-  #   stop_signal: SIGKILL
-  #   volumes:
-  #     - ./craftloreSDK:/project
