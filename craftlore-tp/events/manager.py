@@ -34,6 +34,7 @@ class EventsManager:
         self.listeners: Dict[EventType, list] = defaultdict(list)
 
     def register(self, listener):
+        assert len(listener.event_types) == len(listener.priorities), f"Each event type must have a corresponding priority. Listener: {listener.__class__.__name__}"
         for event_type, priority in zip(listener.event_types, listener.priorities):
             self.listeners[event_type].append((priority, listener))
             

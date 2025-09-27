@@ -6,7 +6,7 @@ from models.enums import AccountType, AssetType, EventType, AdminPermissionLevel
 
 class ValidateCreatorAccount(BaseListener):
     def __init__(self):
-        super().__init__([EventType.ASSET_CREATED, EventType.CERTIFICATION_ISSUED], priorities=[-100])  # run after updating owner history
+        super().__init__([EventType.ASSET_CREATED, EventType.CERTIFICATION_ISSUED], priorities=[-100, -100])  # run after updating owner history
         self.valid_creators = {
             AccountType.SUPPLIER: [AssetType.RAW_MATERIAL, AssetType.WORK_ORDER],
             AccountType.ARTISAN: [AssetType.WORK_ORDER, AssetType.PRODUCT_BATCH, AssetType.PACKAGING, AssetType.SUB_ASSIGNMENT],

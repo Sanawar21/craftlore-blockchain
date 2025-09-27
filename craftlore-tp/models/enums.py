@@ -55,6 +55,7 @@ class EventType(BaseEnum):
     BOOTSTRAP = "bootstrap"
     ADMIN_CREATED = "create/admin"
     CERTIFICATION_ISSUED = "issue/certification"
+    MODERATOR_EDIT = "moderate/edit"
 
 
 class SubEventType(BaseEnum):

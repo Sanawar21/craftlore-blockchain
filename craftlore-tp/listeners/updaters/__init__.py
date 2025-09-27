@@ -13,6 +13,7 @@ from .unpack_product import UnpackProduct
 from .edit_entity import EditEntity
 from .update_admin_actions import AdminActionsUpdater
 from .update_holder import CertificateHolderUpdater
+from .moderator_edit import ModeratorEdit
 
 listeners = [
     EmailIndexUpdater,
@@ -30,4 +31,5 @@ listeners = [
     EditEntity,
     AdminActionsUpdater,
     CertificateHolderUpdater,
+    ModeratorEdit,
 ]

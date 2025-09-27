@@ -309,6 +309,20 @@ class CraftLoreClient:
         result.update({'uid': uid})
         return result
 
+    def moderator_edit(self, action_details: str, edits: Dict[str, Dict]) -> Dict:
+        """Perform moderation edits on entities."""
+        payload = {
+            'event': EventType.MODERATOR_EDIT.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'updates': edits,
+                'action_details': action_details
+            }
+        }
+        
+        return self._submit_transaction(payload)
+
+
 
 
 
