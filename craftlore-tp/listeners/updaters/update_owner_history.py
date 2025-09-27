@@ -18,7 +18,7 @@ class OwnerHistoryUpdater(BaseListener):
 
         owner, owner_address = self.get_account(entity.asset_owner, event)
 
-        if event.event_type in (EventType.ASSET_CREATED, SubEventType.BATCH_CREATED, SubEventType.LOGISTICS_CREATED):
+        if event.event_type in (EventType.ASSET_CREATED, SubEventType.BATCH_CREATED, SubEventType.LOGISTICS_CREATED, EventType.CERTIFICATION_ISSUED):
             owner.assets.append(entity.uid)
       
         targets = [entity.uid]

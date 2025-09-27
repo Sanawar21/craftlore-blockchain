@@ -38,7 +38,6 @@ def main():
 
     print("3. Create supplier")
     email = "suppl1ier.com"
-    details = "Attempt to mint a new admin without permissions"
     result = supplier.create_account(
         account_type=AccountType.SUPPLIER,
         email=email,

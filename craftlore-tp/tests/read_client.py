@@ -114,6 +114,33 @@ def list_all_state():
     else:
         print("Failed to fetch state entries.")
 
+def query_transaction_by_signature(txn_sig):
+    """Query transaction by signature and print decoded payload + signer pubkey."""
+    url = f"{REST_API_URL}/transactions/{txn_sig}"
+    resp = requests.get(url)
+
+    if resp.status_code == 200:
+        txn = resp.json().get("data", {})
+        header = txn.get("header", {})
+        payload_b64 = txn.get("payload", "")
+
+        # signer public key
+        signer_pubkey = header.get("signer_public_key", "N/A")
+
+        # decode payload
+        try:
+            decoded = base64.b64decode(payload_b64).decode("utf-8")
+            payload = json.loads(decoded)
+        except Exception:
+            payload = decoded  # fallback: raw string
+
+        print("Transaction Payload (decoded):")
+        print(json.dumps(payload, indent=4) if isinstance(payload, dict) else payload)
+        print("\nSigner Public Key:")
+        print(signer_pubkey)
+
+    else:
+        print(f"Failed to fetch transaction {txn_sig}. HTTP {resp.status_code}")
 
 def main():
     """Main interactive menu."""
@@ -128,7 +155,8 @@ def main():
         
         print("\n--- ASSET QUERIES ---")
         print("5. Query Asset by ID")
-        
+        print("6. Query Transaction by Signature")
+
         print("\n--- GENERAL ---")
         print("8. List All State Entries")
         print("9. Exit")
@@ -147,7 +175,10 @@ def main():
             asset_id = input("Enter asset ID: ").strip()
             query_asset(asset_id)
             
-            
+        elif choice == '6':
+            txn_sig = input("Enter transaction signature: ").strip()
+            query_transaction_by_signature(txn_sig)
+                    
         elif choice == '8':
             list_all_state()
             

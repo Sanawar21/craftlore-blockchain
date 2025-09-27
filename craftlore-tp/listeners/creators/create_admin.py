@@ -39,11 +39,23 @@ class AdminCreationHandler(BaseListener):
 
         if context.get_state([account_address]):
             raise InvalidTransaction("Account already exists")
-
+        
+        # update super admin's history
+        superadmin.history.append({
+            "source": self.__class__.__name__,
+            "event": event.event_type.value,
+            "actor": signer_public_key,
+            "targets": [new_admin.public_key],
+            "transaction": event.signature,
+            "timestamp": event.timestamp,
+        })
+        
         context.set_state({
             account_address: self.serialize_for_state(new_admin),
             superadmin_address: self.serialize_for_state(superadmin)
         })
+
+
 
         event.add_data({
             "entity": new_admin,
