@@ -76,9 +76,9 @@ services:
         tail -f /dev/null \
         \""
 
-  # craftlore-tp:
-  #   build: ./craftlore-tp
-  #   container_name: craftlore-tp
+  # craftlore_tp:
+  #   build: ./craftlore_tp
+  #   container_name: craftlore_tp
   #   depends_on:
   #     - validator
   #     - devmode-engine
@@ -86,11 +86,11 @@ services:
   #   entrypoint: sleep infinity
   #   stop_signal: SIGKILL
   #   volumes:
-  #     - ./craftlore-tp:/app
+  #     - ./craftlore_tp:/app
 
-  craftlore-tp:
-    build: ./craftlore-tp
-    container_name: craftlore-tp
+  craftlore_tp:
+    build: ./craftlore_tp
+    container_name: craftlore_tp
     depends_on:
       - validator
       - devmode-engine
@@ -98,4 +98,4 @@ services:
     entrypoint: python3 processor.py
     stop_signal: SIGKILL
     volumes:
-      - ./craftlore-tp:/app
+      - ./craftlore_tp:/app
