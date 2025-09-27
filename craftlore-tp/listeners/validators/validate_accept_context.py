@@ -1,7 +1,7 @@
 from .. import BaseListener, EventContext, InvalidTransaction
 from models.classes.accounts import BaseAccount
 from models.classes.assets import WorkOrder
-from models.enums import AccountType, SubEventType, EventType, WorkOrderStatus
+from models.enums import EventType
 
 
 class ValidateAcceptContext(BaseListener):

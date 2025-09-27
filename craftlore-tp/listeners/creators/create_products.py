@@ -1,9 +1,7 @@
-from typing import Any
-
 from .. import BaseListener, EventContext, InvalidTransaction
-from models.classes.accounts import ArtisanAccount, BaseAccount
+from models.classes.accounts import BaseAccount
 from models.classes.assets import WorkOrder, ProductBatch, Product
-from models.enums import AccountType, SubEventType, EventType, WorkOrderStatus, BatchStatus, AssetType
+from models.enums import EventType
 
 class ProductsCreationHandler(BaseListener):
     def __init__(self):

@@ -1,5 +1,5 @@
 from pydantic import Field
-from typing import List, Optional
+from typing import Optional
 
 from . import BaseAsset
 from models.enums import AssetType, SubAssignmentStatus

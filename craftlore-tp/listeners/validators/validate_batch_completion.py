@@ -1,7 +1,7 @@
 from .. import BaseListener, EventContext, InvalidTransaction
-from models.classes.accounts import BaseAccount, ArtisanAccount
+from models.classes.accounts import ArtisanAccount
 from models.classes.assets import ProductBatch
-from models.enums import AccountType, SubEventType, EventType, WorkOrderStatus
+from models.enums import EventType
 
 
 class ValidateBatchCompletion(BaseListener):

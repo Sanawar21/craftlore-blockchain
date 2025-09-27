@@ -1,9 +1,6 @@
-from typing import Any
-
 from .. import BaseListener, EventContext, InvalidTransaction
-from models.classes.accounts import ArtisanAccount
-from models.classes.assets import RawMaterial, Packaging, BaseAsset, Product
-from models.enums import AccountType, AssetType, SubEventType, EventType, WorkOrderStatus, BatchStatus
+from models.classes.assets import Packaging, Product
+from models.enums import AccountType, AssetType, EventType
 
 class AssetsTransferrer(BaseListener):
     def __init__(self):

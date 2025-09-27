@@ -1,9 +1,7 @@
-from typing import Any
-
 from .. import BaseListener, EventContext, InvalidTransaction
 from models.classes.accounts import ArtisanAccount
 from models.classes.assets import SubAssignment, ProductBatch
-from models.enums import AccountType, SubEventType, EventType, SubAssignmentStatus
+from models.enums import SubEventType, EventType, SubAssignmentStatus
 
 class SubAssigneeUpdater(BaseListener):
     def __init__(self):

@@ -1,9 +1,7 @@
-from typing import Any
-
 from .. import BaseListener, EventContext, InvalidTransaction
 from models.classes.accounts import BaseAccount
 from models.classes.assets import Packaging, Product
-from models.enums import AccountType, SubEventType, EventType, WorkOrderStatus, BatchStatus
+from models.enums import SubEventType
 
 class PackageProducts(BaseListener):
     def __init__(self):

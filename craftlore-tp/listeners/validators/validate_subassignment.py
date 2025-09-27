@@ -1,7 +1,7 @@
 from .. import BaseListener, EventContext, InvalidTransaction
 from models.classes.accounts import ArtisanAccount
 from models.classes.assets import SubAssignment
-from models.enums import AccountType, AssetType, SubEventType
+from models.enums import SubEventType
 
 
 class ValidateSubAssignment(BaseListener):

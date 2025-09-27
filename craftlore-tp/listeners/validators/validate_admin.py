@@ -1,7 +1,6 @@
 from .. import BaseListener, EventContext, InvalidTransaction
-from models.classes.accounts import BaseAccount, AdminAccount
-from models.classes.assets import BaseAsset, Packaging
-from models.enums import AccountType, AssetType, EventType, AdminPermissionLevel, AdminAccountStatus
+from models.classes.accounts import AdminAccount
+from models.enums import EventType, AdminPermissionLevel, AdminAccountStatus
 
 
 class ValidateAdminAccount(BaseListener):

@@ -1,7 +1,6 @@
 from .. import BaseListener, EventContext, InvalidTransaction
 from models.classes.accounts import AdminAccount
-from models.classes.assets import BaseAsset, RawMaterial
-from models.enums import AccountType, AssetType, EventType, SubEventType
+from models.enums import EventType
 
 class AdminActionsUpdater(BaseListener):
     """Updates admin actions on admin events"""

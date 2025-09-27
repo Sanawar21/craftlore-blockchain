@@ -2,7 +2,7 @@ from typing import Any
 
 
 from .. import BaseListener, EventContext, InvalidTransaction
-from models.enums import AccountType, EventType, AdminPermissionLevel
+from models.enums import EventType, AdminPermissionLevel
 from models.classes.accounts import (AdminAccount,)
 
 

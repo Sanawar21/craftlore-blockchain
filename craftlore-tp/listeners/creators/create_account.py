@@ -3,7 +3,6 @@ from typing import Any
 
 from .. import BaseListener, EventContext, InvalidTransaction
 from models.enums import AccountType, EventType
-from models.classes.accounts import (SupplierAccount,)
 
 
 class AccountCreationHandler(BaseListener):

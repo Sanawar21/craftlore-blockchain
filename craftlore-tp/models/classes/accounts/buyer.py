@@ -6,7 +6,7 @@ Buyer account entity for CraftLore Account TP.
 from pydantic import Field
 
 from . import BaseAccount
-from models.enums import AccountType, ArtisanSkillLevel
+from models.enums import AccountType
 
 class BuyerAccount(BaseAccount):
     """Buyer account that creates work orders or purchases products."""

@@ -1,7 +1,7 @@
 from .. import BaseListener, EventContext, InvalidTransaction
-from models.classes.accounts import BaseAccount, SupplierAccount
-from models.classes.assets import BaseAsset, RawMaterial
-from models.enums import AccountType, AssetType, EventType, SubEventType
+from models.classes.accounts import BaseAccount
+from models.classes.assets import BaseAsset
+from models.enums import EventType, SubEventType
 
 class EntityHistoryUpdater(BaseListener):
     """Updates entity history on creation"""

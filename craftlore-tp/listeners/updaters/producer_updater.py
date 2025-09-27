@@ -1,9 +1,7 @@
-from typing import Any
-
 from .. import BaseListener, EventContext, InvalidTransaction
 from models.classes.accounts import ArtisanAccount
 from models.classes.assets import ProductBatch
-from models.enums import AccountType, SubEventType, EventType, WorkOrderStatus, BatchStatus
+from models.enums import EventType, BatchStatus
 
 class ProducerUpdater(BaseListener):
     def __init__(self):

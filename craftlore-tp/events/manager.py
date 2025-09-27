@@ -1,7 +1,5 @@
-from pydantic import BaseModel
-from typing import Any, Dict, Callable
+from typing import Any, Dict
 from collections import defaultdict
-from sawtooth_sdk.processor.exceptions import InvalidTransaction
 from sawtooth_sdk.processor.context import Context
 import json
 

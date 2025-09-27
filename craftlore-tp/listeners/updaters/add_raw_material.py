@@ -1,9 +1,6 @@
-from typing import Any
-
 from .. import BaseListener, EventContext, InvalidTransaction
-from models.classes.accounts import BaseAccount
 from models.classes.assets import ProductBatch, RawMaterial, UsageRecord
-from models.enums import AssetType, SubEventType, EventType, WorkOrderStatus, BatchStatus
+from models.enums import EventType
 
 class AddToBatch(BaseListener):
     def __init__(self):

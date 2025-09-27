@@ -5,10 +5,10 @@ To get the products ready for shipment, they are packaged into a packaging asset
 
 
 from pydantic import Field
-from typing import List, Optional, Dict, Any
+from typing import Optional, Dict, Any
 
 from . import BaseAsset
-from models.enums import AssetType, WorkOrderStatus, BatchStatus
+from models.enums import AssetType
 
 # --- Certification ---
 class Certification(BaseAsset):

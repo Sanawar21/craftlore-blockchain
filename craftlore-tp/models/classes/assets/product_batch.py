@@ -7,7 +7,7 @@ from pydantic import Field
 from typing import List, Optional
 
 from . import BaseAsset
-from models.enums import AssetType, WorkOrderStatus, BatchStatus
+from models.enums import AssetType, BatchStatus
 from .raw_material import UsageRecord
 
 # --- Product Batch ---

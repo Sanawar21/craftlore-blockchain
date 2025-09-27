@@ -1,7 +1,7 @@
 from .. import BaseListener, EventContext, InvalidTransaction
-from models.classes.accounts import BaseAccount, SupplierAccount
+from models.classes.accounts import SupplierAccount
 from models.classes.assets import BaseAsset, RawMaterial, WorkOrder
-from models.enums import AccountType, AssetType, EventType, SubEventType
+from models.enums import AssetType, EventType, SubEventType
 
 class OwnerHistoryUpdater(BaseListener):
     def __init__(self):

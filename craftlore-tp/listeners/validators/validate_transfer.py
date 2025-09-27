@@ -1,7 +1,7 @@
 from .. import BaseListener, EventContext, InvalidTransaction
 from models.classes.accounts import BaseAccount
 from models.classes.assets import BaseAsset
-from models.enums import BatchStatus, EventType, SubEventType, AssetType
+from models.enums import EventType, AssetType
 
 from typing import List
 
