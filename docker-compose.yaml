@@ -91,6 +91,8 @@ services:
   craftlore_tp:
     build: ./craftlore_tp
     container_name: craftlore_tp
+    ports:
+      - "5000:5000"
     depends_on:
       - validator
       - devmode-engine

@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CraftLore Transaction Client</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .result-card {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .json-data {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg gradient-bg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-cube me-2"></i>CraftLore GUI
+            </a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="/">Home</a>
+                <a class="nav-link" href="/read">Read Client</a>
+                <a class="nav-link active" href="/client">Transaction Client</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12 mb-4">
+                <h2 class="text-success">
+                    <i class="fas fa-edit me-2"></i>CraftLore Transaction Client
+                </h2>
+                <p class="text-muted">Create transactions and interact with the blockchain</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Transaction Panel -->
+            <div class="col-lg-6">
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-plus me-2"></i>Create Transaction</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Operation Type Selection -->
+                        <div class="mb-3">
+                            <label class="form-label">Operation Type</label>
+                            <select class="form-select" id="operationType" onchange="updateOperationForm()">
+                                <optgroup label="Account Operations">
+                                    <option value="create_account">Create Account</option>
+                                    <option value="edit_account">Edit Account</option>
+                                    <option value="delete_account">Delete Account</option>
+                                </optgroup>
+                                <optgroup label="Asset Operations">
+                                    <option value="create_asset">Create Asset</option>
+                                    <option value="edit_asset">Edit Asset</option>
+                                    <option value="delete_asset">Delete Asset</option>
+                                    <option value="transfer_assets">Transfer Assets</option>
+                                    <option value="unpack_product">Unpack Product</option>
+                                </optgroup>
+                                <optgroup label="Work Order Operations">
+                                    <option value="work_order_action">Work Order Action</option>
+                                </optgroup>
+                                <optgroup label="Batch Operations">
+                                    <option value="add_raw_material_to_batch">Add Raw Material to Batch</option>
+                                    <option value="complete_batch">Complete Batch</option>
+                                </optgroup>
+                                <optgroup label="Sub Assignment Operations">
+                                    <option value="sub_assignment_action">Sub Assignment Action</option>
+                                </optgroup>
+                                <optgroup label="Admin Operations">
+                                    <option value="bootstrap">Bootstrap System</option>
+                                    <option value="create_admin">Create Admin</option>
+                                    <option value="issue_certification">Issue Certification</option>
+                                    <option value="moderator_edit">Moderator Edit</option>
+                                    <option value="authenticate_entity">Authenticate Entity</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <!-- Common Private Key Field -->
+                        <div class="mb-3">
+                            <label for="privateKey" class="form-label">Private Key *</label>
+                            <input type="password" class="form-control" id="privateKey"
+                                placeholder="Enter your private key..." required>
+                            <div class="form-text">Leave empty to generate new key for account creation</div>
+                        </div>
+
+                        <!-- Dynamic Operation Forms -->
+                        <div id="operationForm">
+                            <!-- Forms will be dynamically inserted here -->
+                        </div>
+
+                        <button class="btn btn-success w-100" onclick="executeOperation()">
+                            <i class="fas fa-paper-plane me-2"></i>Submit Transaction
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Enums Reference -->
+                <div class="card shadow mt-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Available Options</h6>
+                    </div>
+                    <div class="card-body" id="enumsReference">
+                        <p class="text-muted">Loading available options...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="col-lg-6">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-receipt me-2"></i>Transaction Results</h5>
+                        <button class="btn btn-sm btn-light" onclick="clearResults()">
+                            <i class="fas fa-trash me-1"></i>Clear
+                        </button>
+                    </div>
+                    <div class="card-body result-card" id="resultsContainer">
+                        <div class="text-center text-muted">
+                            <i class="fas fa-paper-plane fa-3x mb-3 opacity-50"></i>
+                            <p>Submit a transaction to see results</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let enums = {};
+
+        // Operation form templates
+        const operationForms = {
+            create_account: `
+                <div class="mb-3">
+                    <label for="accountType" class="form-label">Account Type *</label>
+                    <select class="form-select" id="accountType" required onchange="updateAccountFields()">
+                        <option value="">Select account type...</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email *</label>
+                    <input type="email" class="form-control" id="email" placeholder="Enter email..." required>
+                </div>
+                <div class="mb-3">
+                    <label for="fullName" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="fullName" placeholder="Enter full name...">
+                </div>
+                <div class="mb-3">
+                    <label for="location" class="form-label">Location</label>
+                    <input type="text" class="form-control" id="location" placeholder="Enter location...">
+                </div>
+                <div id="accountSpecificFields">
+                    <!-- Account type specific fields will be inserted here -->
+                </div>
+            `,
+            create_asset: `
+                <div class="mb-3">
+                    <label for="assetType" class="form-label">Asset Type *</label>
+                    <select class="form-select" id="assetType" required onchange="updateAssetFields()">
+                        <option value="">Select asset type...</option>
+                    </select>
+                </div>
+                <div id="assetSpecificFields">
+                    <!-- Asset type specific fields will be inserted here -->
+                </div>
+            `,
+            transfer_assets: `
+                <div class="mb-3">
+                    <label for="assetIds" class="form-label">Asset IDs *</label>
+                    <textarea class="form-control" id="assetIds" rows="3" placeholder="Enter asset IDs (comma-separated)..." required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="recipient" class="form-label">Recipient Public Key *</label>
+                    <input type="text" class="form-control" id="recipient" placeholder="Enter recipient's public key..." required>
+                </div>
+                <div class="mb-3">
+                    <label for="carrier" class="form-label">Carrier</label>
+                    <input type="text" class="form-control" id="carrier" placeholder="Enter carrier name...">
+                </div>
+                <div class="mb-3">
+                    <label for="origin" class="form-label">Origin</label>
+                    <input type="text" class="form-control" id="origin" placeholder="Enter origin location...">
+                </div>
+                <div class="mb-3">
+                    <label for="destination" class="form-label">Destination</label>
+                    <input type="text" class="form-control" id="destination" placeholder="Enter destination location...">
+                </div>
+            `,
+            work_order_action: `
+                <div class="mb-3">
+                    <label for="action" class="form-label">Action *</label>
+                    <select class="form-select" id="action" required onchange="updateWorkOrderForm()">
+                        <option value="">Select action...</option>
+                        <option value="accept">Accept Work Order</option>
+                        <option value="reject">Reject Work Order</option>
+                        <option value="complete">Complete Work Order</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="workOrderId" class="form-label">Work Order ID *</label>
+                    <input type="text" class="form-control" id="workOrderId" placeholder="Enter work order ID..." required>
+                </div>
+                <div id="actionSpecificFields">
+                    <!-- Action-specific fields will be inserted here -->
+                </div>
+            `,
+            add_raw_material_to_batch: `
+                <div class="mb-3">
+                    <label for="batchId" class="form-label">Batch ID *</label>
+                    <input type="text" class="form-control" id="batchId" placeholder="Enter batch ID..." required>
+                </div>
+                <div class="mb-3">
+                    <label for="rawMaterialId" class="form-label">Raw Material ID *</label>
+                    <input type="text" class="form-control" id="rawMaterialId" placeholder="Enter raw material ID..." required>
+                </div>
+                <div class="mb-3">
+                    <label for="usageQuantity" class="form-label">Usage Quantity *</label>
+                    <input type="number" step="0.01" class="form-control" id="usageQuantity" placeholder="Enter usage quantity..." required>
+                </div>
+            `,
+            complete_batch: `
+                <div class="mb-3">
+                    <label for="batchId" class="form-label">Batch ID *</label>
+                    <input type="text" class="form-control" id="batchId" placeholder="Enter batch ID..." required>
+                </div>
+                <div class="mb-3">
+                    <label for="unitsProduced" class="form-label">Units Produced *</label>
+                    <input type="number" class="form-control" id="unitsProduced" placeholder="Enter units produced..." required>
+                </div>
+                <div class="mb-3">
+                    <label for="productsPrice" class="form-label">Products Price *</label>
+                    <input type="number" step="0.01" class="form-control" id="productsPrice" placeholder="Enter products price..." required>
+                </div>
+                <div class="mb-3">
+                    <label for="producedQuantity" class="form-label">Produced Quantity</label>
+                    <input type="number" step="0.01" class="form-control" id="producedQuantity" placeholder="Enter produced quantity...">
+                </div>
+            `,
+            sub_assignment_action: `
+                <div class="mb-3">
+                    <label for="subAction" class="form-label">Action *</label>
+                    <select class="form-select" id="subAction" required onchange="updateSubAssignmentForm()">
+                        <option value="">Select action...</option>
+                        <option value="accept">Accept Sub Assignment</option>
+                        <option value="reject">Reject Sub Assignment</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="subassignmentId" class="form-label">Sub Assignment ID *</label>
+                    <input type="text" class="form-control" id="subassignmentId" placeholder="Enter sub assignment ID..." required>
+                </div>
+                <div id="subActionSpecificFields">
+                    <!-- Sub assignment action-specific fields will be inserted here -->
+                </div>
+            `,
+            edit_account: `
+                <div class="mb-3">
+                    <label for="editPublicKey" class="form-label">Account Public Key *</label>
+                    <input type="text" class="form-control" id="editPublicKey" placeholder="Enter account public key..." required>
+                </div>
+                <div class="mb-3">
+                    <label for="accountUpdates" class="form-label">Updates (JSON) *</label>
+                    <textarea class="form-control" id="accountUpdates" rows="4" placeholder='{"field": "new_value"}' required></textarea>
+                    <div class="form-text">Enter updates as JSON object</div>
+                </div>
+            `,
+            edit_asset: `
+                <div class="mb-3">
+                    <label for="editAssetId" class="form-label">Asset ID *</label>
+                    <input type="text" class="form-control" id="editAssetId" placeholder="Enter asset ID..." required>
+                </div>
+                <div class="mb-3">
+                    <label for="assetUpdates" class="form-label">Updates (JSON) *</label>
+                    <textarea class="form-control" id="assetUpdates" rows="4" placeholder='{"field": "new_value"}' required></textarea>
+                    <div class="form-text">Enter updates as JSON object</div>
+                </div>
+            `,
+            delete_account: `
+                <div class="mb-3">
+                    <label for="deletePublicKey" class="form-label">Account Public Key *</label>
+                    <input type="text" class="form-control" id="deletePublicKey" placeholder="Enter account public key..." required>
+                </div>
+                <div class="mb-3">
+                    <label for="accountDeletionReason" class="form-label">Deletion Reason *</label>
+                    <textarea class="form-control" id="accountDeletionReason" rows="3" placeholder="Enter deletion reason..." required></textarea>
+                </div>
+            `,
+            delete_asset: `
+                <div class="mb-3">
+                    <label for="deleteAssetId" class="form-label">Asset ID *</label>
+                    <input type="text" class="form-control" id="deleteAssetId" placeholder="Enter asset ID..." required>
+                </div>
+                <div class="mb-3">
+                    <label for="assetDeletionReason" class="form-label">Deletion Reason *</label>
+                    <textarea class="form-control" id="assetDeletionReason" rows="3" placeholder="Enter deletion reason..." required></textarea>
+                </div>
+            `,
+            unpack_product: `
+                <div class="mb-3">
+                    <label for="productId" class="form-label">Product ID *</label>
+                    <input type="text" class="form-control" id="productId" placeholder="Enter product ID..." required>
+                </div>
+            `,
+            bootstrap: `
+                <div class="mb-3">
+                    <label for="bootstrapEmail" class="form-label">Admin Email *</label>
+                    <input type="email" class="form-control" id="bootstrapEmail" placeholder="Enter admin email..." required>
+                </div>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> This will create the first super admin account for the system.
+                </div>
+            `,
+            create_admin: `
+                <div class="mb-3">
+                    <label for="adminPublicKey" class="form-label">Admin Public Key *</label>
+                    <input type="text" class="form-control" id="adminPublicKey" placeholder="Enter admin public key..." required>
+                </div>
+                <div class="mb-3">
+                    <label for="adminEmail" class="form-label">Admin Email *</label>
+                    <input type="email" class="form-control" id="adminEmail" placeholder="Enter admin email..." required>
+                </div>
+                <div class="mb-3">
+                    <label for="permissionLevel" class="form-label">Permission Level *</label>
+                    <select class="form-select" id="permissionLevel" required>
+                        <option value="">Select permission level...</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="adminActionDetails" class="form-label">Action Details *</label>
+                    <textarea class="form-control" id="adminActionDetails" rows="3" placeholder="Enter action details..." required></textarea>
+                </div>
+            `,
+            issue_certification: `
+                <div class="mb-3">
+                    <label for="certActionDetails" class="form-label">Action Details *</label>
+                    <textarea class="form-control" id="certActionDetails" rows="3" placeholder="Enter certification details..." required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="certifiedEntity" class="form-label">Certified Entity</label>
+                    <input type="text" class="form-control" id="certifiedEntity" placeholder="Enter entity ID/public key...">
+                </div>
+                <div class="mb-3">
+                    <label for="certificationType" class="form-label">Certification Type</label>
+                    <input type="text" class="form-control" id="certificationType" placeholder="Enter certification type...">
+                </div>
+                <div class="mb-3">
+                    <label for="validUntil" class="form-label">Valid Until</label>
+                    <input type="date" class="form-control" id="validUntil">
+                </div>
+            `,
+            moderator_edit: `
+                <div class="mb-3">
+                    <label for="modActionDetails" class="form-label">Action Details *</label>
+                    <textarea class="form-control" id="modActionDetails" rows="3" placeholder="Enter moderation details..." required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="moderatorEdits" class="form-label">Edits (JSON) *</label>
+                    <textarea class="form-control" id="moderatorEdits" rows="4" placeholder='{"entity_id": {"field": "new_value"}}' required></textarea>
+                    <div class="form-text">Enter edits as JSON object mapping entity IDs to their updates</div>
+                </div>
+            `,
+            authenticate_entity: `
+                <div class="mb-3">
+                    <label for="entityType" class="form-label">Entity Type *</label>
+                    <select class="form-select" id="entityType" required onchange="updateAuthEntityForm()">
+                        <option value="">Select entity type...</option>
+                        <option value="account">Account</option>
+                        <option value="asset">Asset</option>
+                    </select>
+                </div>
+                <div id="entityIdField">
+                    <!-- Entity ID field will be inserted here -->
+                </div>
+                <div class="mb-3">
+                    <label for="authStatus" class="form-label">Authentication Status *</label>
+                    <select class="form-select" id="authStatus" required>
+                        <option value="">Select status...</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="authActionDetails" class="form-label">Action Details *</label>
+                    <textarea class="form-control" id="authActionDetails" rows="3" placeholder="Enter authentication details..." required></textarea>
+                </div>
+            `
+        };
+
+        // Update operation form based on selection
+        function updateOperationForm() {
+            const operationType = document.getElementById('operationType').value;
+            document.getElementById('operationForm').innerHTML = operationForms[operationType];
+
+            // Populate dropdowns with enum values
+            if (operationType === 'create_account' && enums.account_types) {
+                const select = document.getElementById('accountType');
+                enums.account_types.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type;
+                    option.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+                    select.appendChild(option);
+                });
+            } else if (operationType === 'create_asset' && enums.asset_types) {
+                const select = document.getElementById('assetType');
+                enums.asset_types.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type;
+                    option.textContent = type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    select.appendChild(option);
+                });
+            } else if (operationType === 'create_admin' && enums.admin_permission_levels) {
+                const select = document.getElementById('permissionLevel');
+                enums.admin_permission_levels.forEach(level => {
+                    const option = document.createElement('option');
+                    option.value = level;
+                    option.textContent = level.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    select.appendChild(option);
+                });
+            }
+        }
+
+        // Update account type specific fields
+        function updateAccountFields() {
+            const accountType = document.getElementById('accountType').value;
+            const accountFields = document.getElementById('accountSpecificFields');
+
+            if (accountType === 'artisan') {
+                accountFields.innerHTML = `
+                    <div class="mb-3">
+                        <label for="skillLevel" class="form-label">Skill Level *</label>
+                        <select class="form-select" id="skillLevel" required>
+                            <option value="">Select skill level...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="yearsOfExperience" class="form-label">Years of Experience *</label>
+                        <input type="number" class="form-control" id="yearsOfExperience" placeholder="Enter years of experience..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="craftCategories" class="form-label">Craft Categories</label>
+                        <input type="text" class="form-control" id="craftCategories" placeholder="Enter craft categories (comma-separated)...">
+                        <div class="form-text">Enter categories separated by commas (e.g., "weaving, embroidery, pottery")</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="traditionalTechniques" class="form-label">Traditional Techniques</label>
+                        <input type="text" class="form-control" id="traditionalTechniques" placeholder="Enter traditional techniques (comma-separated)...">
+                        <div class="form-text">Enter techniques separated by commas</div>
+                    </div>
+                `;
+                // Populate skill levels
+                if (enums.artisan_skill_levels) {
+                    const select = document.getElementById('skillLevel');
+                    enums.artisan_skill_levels.forEach(level => {
+                        const option = document.createElement('option');
+                        option.value = level;
+                        option.textContent = level.charAt(0).toUpperCase() + level.slice(1);
+                        select.appendChild(option);
+                    });
+                }
+            } else if (accountType === 'supplier') {
+                accountFields.innerHTML = `
+                    <div class="mb-3">
+                        <label for="supplierType" class="form-label">Supplier Type</label>
+                        <input type="text" class="form-control" id="supplierType" placeholder="Enter supplier type (e.g., farm, textile mill)...">
+                    </div>
+                `;
+            } else if (accountType === 'admin') {
+                accountFields.innerHTML = `
+                    <div class="mb-3">
+                        <label for="about" class="form-label">About *</label>
+                        <textarea class="form-control" id="about" rows="3" placeholder="Enter description about this admin..." required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="adminPermissionLevel" class="form-label">Permission Level *</label>
+                        <select class="form-select" id="adminPermissionLevel" required>
+                            <option value="">Select permission level...</option>
+                        </select>
+                    </div>
+                `;
+                // Populate admin permission levels
+                if (enums.admin_permission_levels) {
+                    const select = document.getElementById('adminPermissionLevel');
+                    enums.admin_permission_levels.forEach(level => {
+                        const option = document.createElement('option');
+                        option.value = level;
+                        option.textContent = level.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        select.appendChild(option);
+                    });
+                }
+            } else if (accountType === 'buyer') {
+                // Buyer accounts don't have additional required fields beyond base account
+                accountFields.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Buyer accounts only require basic account information.
+                    </div>
+                `;
+            } else {
+                accountFields.innerHTML = '';
+            }
+        }
+
+        // Update asset type specific fields
+        function updateAssetFields() {
+            const assetType = document.getElementById('assetType').value;
+            const assetFields = document.getElementById('assetSpecificFields');
+
+            if (assetType === 'raw_material') {
+                assetFields.innerHTML = `
+                    <div class="mb-3">
+                        <label for="materialType" class="form-label">Material Type *</label>
+                        <input type="text" class="form-control" id="materialType" placeholder="Enter material type (e.g., wool, cotton)..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantity *</label>
+                        <input type="number" step="0.01" class="form-control" id="quantity" placeholder="Enter quantity..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantityUnit" class="form-label">Quantity Unit *</label>
+                        <input type="text" class="form-control" id="quantityUnit" placeholder="Enter unit (kg, meters, etc.)..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="unitPriceUsd" class="form-label">Unit Price (USD) *</label>
+                        <input type="number" step="0.01" class="form-control" id="unitPriceUsd" placeholder="Enter unit price..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="harvestedDate" class="form-label">Harvested Date *</label>
+                        <input type="date" class="form-control" id="harvestedDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="sourceLocation" class="form-label">Source Location</label>
+                        <input type="text" class="form-control" id="sourceLocation" placeholder="Enter source location...">
+                    </div>
+                `;
+            } else if (assetType === 'work_order') {
+                assetFields.innerHTML = `
+                    <div class="mb-3">
+                        <label for="assignee" class="form-label">Assignee Public Key *</label>
+                        <input type="text" class="form-control" id="assignee" placeholder="Enter assignee public key..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="workType" class="form-label">Work Type</label>
+                        <select class="form-select" id="workType">
+                            <option value="">Select work type...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="requestedQuantity" class="form-label">Requested Quantity *</label>
+                        <input type="number" step="0.01" class="form-control" id="requestedQuantity" placeholder="Enter requested quantity..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="requestedQuantityUnit" class="form-label">Requested Quantity Unit *</label>
+                        <input type="text" class="form-control" id="requestedQuantityUnit" placeholder="Enter unit..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="productDescription" class="form-label">Product Description *</label>
+                        <input type="text" class="form-control" id="productDescription" placeholder="Enter product description..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="totalPriceUsd" class="form-label">Total Price (USD) *</label>
+                        <input type="number" step="0.01" class="form-control" id="totalPriceUsd" placeholder="Enter total price..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="estimatedCompletionDate" class="form-label">Estimated Completion Date</label>
+                        <input type="date" class="form-control" id="estimatedCompletionDate">
+                    </div>
+                `;
+                // Populate work order types
+                if (enums.work_order_types) {
+                    const select = document.getElementById('workType');
+                    enums.work_order_types.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type;
+                        option.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+                        select.appendChild(option);
+                    });
+                }
+            } else if (assetType === 'product_batch') {
+                assetFields.innerHTML = `
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantity *</label>
+                        <input type="number" step="0.01" class="form-control" id="quantity" placeholder="Enter quantity..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="unit" class="form-label">Unit *</label>
+                        <input type="text" class="form-control" id="unit" placeholder="Enter unit..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="productDescription" class="form-label">Product Description *</label>
+                        <input type="text" class="form-control" id="productDescription" placeholder="Enter product description..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="workOrder" class="form-label">Work Order (Optional)</label>
+                        <input type="text" class="form-control" id="workOrder" placeholder="Enter work order ID...">
+                    </div>
+                `;
+            } else if (assetType === 'sub_assignment') {
+                assetFields.innerHTML = `
+                    <div class="mb-3">
+                        <label for="subAssignee" class="form-label">Sub-assignee Public Key *</label>
+                        <input type="text" class="form-control" id="subAssignee" placeholder="Enter sub-assignee public key..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="batch" class="form-label">Batch ID *</label>
+                        <input type="text" class="form-control" id="batch" placeholder="Enter batch ID..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskDescription" class="form-label">Task Description *</label>
+                        <textarea class="form-control" id="taskDescription" rows="3" placeholder="Enter task description..." required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantityAssigned" class="form-label">Quantity Assigned *</label>
+                        <input type="number" step="0.01" class="form-control" id="quantityAssigned" placeholder="Enter quantity assigned..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="pricePerUnit" class="form-label">Price Per Unit *</label>
+                        <input type="number" step="0.01" class="form-control" id="pricePerUnit" placeholder="Enter price per unit..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="deadline" class="form-label">Deadline</label>
+                        <input type="date" class="form-control" id="deadline">
+                    </div>
+                `;
+            } else {
+                // Generic asset fields
+                assetFields.innerHTML = `
+                    <div class="mb-3">
+                        <label for="assetDescription" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="assetDescription" placeholder="Enter asset description...">
+                    </div>
+                `;
+            }
+        }
+
+        // Update work order action form
+        function updateWorkOrderForm() {
+            const action = document.getElementById('action').value;
+            const actionFields = document.getElementById('actionSpecificFields');
+
+            if (action === 'accept') {
+                actionFields.innerHTML = `
+                    <div class="mb-3">
+                        <label for="batchUid" class="form-label">Batch UID (Optional)</label>
+                        <input type="text" class="form-control" id="batchUid" placeholder="Enter batch UID...">
+                    </div>
+                `;
+            } else if (action === 'reject') {
+                actionFields.innerHTML = `
+                    <div class="mb-3">
+                        <label for="rejectionReason" class="form-label">Rejection Reason *</label>
+                        <textarea class="form-control" id="rejectionReason" rows="3" placeholder="Enter rejection reason..." required></textarea>
+                    </div>
+                `;
+            } else if (action === 'complete') {
+                actionFields.innerHTML = `
+                    <div class="mb-3">
+                        <label for="unitsProduced" class="form-label">Units Produced *</label>
+                        <input type="number" class="form-control" id="unitsProduced" placeholder="Enter units produced..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="producedQuantity" class="form-label">Produced Quantity</label>
+                        <input type="number" step="0.01" class="form-control" id="producedQuantity" placeholder="Enter produced quantity...">
+                    </div>
+                    <div class="mb-3">
+                        <label for="productsPrice" class="form-label">Products Price</label>
+                        <input type="number" step="0.01" class="form-control" id="productsPrice" placeholder="Enter products price...">
+                    </div>
+                `;
+            } else {
+                actionFields.innerHTML = '';
+            }
+        }
+
+        // Update sub assignment action form
+        function updateSubAssignmentForm() {
+            const action = document.getElementById('subAction').value;
+            const actionFields = document.getElementById('subActionSpecificFields');
+
+            if (action === 'reject') {
+                actionFields.innerHTML = `
+                    <div class="mb-3">
+                        <label for="subRejectionReason" class="form-label">Rejection Reason *</label>
+                        <textarea class="form-control" id="subRejectionReason" rows="3" placeholder="Enter rejection reason..." required></textarea>
+                    </div>
+                `;
+            } else {
+                actionFields.innerHTML = '';
+            }
+        }
+
+        // Update authentication entity form
+        function updateAuthEntityForm() {
+            const entityType = document.getElementById('entityType').value;
+            const entityIdField = document.getElementById('entityIdField');
+
+            if (entityType === 'account') {
+                entityIdField.innerHTML = `
+                    <div class="mb-3">
+                        <label for="authPublicKey" class="form-label">Account Public Key *</label>
+                        <input type="text" class="form-control" id="authPublicKey" placeholder="Enter account public key..." required>
+                    </div>
+                `;
+            } else if (entityType === 'asset') {
+                entityIdField.innerHTML = `
+                    <div class="mb-3">
+                        <label for="authAssetId" class="form-label">Asset ID *</label>
+                        <input type="text" class="form-control" id="authAssetId" placeholder="Enter asset ID..." required>
+                    </div>
+                `;
+            } else {
+                entityIdField.innerHTML = '';
+            }
+        }
+
+        // Execute operation
+        async function executeOperation() {
+            const operationType = document.getElementById('operationType').value;
+            const privateKey = document.getElementById('privateKey').value;
+            const resultsContainer = document.getElementById('resultsContainer');
+
+            // Show loading state
+            resultsContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin fa-2x text-success"></i><br><p class="mt-2">Processing transaction...</p></div>';
+
+            try {
+                let requestData = { private_key: privateKey };
+                let endpoint = '';
+
+                switch (operationType) {
+                    case 'create_account':
+                        requestData.account_type = document.getElementById('accountType').value;
+                        requestData.email = document.getElementById('email').value;
+                        if (document.getElementById('fullName') && document.getElementById('fullName').value) requestData.full_name = document.getElementById('fullName').value;
+                        if (document.getElementById('location') && document.getElementById('location').value) requestData.location = document.getElementById('location').value;
+
+                        // Handle account type specific fields
+                        const accountType = document.getElementById('accountType').value;
+                        if (accountType === 'artisan') {
+                            if (document.getElementById('skillLevel') && document.getElementById('skillLevel').value) {
+                                requestData.skill_level = document.getElementById('skillLevel').value;
+                            }
+                            if (document.getElementById('yearsOfExperience') && document.getElementById('yearsOfExperience').value) {
+                                requestData.years_of_experience = parseInt(document.getElementById('yearsOfExperience').value);
+                            }
+                            if (document.getElementById('craftCategories') && document.getElementById('craftCategories').value) {
+                                requestData.craft_categories = document.getElementById('craftCategories').value.split(',').map(cat => cat.trim()).filter(cat => cat);
+                            }
+                            if (document.getElementById('traditionalTechniques') && document.getElementById('traditionalTechniques').value) {
+                                requestData.traditional_techniques = document.getElementById('traditionalTechniques').value.split(',').map(tech => tech.trim()).filter(tech => tech);
+                            }
+                        } else if (accountType === 'supplier') {
+                            if (document.getElementById('supplierType') && document.getElementById('supplierType').value) {
+                                requestData.supplier_type = document.getElementById('supplierType').value;
+                            }
+                        } else if (accountType === 'admin') {
+                            if (document.getElementById('about') && document.getElementById('about').value) {
+                                requestData.about = document.getElementById('about').value;
+                            }
+                            if (document.getElementById('adminPermissionLevel') && document.getElementById('adminPermissionLevel').value) {
+                                requestData.permission_level = document.getElementById('adminPermissionLevel').value;
+                            }
+                        }
+                        endpoint = '/api/client/create_account';
+                        break;
+
+                    case 'create_asset':
+                        requestData.asset_type = document.getElementById('assetType').value;
+                        // Handle asset type specific fields
+                        const assetType = document.getElementById('assetType').value;
+                        if (assetType === 'raw_material') {
+                            requestData.material_type = document.getElementById('materialType').value;
+                            requestData.quantity = parseFloat(document.getElementById('quantity').value);
+                            requestData.quantity_unit = document.getElementById('quantityUnit').value;
+                            requestData.unit_price_usd = parseFloat(document.getElementById('unitPriceUsd').value);
+                            requestData.harvested_date = document.getElementById('harvestedDate').value;
+                            if (document.getElementById('sourceLocation').value) requestData.source_location = document.getElementById('sourceLocation').value;
+                        } else if (assetType === 'work_order') {
+                            requestData.assignee = document.getElementById('assignee').value;
+                            requestData.requested_quantity = parseFloat(document.getElementById('requestedQuantity').value);
+                            requestData.requested_quantity_unit = document.getElementById('requestedQuantityUnit').value;
+                            requestData.product_description = document.getElementById('productDescription').value;
+                            requestData.total_price_usd = parseFloat(document.getElementById('totalPriceUsd').value);
+                            if (document.getElementById('workType') && document.getElementById('workType').value) requestData.work_type = document.getElementById('workType').value;
+                            if (document.getElementById('estimatedCompletionDate').value) requestData.estimated_completion_date = document.getElementById('estimatedCompletionDate').value;
+                        } else if (assetType === 'product_batch') {
+                            requestData.quantity = parseFloat(document.getElementById('quantity').value);
+                            requestData.unit = document.getElementById('unit').value;
+                            requestData.product_description = document.getElementById('productDescription').value;
+                            if (document.getElementById('workOrder') && document.getElementById('workOrder').value) requestData.work_order = document.getElementById('workOrder').value;
+                        } else if (assetType === 'sub_assignment') {
+                            requestData.sub_assignee = document.getElementById('subAssignee').value;
+                            requestData.batch = document.getElementById('batch').value;
+                            requestData.task_description = document.getElementById('taskDescription').value;
+                            requestData.quantity_assigned = parseFloat(document.getElementById('quantityAssigned').value);
+                            requestData.price_per_unit = parseFloat(document.getElementById('pricePerUnit').value);
+                            if (document.getElementById('deadline').value) requestData.deadline = document.getElementById('deadline').value;
+                        } else if (document.getElementById('assetDescription') && document.getElementById('assetDescription').value) {
+                            requestData.description = document.getElementById('assetDescription').value;
+                        }
+                        endpoint = '/api/client/create_asset';
+                        break;
+
+                    case 'transfer_assets':
+                        const assetIds = document.getElementById('assetIds').value.split(',').map(id => id.trim()).filter(id => id);
+                        requestData.asset_ids = assetIds;
+                        requestData.recipient = document.getElementById('recipient').value;
+                        if (document.getElementById('carrier').value) requestData.carrier = document.getElementById('carrier').value;
+                        if (document.getElementById('origin').value) requestData.origin = document.getElementById('origin').value;
+                        if (document.getElementById('destination').value) requestData.destination = document.getElementById('destination').value;
+                        endpoint = '/api/client/transfer_assets';
+                        break;
+
+                    case 'work_order_action':
+                        requestData.action = document.getElementById('action').value;
+                        requestData.work_order_id = document.getElementById('workOrderId').value;
+                        const action = document.getElementById('action').value;
+                        if (action === 'accept' && document.getElementById('batchUid')) {
+                            requestData.batch_uid = document.getElementById('batchUid').value;
+                        } else if (action === 'reject' && document.getElementById('rejectionReason')) {
+                            requestData.rejection_reason = document.getElementById('rejectionReason').value;
+                        } else if (action === 'complete') {
+                            requestData.units_produced = parseInt(document.getElementById('unitsProduced').value);
+                            if (document.getElementById('producedQuantity').value) {
+                                requestData.produced_quantity = parseFloat(document.getElementById('producedQuantity').value);
+                            }
+                            if (document.getElementById('productsPrice').value) {
+                                requestData.products_price = parseFloat(document.getElementById('productsPrice').value);
+                            }
+                        }
+                        endpoint = '/api/client/work_order_action';
+                        break;
+
+                    case 'add_raw_material_to_batch':
+                        requestData.batch = document.getElementById('batchId').value;
+                        requestData.raw_material = document.getElementById('rawMaterialId').value;
+                        requestData.usage_quantity = parseFloat(document.getElementById('usageQuantity').value);
+                        endpoint = '/api/client/add_raw_material_to_batch';
+                        break;
+
+                    case 'complete_batch':
+                        requestData.batch_id = document.getElementById('batchId').value;
+                        requestData.units_produced = parseInt(document.getElementById('unitsProduced').value);
+                        requestData.products_price = parseFloat(document.getElementById('productsPrice').value);
+                        if (document.getElementById('producedQuantity').value) {
+                            requestData.produced_quantity = parseFloat(document.getElementById('producedQuantity').value);
+                        }
+                        endpoint = '/api/client/complete_batch';
+                        break;
+
+                    case 'sub_assignment_action':
+                        requestData.action = document.getElementById('subAction').value;
+                        requestData.subassignment = document.getElementById('subassignmentId').value;
+                        if (document.getElementById('subAction').value === 'reject' && document.getElementById('subRejectionReason')) {
+                            requestData.rejection_reason = document.getElementById('subRejectionReason').value;
+                        }
+                        endpoint = '/api/client/sub_assignment_action';
+                        break;
+
+                    case 'edit_account':
+                        requestData.public_key = document.getElementById('editPublicKey').value;
+                        try {
+                            requestData.updates = JSON.parse(document.getElementById('accountUpdates').value);
+                        } catch (e) {
+                            throw new Error('Invalid JSON in updates field');
+                        }
+                        endpoint = '/api/client/edit_account';
+                        break;
+
+                    case 'edit_asset':
+                        requestData.uid = document.getElementById('editAssetId').value;
+                        try {
+                            requestData.updates = JSON.parse(document.getElementById('assetUpdates').value);
+                        } catch (e) {
+                            throw new Error('Invalid JSON in updates field');
+                        }
+                        endpoint = '/api/client/edit_asset';
+                        break;
+
+                    case 'delete_account':
+                        requestData.public_key = document.getElementById('deletePublicKey').value;
+                        requestData.deletion_reason = document.getElementById('accountDeletionReason').value;
+                        endpoint = '/api/client/delete_account';
+                        break;
+
+                    case 'delete_asset':
+                        requestData.uid = document.getElementById('deleteAssetId').value;
+                        requestData.deletion_reason = document.getElementById('assetDeletionReason').value;
+                        endpoint = '/api/client/delete_asset';
+                        break;
+
+                    case 'unpack_product':
+                        requestData.product_id = document.getElementById('productId').value;
+                        endpoint = '/api/client/unpack_product';
+                        break;
+
+                    case 'bootstrap':
+                        requestData.email = document.getElementById('bootstrapEmail').value;
+                        endpoint = '/api/client/bootstrap';
+                        break;
+
+                    case 'create_admin':
+                        requestData.admin_public_key = document.getElementById('adminPublicKey').value;
+                        requestData.email = document.getElementById('adminEmail').value;
+                        requestData.permission_level = document.getElementById('permissionLevel').value;
+                        requestData.action_details = document.getElementById('adminActionDetails').value;
+                        endpoint = '/api/client/create_admin';
+                        break;
+
+                    case 'issue_certification':
+                        requestData.action_details = document.getElementById('certActionDetails').value;
+                        if (document.getElementById('certifiedEntity').value) requestData.certified_entity = document.getElementById('certifiedEntity').value;
+                        if (document.getElementById('certificationType').value) requestData.certification_type = document.getElementById('certificationType').value;
+                        if (document.getElementById('validUntil').value) requestData.valid_until = document.getElementById('validUntil').value;
+                        endpoint = '/api/client/issue_certification';
+                        break;
+
+                    case 'moderator_edit':
+                        requestData.action_details = document.getElementById('modActionDetails').value;
+                        try {
+                            requestData.edits = JSON.parse(document.getElementById('moderatorEdits').value);
+                        } catch (e) {
+                            throw new Error('Invalid JSON in edits field');
+                        }
+                        endpoint = '/api/client/moderator_edit';
+                        break;
+
+                    case 'authenticate_entity':
+                        requestData.entity_type = document.getElementById('entityType').value;
+                        requestData.authentication_status = document.getElementById('authStatus').value;
+                        requestData.action_details = document.getElementById('authActionDetails').value;
+                        if (document.getElementById('entityType').value === 'account') {
+                            requestData.public_key = document.getElementById('authPublicKey').value;
+                        } else if (document.getElementById('entityType').value === 'asset') {
+                            requestData.uid = document.getElementById('authAssetId').value;
+                        }
+                        endpoint = '/api/client/authenticate_entity';
+                        break;
+
+                    default:
+                        throw new Error('Invalid operation type');
+                }
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                displayResults(data);
+
+            } catch (error) {
+                resultsContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Display operation results
+        function displayResults(data) {
+            const resultsContainer = document.getElementById('resultsContainer');
+
+            if (data.error) {
+                resultsContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle me-2"></i>
+                        <strong>Transaction Failed:</strong> ${data.error}
+                    </div>
+                `;
+                return;
+            }
+
+            if (data.success) {
+                let html = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Success:</strong> ${data.message}
+                    </div>
+                `;
+
+                if (data.public_key) {
+                    html += `<p><strong>Public Key:</strong><br><code>${data.public_key}</code></p>`;
+                }
+                if (data.private_key) {
+                    html += `<p><strong>Private Key:</strong><br><code class="text-danger">${data.private_key}</code></p>`;
+                }
+                if (data.asset_id) {
+                    html += `<p><strong>Asset ID:</strong><br><code>${data.asset_id}</code></p>`;
+                }
+                if (data.transfer_id) {
+                    html += `<p><strong>Transfer ID:</strong><br><code>${data.transfer_id}</code></p>`;
+                }
+                if (data.batch_uid) {
+                    html += `<p><strong>Batch UID:</strong><br><code>${data.batch_uid}</code></p>`;
+                }
+                if (data.certification_id) {
+                    html += `<p><strong>Certification ID:</strong><br><code>${data.certification_id}</code></p>`;
+                }
+                if (data.batch_link) {
+                    html += `<p><strong>Batch Link:</strong><br><a href="${data.batch_link}" target="_blank" class="btn btn-sm btn-outline-primary">View Batch</a></p>`;
+                }
+
+                resultsContainer.innerHTML = html;
+            }
+        }
+
+        // Clear results
+        function clearResults() {
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="text-center text-muted">
+                    <i class="fas fa-paper-plane fa-3x mb-3 opacity-50"></i>
+                    <p>Submit a transaction to see results</p>
+                </div>
+            `;
+        }
+
+        // Load enums and initialize page
+        async function initializePage() {
+            try {
+                const response = await fetch('/api/enums');
+                enums = await response.json();
+
+                // Display enums reference
+                const enumsContainer = document.getElementById('enumsReference');
+                let enumsHtml = '';
+
+                if (enums.account_types) {
+                    enumsHtml += '<h6>Account Types:</h6>';
+                    enumsHtml += `<p class="small">${enums.account_types.join(', ')}</p>`;
+                }
+
+                if (enums.asset_types) {
+                    enumsHtml += '<h6>Asset Types:</h6>';
+                    enumsHtml += `<p class="small">${enums.asset_types.join(', ')}</p>`;
+                }
+
+                enumsContainer.innerHTML = enumsHtml;
+
+                updateOperationForm();
+            } catch (error) {
+                console.error('Failed to load enums:', error);
+            }
+        }
+
+        // Initialize page
+        initializePage();
+    </script>
+</body>
+
+</html>
