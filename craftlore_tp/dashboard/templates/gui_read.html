@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CraftLore Read Client</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .result-card {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .json-container {
+            background: #2d3748;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .json-data {
+            background: transparent;
+            color: #e2e8f0;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+            border: none;
+            padding: 0;
+            margin: 0;
+            overflow-x: auto;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .address-tag {
+            background: linear-gradient(135deg, #4a5568, #2d3748);
+            color: #e2e8f0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            word-break: break-all;
+            border: 1px solid #4a5568;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .result-section {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .result-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .result-header:hover {
+            background: linear-gradient(135deg, #5a67d8, #6b46c1);
+        }
+
+        .result-body {
+            padding: 20px;
+            background: #f8fafc;
+        }
+
+        .collapse-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .collapsed .collapse-icon {
+            transform: rotate(-90deg);
+        }
+
+        .badge-custom {
+            background: linear-gradient(135deg, #38b2ac, #319795);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            margin: 2px;
+        }
+
+        .data-field {
+            margin-bottom: 12px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .field-label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .field-value {
+            color: #2d3748;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            word-break: break-word;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg gradient-bg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-cube me-2"></i>CraftLore GUI
+            </a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="/">Home</a>
+                <a class="nav-link active" href="/read">Read Client</a>
+                <a class="nav-link" href="/client">Transaction Client</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12 mb-4">
+                <h2 class="text-primary">
+                    <i class="fas fa-search me-2"></i>CraftLore Read Client
+                </h2>
+                <p class="text-muted">Query blockchain data without making transactions</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Query Panel -->
+            <div class="col-lg-4">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-search me-2"></i>Query Options</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Query Type Selection -->
+                        <div class="mb-3">
+                            <label class="form-label">Query Type</label>
+                            <select class="form-select" id="queryType" onchange="updateQueryForm()">
+                                <option value="account_pubkey">Account by Public Key</option>
+                                <option value="account_email">Account by Email</option>
+                                <option value="asset">Asset by ID</option>
+                                <option value="transaction">Transaction by Signature</option>
+                                <option value="all_state">All State Entries</option>
+                            </select>
+                        </div>
+
+                        <!-- Dynamic Query Form -->
+                        <div id="queryForm">
+                            <!-- Forms will be dynamically inserted here -->
+                        </div>
+
+                        <button class="btn btn-primary w-100" onclick="executeQuery()">
+                            <i class="fas fa-search me-2"></i>Execute Query
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Query Results</h5>
+                        <button class="btn btn-sm btn-light" onclick="clearResults()">
+                            <i class="fas fa-trash me-1"></i>Clear
+                        </button>
+                    </div>
+                    <div class="card-body result-card" id="resultsContainer">
+                        <div class="text-center text-muted">
+                            <i class="fas fa-search fa-3x mb-3 opacity-50"></i>
+                            <p>Select a query type and execute to see results</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        // Query form templates
+        const queryForms = {
+            account_pubkey: `
+                <div class="mb-3">
+                    <label for="publicKey" class="form-label">Public Key</label>
+                    <input type="text" class="form-control" id="publicKey" placeholder="Enter public key..." required>
+                </div>
+            `,
+            account_email: `
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" class="form-control" id="email" placeholder="Enter email address..." required>
+                </div>
+            `,
+            asset: `
+                <div class="mb-3">
+                    <label for="assetId" class="form-label">Asset ID</label>
+                    <input type="text" class="form-control" id="assetId" placeholder="Enter asset ID..." required>
+                </div>
+            `,
+            transaction: `
+                <div class="mb-3">
+                    <label for="transactionSignature" class="form-label">Transaction Signature</label>
+                    <textarea class="form-control" id="transactionSignature" rows="3" placeholder="Enter transaction signature..." required></textarea>
+                </div>
+            `,
+            all_state: `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> This will fetch all blockchain state entries. This may take some time.
+                </div>
+            `
+        };
+
+        // Update query form based on selection
+        function updateQueryForm() {
+            const queryType = document.getElementById('queryType').value;
+            document.getElementById('queryForm').innerHTML = queryForms[queryType];
+        }
+
+        // Execute query based on type
+        async function executeQuery() {
+            const queryType = document.getElementById('queryType').value;
+            const resultsContainer = document.getElementById('resultsContainer');
+
+            // Show loading state
+            resultsContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i><br><p class="mt-2">Executing query...</p></div>';
+
+            try {
+                let response;
+
+                switch (queryType) {
+                    case 'account_pubkey':
+                        const publicKey = document.getElementById('publicKey').value;
+                        if (!publicKey) {
+                            throw new Error('Public key is required');
+                        }
+                        response = await fetch('/api/read/account_by_pubkey', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ public_key: publicKey })
+                        });
+                        break;
+
+                    case 'account_email':
+                        const email = document.getElementById('email').value;
+                        if (!email) {
+                            throw new Error('Email is required');
+                        }
+                        response = await fetch('/api/read/account_by_email', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: email })
+                        });
+                        break;
+
+                    case 'asset':
+                        const assetId = document.getElementById('assetId').value;
+                        if (!assetId) {
+                            throw new Error('Asset ID is required');
+                        }
+                        response = await fetch('/api/read/asset', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ asset_id: assetId })
+                        });
+                        break;
+
+                    case 'transaction':
+                        const transactionSignature = document.getElementById('transactionSignature').value;
+                        if (!transactionSignature) {
+                            throw new Error('Transaction signature is required');
+                        }
+                        response = await fetch('/api/read/transaction', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ transaction_signature: transactionSignature })
+                        });
+                        break;
+
+                    case 'all_state':
+                        response = await fetch('/api/read/all_state');
+                        break;
+
+                    default:
+                        throw new Error('Invalid query type');
+                }
+
+                const data = await response.json();
+                displayResults(data, queryType);
+
+            } catch (error) {
+                resultsContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Helper function to copy text to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Show success feedback
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                btn.style.background = 'rgba(72, 187, 120, 0.2)';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = 'rgba(255, 255, 255, 0.1)';
+                }, 2000);
+            });
+        }
+
+        // Helper function to format JSON with syntax highlighting
+        function formatJsonData(data, title = null, canCopy = true) {
+            const jsonString = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+            const uniqueId = 'json_' + Math.random().toString(36).substr(2, 9);
+
+            return `
+                <div class="json-container">
+                    ${title ? `<div class="field-label mb-2"><i class="fas fa-code me-2"></i>${title}</div>` : ''}
+                    ${canCopy ? `<button class="copy-btn" onclick="copyToClipboard(\`${jsonString.replace(/`/g, '\\`')}\`)">
+                        <i class="fas fa-copy me-1"></i>Copy
+                    </button>` : ''}
+                    <pre class="json-data" id="${uniqueId}">${jsonString}</pre>
+                </div>
+            `;
+        }
+
+        // Helper function to create collapsible sections
+        function createCollapsibleSection(title, content, icon = 'fas fa-folder', isOpen = true) {
+            const sectionId = 'section_' + Math.random().toString(36).substr(2, 9);
+            const collapseClass = isOpen ? '' : 'collapsed';
+            const showClass = isOpen ? 'show' : '';
+
+            return `
+                <div class="result-section">
+                    <div class="result-header ${collapseClass}" data-bs-toggle="collapse" data-bs-target="#${sectionId}">
+                        <div>
+                            <i class="${icon} me-2"></i>${title}
+                        </div>
+                        <i class="fas fa-chevron-down collapse-icon"></i>
+                    </div>
+                    <div id="${sectionId}" class="collapse ${showClass}">
+                        <div class="result-body">
+                            ${content}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Helper function to create data fields
+        function createDataField(label, value, type = 'text') {
+            let formattedValue = value;
+
+            if (type === 'address' || type === 'hash') {
+                formattedValue = `<div class="address-tag">${value}</div>`;
+            } else if (type === 'json') {
+                formattedValue = formatJsonData(value, null, false);
+            } else if (type === 'array' && Array.isArray(value)) {
+                formattedValue = value.map(item => `<span class="badge-custom">${item}</span>`).join(' ');
+            } else {
+                formattedValue = `<div class="field-value">${value}</div>`;
+            }
+
+            return `
+                <div class="data-field">
+                    <div class="field-label">${label}</div>
+                    ${formattedValue}
+                </div>
+            `;
+        }
+
+        // Display query results with enhanced formatting
+        function displayResults(data, queryType) {
+            const resultsContainer = document.getElementById('resultsContainer');
+
+            if (data.error) {
+                resultsContainer.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>No Results:</strong> ${data.error}
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+
+            if (queryType === 'all_state') {
+                html += `
+                    <div class="stat-card">
+                        <div class="stat-value">${data.total}</div>
+                        <div class="stat-label">State Entries Found</div>
+                    </div>
+                `;
+
+                data.entries.forEach((entry, index) => {
+                    const entryContent = `
+                        ${createDataField('Address', entry.address, 'address')}
+                        ${formatJsonData(entry.data || entry.raw_data, 'Data')}
+                    `;
+                    html += createCollapsibleSection(
+                        `Entry ${index + 1}`,
+                        entryContent,
+                        'fas fa-database',
+                        index < 3 // Only show first 3 entries expanded
+                    );
+                });
+
+            } else if (queryType === 'account_email') {
+                if (data.email_index) {
+                    const emailContent = formatJsonData(data.email_index, 'Email Index Data');
+                    html += createCollapsibleSection('Email Index', emailContent, 'fas fa-envelope');
+                }
+                if (data.account_data) {
+                    const accountContent = formatJsonData(data.account_data, 'Account Data');
+                    html += createCollapsibleSection('Account Information', accountContent, 'fas fa-user');
+                }
+
+            } else if (queryType === 'transaction') {
+                // Transaction overview
+                const overviewContent = `
+                    ${createDataField('Signer Public Key', data.signer_public_key, 'address')}
+                    ${data.transaction.header ? createDataField('Transaction ID', data.transaction.header.signature_hex || 'N/A', 'hash') : ''}
+                `;
+                html += createCollapsibleSection('Transaction Overview', overviewContent, 'fas fa-info-circle');
+
+                // Transaction data
+                const transactionContent = formatJsonData(data.transaction, 'Raw Transaction Data');
+                html += createCollapsibleSection('Transaction Data', transactionContent, 'fas fa-file-code', false);
+
+                // Decoded payload
+                const payloadContent = formatJsonData(data.decoded_payload, 'Decoded Payload');
+                html += createCollapsibleSection('Decoded Payload', payloadContent, 'fas fa-code');
+
+            } else if (queryType === 'account_pubkey' || queryType === 'asset') {
+                // Enhanced display for account or asset data
+                const mainData = data.data;
+                if (mainData) {
+                    // Create overview section for accounts
+                    if (mainData.account_type) {
+                        const overviewContent = `
+                            ${createDataField('Account Type', mainData.account_type)}
+                            ${createDataField('Email', mainData.email)}
+                            ${createDataField('Name', mainData.name)}
+                            ${mainData.public_key ? createDataField('Public Key', mainData.public_key, 'address') : ''}
+                            ${mainData.skills ? createDataField('Skills', mainData.skills, 'array') : ''}
+                            ${mainData.craft_categories ? createDataField('Craft Categories', mainData.craft_categories, 'array') : ''}
+                        `;
+                        html += createCollapsibleSection('Account Overview', overviewContent, 'fas fa-user');
+                    }
+
+                    // Create overview section for assets
+                    if (mainData.asset_type) {
+                        const overviewContent = `
+                            ${createDataField('Asset Type', mainData.asset_type)}
+                            ${createDataField('Asset ID', mainData.asset_id, 'hash')}
+                            ${createDataField('Name', mainData.name)}
+                            ${createDataField('Owner', mainData.owner, 'address')}
+                            ${mainData.quantity !== undefined ? createDataField('Quantity', mainData.quantity) : ''}
+                            ${mainData.price !== undefined ? createDataField('Price', mainData.price) : ''}
+                        `;
+                        html += createCollapsibleSection('Asset Overview', overviewContent, 'fas fa-cube');
+                    }
+
+                    // Full data section
+                    const fullDataContent = formatJsonData(mainData, 'Complete Data');
+                    html += createCollapsibleSection('Complete Data', fullDataContent, 'fas fa-database', false);
+                } else {
+                    html += formatJsonData(data.data || data.raw_data, 'Data');
+                }
+            } else {
+                // Fallback for other query types
+                html += formatJsonData(data.data || data.raw_data, 'Query Results');
+            }
+
+            resultsContainer.innerHTML = html;
+        }
+
+        // Clear results
+        function clearResults() {
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="text-center text-muted">
+                    <i class="fas fa-search fa-3x mb-3 opacity-50"></i>
+                    <p>Select a query type and execute to see results</p>
+                </div>
+            `;
+        }
+
+        // Initialize page
+        updateQueryForm();
+    </script>
+</body>
+
+</html>
