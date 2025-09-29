@@ -70,6 +70,8 @@ class AssetCreationHandler(BaseListener):
         elif fields.get("asset_type") == AssetType.SUB_ASSIGNMENT.value:
             fields["assigner"] = event.signer_public_key
         elif fields.get("asset_type") == AssetType.CERTIFICATION.value:
+            if event.event_type != EventType.CERTIFICATION_ISSUED:
+                raise InvalidTransaction("Certifications can only be created via the CERTIFICATION_ISSUED event.")
             fields["issuer"] = event.signer_public_key
 
 
