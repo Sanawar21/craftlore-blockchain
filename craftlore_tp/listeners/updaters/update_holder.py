@@ -15,9 +15,14 @@ class CertificateHolderUpdater(BaseListener):
 
         if not certificate or not certificate_address:
             raise InvalidTransaction("Certificate data or address not found in event context for UpdateCertificateHolder")
-        holder, holder_address = self.get_account(certificate.holder, event)
+        if "-" in certificate.holder:
+            holder, holder_address = self.get_asset(certificate.holder, event)
+            targets = [certificate.uid, holder.uid]
+        else:
+            holder, holder_address = self.get_account(certificate.holder, event)
+            targets = [certificate.uid, holder.public_key]
+
         holder.certifications.append(certificate.uid)
-        targets = [certificate.uid, holder.public_key]
         holder.history.append({
             "source": self.__class__.__name__,
             "event": event.event_type.value,
