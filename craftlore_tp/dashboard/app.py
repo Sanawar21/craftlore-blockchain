@@ -141,13 +141,166 @@ def read_asset():
         if data:
             try:
                 obj = json.loads(data.decode(errors='ignore'))
-                return jsonify({'success': True, 'data': obj, 'raw_data': data.decode(errors='ignore')})
+                
+                # Check if this is a product and fetch related data
+                if obj and obj.get('asset_type') == 'product':
+                    return get_comprehensive_product_data(asset_id, obj)
+                else:
+                    return jsonify({'success': True, 'data': obj, 'raw_data': data.decode(errors='ignore')})
             except Exception:
                 return jsonify({'success': True, 'data': None, 'raw_data': data.decode(errors='ignore')})
         else:
             return jsonify({'error': f'No asset found with ID {asset_id}'})
     except Exception as e:
         return jsonify({'error': f'Error querying asset: {str(e)}'})
+
+def get_comprehensive_product_data(product_id, product_data):
+    """Get comprehensive product data with all related entities."""
+    try:
+        result = {
+            'success': True,
+            'is_product': True,
+            'product': product_data,
+            'related_entities': {}
+        }
+        
+        # Get product batch data
+        if product_data.get('batch'):
+            batch_address = address_generator.generate_asset_address(product_data['batch'])
+            batch_data = get_state(batch_address)
+            if batch_data:
+                try:
+                    batch_obj = json.loads(batch_data.decode(errors='ignore'))
+                    result['related_entities']['batch'] = batch_obj
+                    
+                    # Get producer account data from batch
+                    if batch_obj and batch_obj.get('producer'):
+                        producer_address = address_generator.generate_account_address(batch_obj['producer'])
+                        producer_data = get_state(producer_address)
+                        if producer_data:
+                            try:
+                                producer_obj = json.loads(producer_data.decode(errors='ignore'))
+                                result['related_entities']['producer'] = producer_obj
+                            except:
+                                result['related_entities']['producer'] = {'raw_data': producer_data.decode(errors='ignore')}
+                    
+                    # Get work order data from batch
+                    if batch_obj and batch_obj.get('work_order'):
+                        work_order_address = address_generator.generate_asset_address(batch_obj['work_order'])
+                        work_order_data = get_state(work_order_address)
+                        if work_order_data:
+                            try:
+                                work_order_obj = json.loads(work_order_data.decode(errors='ignore'))
+                                result['related_entities']['work_order'] = work_order_obj
+                                
+                                # Get assigner (buyer) data from work order
+                                if work_order_obj and work_order_obj.get('assigner'):
+                                    assigner_address = address_generator.generate_account_address(work_order_obj['assigner'])
+                                    assigner_data = get_state(assigner_address)
+                                    if assigner_data:
+                                        try:
+                                            assigner_obj = json.loads(assigner_data.decode(errors='ignore'))
+                                            result['related_entities']['assigner'] = assigner_obj
+                                        except:
+                                            result['related_entities']['assigner'] = {'raw_data': assigner_data.decode(errors='ignore')}
+                            except:
+                                result['related_entities']['work_order'] = {'raw_data': work_order_data.decode(errors='ignore')}
+                    
+                    # Get raw materials data from batch
+                    if batch_obj and batch_obj.get('raw_materials'):
+                        raw_materials = []
+                        for raw_material_record in batch_obj['raw_materials']:
+                            if isinstance(raw_material_record, dict) and raw_material_record.get('raw_material'):
+                                rm_address = address_generator.generate_asset_address(raw_material_record['raw_material'])
+                                rm_data = get_state(rm_address)
+                                if rm_data:
+                                    try:
+                                        rm_obj = json.loads(rm_data.decode(errors='ignore'))
+                                        rm_obj['usage_info'] = raw_material_record
+                                        raw_materials.append(rm_obj)
+                                    except:
+                                        raw_materials.append({
+                                            'raw_data': rm_data.decode(errors='ignore'),
+                                            'usage_info': raw_material_record
+                                        })
+                        if raw_materials:
+                            result['related_entities']['raw_materials'] = raw_materials
+                            
+                            # Get suppliers from raw materials
+                            suppliers = []
+                            for rm in raw_materials:
+                                if rm.get('supplier'):
+                                    supplier_address = address_generator.generate_account_address(rm['supplier'])
+                                    supplier_data = get_state(supplier_address)
+                                    if supplier_data:
+                                        try:
+                                            supplier_obj = json.loads(supplier_data.decode(errors='ignore'))
+                                            # Avoid duplicates
+                                            if not any(s.get('public_key') == supplier_obj.get('public_key') for s in suppliers):
+                                                suppliers.append(supplier_obj)
+                                        except:
+                                            suppliers.append({'raw_data': supplier_data.decode(errors='ignore')})
+                            if suppliers:
+                                result['related_entities']['suppliers'] = suppliers
+                except:
+                    result['related_entities']['batch'] = {'raw_data': batch_data.decode(errors='ignore')}
+        
+        # Get packaging data
+        if product_data.get('packaging'):
+            packaging_address = address_generator.generate_asset_address(product_data['packaging'])
+            packaging_data = get_state(packaging_address)
+            if packaging_data:
+                try:
+                    packaging_obj = json.loads(packaging_data.decode(errors='ignore'))
+                    result['related_entities']['packaging'] = packaging_obj
+                except:
+                    result['related_entities']['packaging'] = {'raw_data': packaging_data.decode(errors='ignore')}
+        
+        # Get certifications data
+        if product_data.get('certifications'):
+            certifications = []
+            for cert_id in product_data['certifications']:
+                cert_address = address_generator.generate_asset_address(cert_id)
+                cert_data = get_state(cert_address)
+                if cert_data:
+                    try:
+                        cert_obj = json.loads(cert_data.decode(errors='ignore'))
+                        certifications.append(cert_obj)
+                    except:
+                        certifications.append({'raw_data': cert_data.decode(errors='ignore')})
+            if certifications:
+                result['related_entities']['certifications'] = certifications
+        
+        # Get asset owner data
+        if product_data.get('asset_owner'):
+            owner_address = address_generator.generate_account_address(product_data['asset_owner'])
+            owner_data = get_state(owner_address)
+            if owner_data:
+                try:
+                    owner_obj = json.loads(owner_data.decode(errors='ignore'))
+                    result['related_entities']['current_owner'] = owner_obj
+                except:
+                    result['related_entities']['current_owner'] = {'raw_data': owner_data.decode(errors='ignore')}
+        
+        # Get transfer logistics data
+        if product_data.get('transfer_logistics'):
+            logistics = []
+            for logistics_id in product_data['transfer_logistics']:
+                logistics_address = address_generator.generate_asset_address(logistics_id)
+                logistics_data = get_state(logistics_address)
+                if logistics_data:
+                    try:
+                        logistics_obj = json.loads(logistics_data.decode(errors='ignore'))
+                        logistics.append(logistics_obj)
+                    except:
+                        logistics.append({'raw_data': logistics_data.decode(errors='ignore')})
+            if logistics:
+                result['related_entities']['transfer_logistics'] = logistics
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'error': f'Error fetching comprehensive product data: {str(e)}'})
 
 @app.route('/api/read/transaction', methods=['POST'])
 def read_transaction():
