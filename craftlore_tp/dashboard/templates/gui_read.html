@@ -164,6 +164,49 @@
             font-size: 12px;
             opacity: 0.9;
         }
+
+        /* Raw data section styling */
+        .raw-data-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .raw-data-section h6 {
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #dee2e6;
+            color: #495057;
+        }
+
+        .raw-data-section .json-container {
+            margin-bottom: 20px;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .raw-data-section .json-data {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 0;
+            font-size: 12px;
+            color: #212529 !important;
+            background: white !important;
+        }
+
+        .raw-data-section .copy-btn {
+            background: rgba(0, 123, 255, 0.1) !important;
+            color: #0056b3 !important;
+            border: 1px solid #0056b3;
+        }
+
+        .raw-data-section .copy-btn:hover {
+            background: rgba(0, 123, 255, 0.2) !important;
+            color: #004085 !important;
+        }
     </style>
 </head>
 
@@ -332,11 +375,21 @@
                         if (!assetId) {
                             throw new Error('Asset ID is required');
                         }
-                        response = await fetch('/api/read/asset', {
+                        // First check if it's a product to use comprehensive view
+                        response = await fetch('/api/read/product_comprehensive', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ asset_id: assetId })
                         });
+
+                        // If not a product or comprehensive view fails, fall back to regular asset query
+                        if (!response.ok) {
+                            response = await fetch('/api/read/asset', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ asset_id: assetId })
+                            });
+                        }
                         break;
 
                     case 'transaction':
@@ -389,16 +442,22 @@
 
         // Helper function to format JSON with syntax highlighting
         function formatJsonData(data, title = null, canCopy = true) {
+            // Handle null/undefined data
+            if (data === null || data === undefined) {
+                data = 'null';
+            }
+
             const jsonString = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+            const safeJsonString = jsonString || 'null';
             const uniqueId = 'json_' + Math.random().toString(36).substr(2, 9);
 
             return `
                 <div class="json-container">
                     ${title ? `<div class="field-label mb-2"><i class="fas fa-code me-2"></i>${title}</div>` : ''}
-                    ${canCopy ? `<button class="copy-btn" onclick="copyToClipboard(\`${jsonString.replace(/`/g, '\\`')}\`)">
+                    ${canCopy ? `<button class="copy-btn" onclick="copyToClipboard(\`${safeJsonString.replace(/`/g, '\\`')}\`)">
                         <i class="fas fa-copy me-1"></i>Copy
                     </button>` : ''}
-                    <pre class="json-data" id="${uniqueId}">${jsonString}</pre>
+                    <pre class="json-data" id="${uniqueId}">${safeJsonString}</pre>
                 </div>
             `;
         }
@@ -428,6 +487,11 @@
 
         // Helper function to create data fields
         function createDataField(label, value, type = 'text') {
+            // Handle null/undefined values
+            if (value === null || value === undefined) {
+                value = 'N/A';
+            }
+
             let formattedValue = value;
 
             if (type === 'address' || type === 'hash') {
@@ -511,6 +575,10 @@
                 const payloadContent = formatJsonData(data.decoded_payload, 'Decoded Payload');
                 html += createCollapsibleSection('Decoded Payload', payloadContent, 'fas fa-code');
 
+            } else if (queryType === 'asset' && data.is_product && data.related_entities) {
+                // Comprehensive product view
+                html += generateComprehensiveProductView(data);
+
             } else if (queryType === 'account_pubkey' || queryType === 'asset') {
                 // Enhanced display for account or asset data
                 const mainData = data.data;
@@ -563,6 +631,459 @@
                     <p>Select a query type and execute to see results</p>
                 </div>
             `;
+        }
+
+        // Generate comprehensive product view
+        function generateComprehensiveProductView(data) {
+            let html = `
+                <div class="product-comprehensive-view">
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-box me-2"></i>
+                        <strong>Comprehensive Product View</strong> - All related blockchain data
+                    </div>
+            `;
+
+            // Product Information Section
+            html += createCollapsibleSection(
+                'Product Information',
+                formatProductInfo(data.product),
+                'fas fa-box'
+            );
+
+            // Related Entities
+            if (data.related_entities) {
+                // Producer Information
+                if (data.related_entities.producer) {
+                    html += createCollapsibleSection(
+                        'Producer Information',
+                        formatAccountInfo(data.related_entities.producer),
+                        'fas fa-user-tie'
+                    );
+                }
+
+                // Current Owner Information
+                if (data.related_entities.current_owner) {
+                    html += createCollapsibleSection(
+                        'Current Owner Information',
+                        formatAccountInfo(data.related_entities.current_owner),
+                        'fas fa-user'
+                    );
+                }
+
+                // Product Batch Information
+                if (data.related_entities.batch) {
+                    html += createCollapsibleSection(
+                        'Product Batch Details',
+                        formatBatchInfo(data.related_entities.batch),
+                        'fas fa-layer-group'
+                    );
+                }
+
+                // Work Order Information
+                if (data.related_entities.work_order) {
+                    html += createCollapsibleSection(
+                        'Work Order Details',
+                        formatWorkOrderInfo(data.related_entities.work_order),
+                        'fas fa-clipboard-list'
+                    );
+                }
+
+                // Packaging Information
+                if (data.related_entities.packaging) {
+                    html += createCollapsibleSection(
+                        'Packaging Information',
+                        formatPackagingInfo(data.related_entities.packaging),
+                        'fas fa-archive'
+                    );
+                }
+
+                // Raw Materials Information
+                if (data.related_entities.raw_materials && data.related_entities.raw_materials.length > 0) {
+                    html += createCollapsibleSection(
+                        'Raw Materials Used',
+                        formatRawMaterialsInfo(data.related_entities.raw_materials),
+                        'fas fa-seedling'
+                    );
+                }
+
+                // Suppliers Information
+                if (data.related_entities.suppliers && data.related_entities.suppliers.length > 0) {
+                    html += createCollapsibleSection(
+                        'Suppliers',
+                        formatSuppliersInfo(data.related_entities.suppliers),
+                        'fas fa-truck'
+                    );
+                }
+
+                // Certifications Information
+                if (data.related_entities.certifications && data.related_entities.certifications.length > 0) {
+                    html += createCollapsibleSection(
+                        'Certifications',
+                        formatCertificationsInfo(data.related_entities.certifications),
+                        'fas fa-certificate'
+                    );
+                }
+
+                // Transfer Logistics Information
+                if (data.related_entities.transfer_logistics && data.related_entities.transfer_logistics.length > 0) {
+                    html += createCollapsibleSection(
+                        'Transfer History',
+                        formatLogisticsInfo(data.related_entities.transfer_logistics),
+                        'fas fa-shipping-fast'
+                    );
+                }
+            }
+
+            // Raw Data Section
+            html += createCollapsibleSection(
+                'Raw Blockchain Data',
+                formatRawDataSection(data),
+                'fas fa-database',
+                false // Start collapsed
+            );
+
+            html += '</div>';
+            return html;
+        }
+
+        // Format product information
+        function formatProductInfo(product) {
+            if (!product) {
+                return '<div class="alert alert-warning">Product information not available</div>';
+            }
+
+            return `
+                <div class="row">
+                    <div class="col-md-6">
+                        ${createDataField('Product ID', product.uid, 'hash')}
+                        ${createDataField('Serial Number', product.serial_no || 'N/A')}
+                        ${createDataField('Price (USD)', product.price_usd ? '$' + product.price_usd : 'N/A')}
+                        ${createDataField('Quantity', product.quantity ? product.quantity + ' ' + (product.unit || '') : 'N/A')}
+                    </div>
+                    <div class="col-md-6">
+                        ${createDataField('Authentication Status', product.authentication_status ? createStatusBadge(product.authentication_status) : 'N/A')}
+                        ${createDataField('Created', product.created_timestamp || 'N/A')}
+                        ${createDataField('TP Version', product.tp_version || 'N/A')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Format account information
+        function formatAccountInfo(account) {
+            if (!account) {
+                return '<div class="alert alert-warning">Account information not available</div>';
+            }
+
+            let html = `
+                <div class="row">
+                    <div class="col-md-6">
+                        ${createDataField('Public Key', account.public_key || account.uid || 'N/A', 'address')}
+                        ${createDataField('Email', account.email || 'N/A')}
+                        ${createDataField('Account Type', account.account_type ? createStatusBadge(account.account_type) : 'N/A')}
+            `;
+
+            if (account.full_name) html += createDataField('Name', account.full_name);
+            if (account.location) html += createDataField('Location', account.location);
+
+            html += `</div><div class="col-md-6">`;
+
+            if (account.skill_level) html += createDataField('Skill Level', account.skill_level);
+            if (account.years_of_experience) html += createDataField('Experience', account.years_of_experience + ' years');
+            if (account.supplier_type) html += createDataField('Supplier Type', account.supplier_type);
+
+            html += `</div></div>`;
+            return html;
+        }
+
+        // Format batch information
+        function formatBatchInfo(batch) {
+            if (!batch) {
+                return '<div class="alert alert-warning">Batch information not available</div>';
+            }
+
+            return `
+                <div class="row">
+                    <div class="col-md-6">
+                        ${createDataField('Batch ID', batch.uid, 'hash')}
+                        ${createDataField('Quantity', batch.quantity ? batch.quantity + ' ' + (batch.unit || '') : 'N/A')}
+                        ${createDataField('Status', batch.status ? createStatusBadge(batch.status) : 'N/A')}
+                        ${createDataField('Units Produced', batch.units_produced || 'N/A')}
+                    </div>
+                    <div class="col-md-6">
+                        ${createDataField('Product Description', batch.product_description || 'N/A')}
+                        ${createDataField('Production Date', batch.production_date || 'N/A')}
+                        ${createDataField('Raw Materials Used', batch.raw_materials ? batch.raw_materials.length : 0)}
+                        ${createDataField('Sub Assignments', batch.sub_assignments ? batch.sub_assignments.length : 0)}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Format work order information
+        function formatWorkOrderInfo(workOrder) {
+            if (!workOrder) {
+                return '<div class="alert alert-warning">Work order information not available</div>';
+            }
+
+            return `
+                <div class="row">
+                    <div class="col-md-6">
+                        ${createDataField('Work Order ID', workOrder.uid, 'hash')}
+                        ${createDataField('Status', workOrder.status ? createStatusBadge(workOrder.status) : 'N/A')}
+                        ${createDataField('Work Type', workOrder.work_type || 'N/A')}
+                        ${createDataField('Total Price', workOrder.total_price_usd ? '$' + workOrder.total_price_usd : 'N/A')}
+                    </div>
+                    <div class="col-md-6">
+                        ${createDataField('Requested Quantity', workOrder.requested_quantity ? workOrder.requested_quantity + ' ' + (workOrder.requested_quantity_unit || '') : 'N/A')}
+                        ${createDataField('Description', workOrder.product_description || 'N/A')}
+                        ${createDataField('Completion Date', workOrder.completion_date || 'N/A')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Format raw materials information
+        function formatRawMaterialsInfo(rawMaterials) {
+            let html = '<div class="row">';
+            rawMaterials.forEach((rm, index) => {
+                html += `
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <strong>Material ${index + 1}</strong>
+                            </div>
+                            <div class="card-body">
+                                ${createDataField('ID', rm.uid || 'N/A', 'hash')}
+                                ${createDataField('Type', rm.material_type || 'N/A')}
+                                ${createDataField('Quantity Used', rm.usage_info?.usage_quantity ? rm.usage_info.usage_quantity + ' ' + (rm.quantity_unit || '') : 'N/A')}
+                                ${createDataField('Unit Price', rm.unit_price_usd ? '$' + rm.unit_price_usd : 'N/A')}
+                                ${createDataField('Source Location', rm.source_location || 'N/A')}
+                                ${createDataField('Harvested', rm.harvested_date || 'N/A')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            return html;
+        }
+
+        // Format suppliers information
+        function formatSuppliersInfo(suppliers) {
+            let html = '<div class="row">';
+            suppliers.forEach((supplier, index) => {
+                html += `
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <strong>Supplier ${index + 1}</strong>
+                            </div>
+                            <div class="card-body">
+                                ${formatAccountInfo(supplier)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            return html;
+        }
+
+        // Format certifications information
+        function formatCertificationsInfo(certifications) {
+            let html = '';
+            certifications.forEach((cert, index) => {
+                html += `
+                    <div class="mb-3 p-3 border rounded">
+                        <h6>Certification ${index + 1}</h6>
+                        ${createDataField('ID', cert.uid || 'N/A', 'hash')}
+                        ${createDataField('Type', cert.certification_type || 'N/A')}
+                        ${createDataField('Valid Until', cert.valid_until || 'N/A')}
+                        ${createDataField('Issuer', cert.issuer || 'N/A')}
+                    </div>
+                `;
+            });
+            return html;
+        }
+
+        // Format logistics information
+        function formatLogisticsInfo(logistics) {
+            let html = '';
+            logistics.forEach((log, index) => {
+                html += `
+                    <div class="mb-3 p-3 border rounded">
+                        <h6>Transfer ${index + 1}</h6>
+                        ${createDataField('ID', log.uid || 'N/A', 'hash')}
+                        ${createDataField('Carrier', log.carrier || 'N/A')}
+                        ${createDataField('From', log.origin || 'N/A')}
+                        ${createDataField('To', log.destination || 'N/A')}
+                        ${createDataField('Dispatch Date', log.dispatch_date || 'N/A')}
+                    </div>
+                `;
+            });
+            return html;
+        }
+
+        // Format packaging information
+        function formatPackagingInfo(packaging) {
+            if (!packaging) {
+                return '<div class="alert alert-warning">Packaging information not available</div>';
+            }
+
+            return `
+                <div class="row">
+                    <div class="col-md-6">
+                        ${createDataField('Packaging ID', packaging.uid || 'N/A', 'hash')}
+                        ${createDataField('Package Type', packaging.package_type || 'N/A')}
+                        ${createDataField('Material', packaging.material || 'N/A')}
+                        ${createDataField('Capacity', packaging.capacity ? packaging.capacity + ' ' + (packaging.capacity_unit || '') : 'N/A')}
+                    </div>
+                    <div class="col-md-6">
+                        ${createDataField('Dimensions', packaging.dimensions || 'N/A')}
+                        ${createDataField('Weight', packaging.weight ? packaging.weight + ' ' + (packaging.weight_unit || '') : 'N/A')}
+                        ${createDataField('Recyclable', packaging.recyclable ? 'Yes' : 'No')}
+                        ${createDataField('Manufacturer', packaging.manufacturer || 'N/A')}
+                    </div>
+                </div>
+                ${packaging.sustainability_info ? `
+                    <div class="mt-3">
+                        <h6>Sustainability Information</h6>
+                        ${createDataField('Carbon Footprint', packaging.sustainability_info.carbon_footprint || 'N/A')}
+                        ${createDataField('Recycled Content', packaging.sustainability_info.recycled_content || 'N/A')}
+                        ${createDataField('Biodegradable', packaging.sustainability_info.biodegradable ? 'Yes' : 'No')}
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        // Format raw data section with organized subsections
+        function formatRawDataSection(data) {
+            let html = '<div class="raw-data-section">';
+
+            // Product Raw Data
+            if (data.product) {
+                html += `
+                    <div class="mb-4">
+                        <h6 class="text-primary"><i class="fas fa-box me-2"></i>Product Raw Data</h6>
+                        ${formatJsonData(data.product, null, true)}
+                    </div>
+                `;
+            }
+
+            // Related Entities Raw Data
+            if (data.related_entities) {
+                html += '<h6 class="text-secondary"><i class="fas fa-link me-2"></i>Related Entities Raw Data</h6>';
+
+                // Producer Raw Data
+                if (data.related_entities.producer) {
+                    html += `
+                        <div class="mb-3">
+                            <h6 class="text-muted">Producer</h6>
+                            ${formatJsonData(data.related_entities.producer, null, true)}
+                        </div>
+                    `;
+                }
+
+                // Current Owner Raw Data
+                if (data.related_entities.current_owner) {
+                    html += `
+                        <div class="mb-3">
+                            <h6 class="text-muted">Current Owner</h6>
+                            ${formatJsonData(data.related_entities.current_owner, null, true)}
+                        </div>
+                    `;
+                }
+
+                // Batch Raw Data
+                if (data.related_entities.batch) {
+                    html += `
+                        <div class="mb-3">
+                            <h6 class="text-muted">Product Batch</h6>
+                            ${formatJsonData(data.related_entities.batch, null, true)}
+                        </div>
+                    `;
+                }
+
+                // Work Order Raw Data
+                if (data.related_entities.work_order) {
+                    html += `
+                        <div class="mb-3">
+                            <h6 class="text-muted">Work Order</h6>
+                            ${formatJsonData(data.related_entities.work_order, null, true)}
+                        </div>
+                    `;
+                }
+
+                // Packaging Raw Data
+                if (data.related_entities.packaging) {
+                    html += `
+                        <div class="mb-3">
+                            <h6 class="text-muted">Packaging</h6>
+                            ${formatJsonData(data.related_entities.packaging, null, true)}
+                        </div>
+                    `;
+                }
+
+                // Raw Materials Raw Data
+                if (data.related_entities.raw_materials && data.related_entities.raw_materials.length > 0) {
+                    html += `
+                        <div class="mb-3">
+                            <h6 class="text-muted">Raw Materials (${data.related_entities.raw_materials.length} items)</h6>
+                            ${formatJsonData(data.related_entities.raw_materials, null, true)}
+                        </div>
+                    `;
+                }
+
+                // Suppliers Raw Data
+                if (data.related_entities.suppliers && data.related_entities.suppliers.length > 0) {
+                    html += `
+                        <div class="mb-3">
+                            <h6 class="text-muted">Suppliers (${data.related_entities.suppliers.length} items)</h6>
+                            ${formatJsonData(data.related_entities.suppliers, null, true)}
+                        </div>
+                    `;
+                }
+
+                // Certifications Raw Data
+                if (data.related_entities.certifications && data.related_entities.certifications.length > 0) {
+                    html += `
+                        <div class="mb-3">
+                            <h6 class="text-muted">Certifications (${data.related_entities.certifications.length} items)</h6>
+                            ${formatJsonData(data.related_entities.certifications, null, true)}
+                        </div>
+                    `;
+                }
+
+                // Transfer Logistics Raw Data
+                if (data.related_entities.transfer_logistics && data.related_entities.transfer_logistics.length > 0) {
+                    html += `
+                        <div class="mb-3">
+                            <h6 class="text-muted">Transfer Logistics (${data.related_entities.transfer_logistics.length} items)</h6>
+                            ${formatJsonData(data.related_entities.transfer_logistics, null, true)}
+                        </div>
+                    `;
+                }
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        // Create status badge
+        function createStatusBadge(status) {
+            const statusClass = getStatusBadgeClass(status);
+            return `<span class="badge ${statusClass}">${status}</span>`;
+        }
+
+        // Get status badge class
+        function getStatusBadgeClass(status) {
+            switch (status?.toLowerCase()) {
+                case 'approved': case 'active': case 'completed': return 'bg-success';
+                case 'pending': case 'in_progress': return 'bg-warning';
+                case 'rejected': case 'suspended': return 'bg-danger';
+                default: return 'bg-secondary';
+            }
         }
 
         // Initialize page
