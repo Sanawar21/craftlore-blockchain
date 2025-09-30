@@ -4,9 +4,6 @@ from typing import Optional
 from . import BaseAsset
 from models.enums import AssetType, SubAssignmentStatus
 
-# TODO: BUG: statuses can be set to anything when creating via payload
-# Rejection reason can be set by creator even if not rejected 
-
 # --- SubAssignment ---
 class SubAssignment(BaseAsset):
     """Sub-assignment contract for part of a product batch."""

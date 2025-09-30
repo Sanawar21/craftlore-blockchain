@@ -19,6 +19,7 @@ class BaseClass(BaseModel, ABC):
     is_deleted: bool = False
     deletion_reason: Optional[str] = None
     history: list = Field(default_factory=list)
+    additional_info: dict = Field(default_factory=dict)
 
     def to_cbor(self) -> bytes: # TODO: Implement in code
         return cbor2.dumps(self.model_dump())
