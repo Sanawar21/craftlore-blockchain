@@ -91,3 +91,9 @@ class BatchStatus(BaseEnum):
 class WorkOrderType(BaseEnum):
     PRODUCTION = "production"
     REPAIR = "repair"
+
+class BuyerType(BaseEnum):
+    END_CUSTOMER = "end_customer"
+    WHOLESALER = "wholesaler"
+    RETAILER = "retailer"
+    DISTRIBUTOR = "distributor"

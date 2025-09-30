@@ -109,8 +109,6 @@ def list_all_state():
             except Exception:
                 print(data.decode(errors='ignore'))
             print('-'*60)
-            with open("state_dump.txt", "w") as f:
-                f.write(state_text)
     else:
         print("Failed to fetch state entries.")
 
