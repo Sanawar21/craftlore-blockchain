@@ -5,6 +5,8 @@ from . import BaseAsset
 from models.enums import AssetType, SubAssignmentStatus
 
 # --- SubAssignment ---
+
+
 class SubAssignment(BaseAsset):
     """Sub-assignment contract for part of a product batch."""
     asset_type: AssetType = Field(default=AssetType.SUB_ASSIGNMENT)
@@ -14,14 +16,14 @@ class SubAssignment(BaseAsset):
     status: SubAssignmentStatus = Field(default=SubAssignmentStatus.PENDING)
     assignee: str                     # Artisan or workshop public key
     assigner: str                     # Producer public key
-    rejection_reason: Optional[str] = None # Filled if status is REJECTED
+    rejection_reason: Optional[str] = None  # Filled if status is REJECTED
+    is_paid: bool = Field(default=False)
 
     @property
-    def forbidden_fields(self) :
+    def forbidden_fields(self):
         """Fields that should not be set during creation."""
         return super().forbidden_fields.union({
             # sub assignment
             "status",
             "rejection_reason",
         })
-    

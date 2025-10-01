@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class BaseEnum(str, Enum):
     """Base Enum class to ensure string values"""
 
@@ -10,11 +11,13 @@ class AuthenticationStatus(BaseEnum):
     APPROVED = "approved"
     REJECTED = "rejected"
 
+
 class AccountType(BaseEnum):
     SUPPLIER = "supplier"
     ARTISAN = "artisan"
     BUYER = "buyer"
     ADMIN = "admin"
+
 
 class AdminPermissionLevel(BaseEnum):
     MODERATOR = "moderator"
@@ -22,10 +25,12 @@ class AdminPermissionLevel(BaseEnum):
     SUPER_ADMIN = "super_admin"
     CERTIFIER = "certifier"
 
+
 class AdminAccountStatus(BaseEnum):
     ACTIVE = "active"
     SUSPENDED = "suspended"
     DEACTIVATED = "deactivated"
+
 
 class AssetType(BaseEnum):
     RAW_MATERIAL = "raw_material"
@@ -37,6 +42,7 @@ class AssetType(BaseEnum):
     SUB_ASSIGNMENT = "sub_assignment"
     CERTIFICATION = "certification"
 
+
 class EventType(BaseEnum):
     ACCOUNT_CREATED = "create/account"
     ASSET_CREATED = "create/asset"
@@ -47,6 +53,8 @@ class EventType(BaseEnum):
     ADD_RAW_MATERIAL = "add/raw_material"
     SUBASSIGNMENT_ACCEPTED = "accept/sub_assignment"
     SUBASSIGNMENT_REJECTED = "reject/sub_assignment"
+    SUBASSIGNMENT_COMPLETED = "complete/sub_assignment"
+    SUBASSIGNMENT_MARKED_AS_PAID = "paid/sub_assignment"
     BATCH_COMPLETED = "complete/batch"
     ENTITY_EDITED = "edit/entity"
     ENTITY_DELETED = "delete/entity"
@@ -73,24 +81,30 @@ class ArtisanSkillLevel(BaseEnum):
     INTERMEDIATE = "intermediate"
     EXPERT = "expert"
 
+
 class SubAssignmentStatus(BaseEnum):
     PENDING = "pending"
     ACCEPTED = "accepted"
     REJECTED = "rejected"
+    COMPLETED = "completed"
+
 
 class WorkOrderStatus(BaseEnum):
     PENDING = "pending"
     ACCEPTED = "accepted"
-    COMPLETED = "completed"    
+    COMPLETED = "completed"
     REJECTED = "rejected"
+
 
 class BatchStatus(BaseEnum):
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
 
+
 class WorkOrderType(BaseEnum):
     PRODUCTION = "production"
     REPAIR = "repair"
+
 
 class BuyerType(BaseEnum):
     END_CUSTOMER = "end_customer"
