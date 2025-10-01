@@ -42,4 +42,4 @@ class BaseClass(BaseModel, ABC):
     @property
     def editable_fields(self) -> set:
         """Fields that can be edited after creation."""
-        return set()
+        return set(["additional_info"])
