@@ -1,7 +1,8 @@
 from .. import BaseListener, EventContext, InvalidTransaction
 from models.classes.accounts import BaseAccount
 from models.classes.assets import WorkOrder, ProductBatch, Product
-from models.enums import EventType
+from models.enums import EventType, SubAssignmentStatus
+
 
 class ProductsCreationHandler(BaseListener):
     def __init__(self):
@@ -17,15 +18,25 @@ class ProductsCreationHandler(BaseListener):
 
         if event.event_type == EventType.WORK_ORDER_COMPLETED:
             work_order: WorkOrder = event.get_data("entity")
-            products_price = fields.get("products_price", work_order.total_price_usd / batch.units_produced)
+            products_price = fields.get(
+                "products_price", work_order.total_price_usd / batch.units_produced)
             targets = [work_order.uid, batch.uid]
         elif event.event_type == EventType.BATCH_COMPLETED:
-            products_price = fields.get("products_price") 
+            products_price = fields.get("products_price")
             if products_price is None:
-                raise InvalidTransaction("Missing 'products_price' in payload fields for batch completion")
+                raise InvalidTransaction(
+                    "Missing 'products_price' in payload fields for batch completion")
             targets = [batch.uid]
 
-        assert isinstance(batch.units_produced, int), "units_produced should be an integer in batch"
+        assert isinstance(batch.units_produced,
+                          int), "units_produced should be an integer in batch"
+
+        # check if all sub-assignments are completed
+        for sub_assignment_id in batch.sub_assignments:
+            sub_assignment, _ = self.get_asset(sub_assignment_id, event)
+            if sub_assignment.status != SubAssignmentStatus.COMPLETED:
+                raise InvalidTransaction(
+                    f"All sub-assignments must be completed before completing the batch. Sub-assignment {sub_assignment_id} status: {sub_assignment.status}")
 
         products = []
         for i in range(1, batch.units_produced + 1):
@@ -50,17 +61,19 @@ class ProductsCreationHandler(BaseListener):
                 "timestamp": event.timestamp
             })
 
-            product_address = self.address_generator.generate_asset_address(product.uid)
-            
+            product_address = self.address_generator.generate_asset_address(
+                product.uid)
+
             if event.context.get_state([product_address]):
-                raise InvalidTransaction(f"Product with UID {product.uid} already exists")
+                raise InvalidTransaction(
+                    f"Product with UID {product.uid} already exists")
 
             event.context.set_state({
                 product_address: self.serialize_for_state(product)
             })
 
             products.append(product)
-        
+
         producer.assets.extend([p.uid for p in products])
         producer.history.append({
             "source": self.__class__.__name__,
@@ -70,7 +83,8 @@ class ProductsCreationHandler(BaseListener):
             "transaction": event.signature,
             "timestamp": event.timestamp
         })
-        producer_address = self.address_generator.generate_account_address(producer.public_key)
+        producer_address = self.address_generator.generate_account_address(
+            producer.public_key)
 
         event.context.set_state({
             producer_address: self.serialize_for_state(producer)
