@@ -13,7 +13,7 @@ def main():
     print("=" * 60)
     
 
-    emails = {"baap": "baap22.com", "chacha": "chacha22.com", "seth": "seth22.com"}
+    emails = {"baap": "ba2ap22.com", "chacha": "cha2cha22.com", "seth": "set2h22.com"}
 
     print("0. Create Account for chacha")
     account_type = AccountType.ARTISAN
@@ -97,10 +97,6 @@ def main():
     print(f"   Message: {result.get('message', '')}")
 
     print("\n6. Complete Sub-Assignment by chacha")
-    assignment_id = result.get("uid")
-    if not assignment_id:
-        print("   Error: Sub-assignment ID not found, cannot accept sub-assignment.")
-        return
     result = chacha.complete_sub_assignment(assignment_id)
     print(f"   Result: {result.get('status', 'unknown')}")
     print(f"   Message: {result.get('message', '')}")

@@ -13,7 +13,7 @@ def main():
     print("=" * 60)
     
 
-    emails = {"baap": "baap22.com", "chacha": "chacha22.com", "seth": "seth22.com"}
+    emails = {"baap": "baapg2w2.com", "chacha": "chgacwha22.com", "seth": "setwhg22.com"}
 
     print("0. Create Account for chacha")
     account_type = AccountType.ARTISAN
@@ -104,7 +104,7 @@ def main():
     time.sleep(1)
 
     print("\n7. Mark Sub-Assignment as Paid by baap")
-    result = baap.mark_sub_assignment_as_paid(assignment_id)
+    result = chacha.mark_sub_assignment_as_paid(assignment_id)
     print(f"   Result: {result.get('status', 'unknown')}")
     print(f"   Message: {result.get('message', '')}")
     time.sleep(1)
