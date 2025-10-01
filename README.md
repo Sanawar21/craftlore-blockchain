@@ -97,6 +97,13 @@ Additional actions specific to **Artisan accounts**:
 - **Reject a sub assignment**  
   Means that the artisan declines to fulfill the task assigned in the sub assignment.
 
+- **Complete a sub assignment**  
+  Means that the artisan has fulfilled the task assigned in the sub assignment.
+  No work order or batch can be marked as complete until all sub assignments are marked as complete.
+
+- **Mark a sub assignment as paid**  
+  Indicates that the payment for the sub assignment has been made.
+
 - **Add raw material to a batch**  
   Artisans can add raw materials they own to a product batch to keep track of the materials used in the production process.
 
