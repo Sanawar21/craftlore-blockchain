@@ -6,9 +6,9 @@ from models.enums import SubEventType, EventType, SubAssignmentStatus
 class SubAssigneeUpdater(BaseListener):
     def __init__(self):
         super().__init__(
-            [SubEventType.SUB_ASSIGNMENT_CREATED, EventType.SUBASSIGNMENT_ACCEPTED, EventType.SUBASSIGNMENT_REJECTED],
-            priorities=[0, 1000, 1000]
-        )  # default priority
+            [SubEventType.SUB_ASSIGNMENT_CREATED, EventType.SUBASSIGNMENT_ACCEPTED, EventType.SUBASSIGNMENT_REJECTED, EventType.SUBASSIGNMENT_COMPLETED, EventType.SUBASSIGNMENT_MARKED_AS_PAID],
+            priorities=[0, 1000, 1000, 1000, 1000]
+        ) 
 
     def on_event(self, event: EventContext):
         if event.event_type == SubEventType.SUB_ASSIGNMENT_CREATED:
@@ -44,7 +44,7 @@ class SubAssigneeUpdater(BaseListener):
                 "assignee": assignee
             })
 
-        elif event.event_type in {EventType.SUBASSIGNMENT_ACCEPTED, EventType.SUBASSIGNMENT_REJECTED}:
+        elif event.event_type in {EventType.SUBASSIGNMENT_ACCEPTED, EventType.SUBASSIGNMENT_REJECTED, EventType.SUBASSIGNMENT_COMPLETED, EventType.SUBASSIGNMENT_MARKED_AS_PAID}:
             context = event.context
             payload = event.payload
             signer_public_key = event.signer_public_key
@@ -116,6 +116,39 @@ class SubAssigneeUpdater(BaseListener):
                     "transaction": event.signature,
                     "timestamp": event.timestamp
                 }                
+
+            elif event.event_type == EventType.SUBASSIGNMENT_COMPLETED:
+
+                assignee.sub_assignments_completed.append(assignment.uid)
+
+                if assignment.status != SubAssignmentStatus.ACCEPTED:
+                    raise InvalidTransaction(f"Sub-assignment status must be 'accepted' to complete, current status: {assignment.status}")
+
+                assignment.status = SubAssignmentStatus.COMPLETED
+
+                history_entry = {
+                    "source": self.__class__.__name__,
+                    "event": event.event_type.value,
+                    "actor": event.signer_public_key,
+                    "targets": [assignment.uid],
+                    "transaction": event.signature,
+                    "timestamp": event.timestamp
+                }
+
+            elif event.event_type == EventType.SUBASSIGNMENT_MARKED_AS_PAID:
+                if assignment.is_paid:
+                    raise InvalidTransaction("Sub-assignment is already marked as paid")
+
+                assignment.is_paid = True
+
+                history_entry = {
+                    "source": self.__class__.__name__,
+                    "event": event.event_type.value,
+                    "actor": event.signer_public_key,
+                    "targets": [assignment.uid],
+                    "transaction": event.signature,
+                    "timestamp": event.timestamp
+                }
 
             assignee.history.append(history_entry)
             assignment.history.append(history_entry)

@@ -150,6 +150,30 @@ class CraftLoreClient:
 
         return self._submit_transaction(payload)
 
+    def complete_sub_assignment(self, subassignment: str) -> Dict:
+        """Complete a sub-assignment."""
+        payload = {
+            'event': EventType.SUBASSIGNMENT_COMPLETED.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'subassignment': subassignment,
+            }
+        }
+
+        return self._submit_transaction(payload)
+    
+    def mark_sub_assignment_as_paid(self, subassignment: str) -> Dict:
+        """Mark a sub-assignment as paid."""
+        payload = {
+            'event': EventType.SUBASSIGNMENT_MARKED_AS_PAID.value,
+            'timestamp': self.serializer.get_current_timestamp(),
+            "fields": {
+                'subassignment': subassignment,
+            }
+        }
+
+        return self._submit_transaction(payload)
+
     def transfer_assets(self, assets: list, recipient: str, logistics: dict) -> Dict:
         """Transfer assets to a new owner."""
         uid = logistics.get("uid", self.serializer.create_asset_id())
