@@ -177,6 +177,11 @@ def main():
         unit_price_usd=50.0,
         harvested_date="2023-10-01",
         source_location="Kashmir",
+        additional_info={
+            "product": "Pashmina",
+            "material_type": "Ultra Fine Pashmina (10-12 micron)",
+            "quality": "Pure Pashmina (100%)",
+        }
     )
     process_result(result)
     raw_material_id = result.get("uid")
@@ -209,6 +214,21 @@ def main():
     result = artisan.accept_work_order(work_order_id)
     process_result(result)
     batch_id = result.get("uid")
+
+    print("14.1 Add additional information to batch")
+    result = artisan.edit_asset(
+        batch_id,
+        {
+            "additional_info": {
+                "production_process": "Spinning, Weaving",
+                "weaving_type": "Twill Weave",
+                "dye_type": "Natural Dyes",
+                "product_line_size": "Shawls (203 cm x 102 cm)",
+                "color_shades": "Classic Neutrals",
+                "embellishments": "Full Dense Embroidery",
+            }
+        }
+    )
 
     print("15. Supplier transfers raw material to artisan after artisan purchases it off chain.")
     result = supplier.transfer_assets(
@@ -251,7 +271,11 @@ def main():
     result = sub_artisan.accept_sub_assignment(sub_assignment_id)
     process_result(result)
 
-    print("19. Artisan marks the work order as completed (after receiving products from sub-artisan).")
+    print("18.1 Sub-artisan completes the sub-assignment")
+    result = sub_artisan.complete_sub_assignment(sub_assignment_id)
+    process_result(result)
+
+    print("19. Artisan marks the work order as completed.")
     result = artisan.complete_work_order(
         work_order_id,
         units_produced=10,
@@ -281,7 +305,7 @@ def main():
     result = artisan.create_asset(
         AssetType.PACKAGING,
         products=[f"{batch_id}-{i}" for i in range(1,11)],
-        package_type="Box",
+        package_type="Fabric Wrapping",
         materials_used=["Cardboard", "Tape"],
         labelling={"label": "Fragile"},
         seal_id="SEAL12345",
